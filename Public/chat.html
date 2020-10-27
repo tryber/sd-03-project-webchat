@@ -10,30 +10,62 @@
 
 <body>
   <h1>Le Chat</h1>
-  <ul id="messagens" />
-  <form id="chat-form">
-    <input name="input-messagem" id="input-messagem" placeholder="escreva sua mensagem">
-    <input name="input-nickname" placeholder="coloque um nickname">
-    <button type="submit">Enviar mensagem</button>
+  <ul id="messages" data-testid="message" />
+
+  <form id="nickname-form">
+    <input id="input-nickname" data-testid="nickname-box" placeholder="coloque um nickname">
+    <button data-testid="nickname-save" type="submit">Enviar mensagem</button>
   </form>
+
+  <form id="chat-form">
+    <input data-testid="message-box" id="input-messagem" placeholder="escreva sua mensagem">
+    <button data-testid="send-button" type="submit">Enviar Nickname</button>
+  </form>
+
+  <ul id="online-users" />
 </body>
 <script>
-  const socket = io('http://localhost:3000/');
+  window.onload = () => {
+    const socket = io('http://localhost:3000/');
 
-  socket.on('message', ({ chatMessage }) => {
-    const ul = document.getElementById('messagens');
-    const li = document.createElement('li');
-    console.log('chegando', chatMessage);
-    li.innerText = chatMessage;
-    ul.appendChild(li);
-  });
+    socket.on('message', ({ chatMessage }) => {
+      const ul = document.getElementById('messages');
+      const li = document.createElement('li');
+      li.innerText = chatMessage;
+      ul.appendChild(li);
+    });
 
-  document.getElementById('chat-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const chatMessage = document.getElementById('input-messagem').value;
-    console.log('saindo', chatMessage);
-    socket.emit('message', { chatMessage });
-  });
+    socket.on('addOnlineUsers', (newUser) => {
+      const ul = document.getElementById('online-users');
+      const li = document.createElement('li');
+      li.innerText = newUser;
+      li.dataTestid = 'online-user';
+      ul.appendChild(li);
+    });
+
+    document.getElementById('chat-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nickname = localStorage.getItem('nickname');
+
+      if (!nickname) return alert('Coloque um nickname, pf');
+
+      const input = document.getElementById('input-messagem');
+      const chatMessage = input.value;
+      if (!chatMessage) return alert('coloque muma mensagem, pf');
+      socket.emit('message', { chatMessage });
+
+      input.value = '';
+    });
+
+    document.getElementById('nickname-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('input-nickname');
+      const nickname = input.value;
+
+      socket.emit('changeNickname', { nickname });
+      localStorage.setItem('nickname', nickname);
+    });
+  }
 </script>
 
 </html>
