@@ -18,10 +18,14 @@ const container = new Container(
   },
   {
     config: { object: config },
-    socketFunction: { object: socketFunction },
     Models: { object: Models, params: ['config'] },
     Services: { object: Services, params: ['Models'] },
+    socketFunction: { object: socketFunction, params: ['Services'] },
   },
 );
+
+container.callInjection('Models');
+container.callInjection('Services');
+container.callInjection('socketFunction');
 
 container.start();

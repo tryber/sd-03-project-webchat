@@ -31,10 +31,9 @@ class Container {
       }), {});
   }
 
-  start() {
-    console.log('chegou ak');
+  start(...dep) {
     const params = this.params.map((param) => this[param].object);
-    this.startCb(...params);
+    this.startCb(...params, ...dep);
   }
 }
 

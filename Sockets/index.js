@@ -1,5 +1,5 @@
 const { onMessage } = require('./messages');
 
-module.exports = (io) => (socket) => {
-  socket.on('message', onMessage(io));
+module.exports = (Services) => (io) => (socket) => {
+  socket.on('message', onMessage(io, Services));
 };

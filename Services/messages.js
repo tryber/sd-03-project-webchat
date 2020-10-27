@@ -3,8 +3,9 @@ class Messages {
     this.models = models;
   }
 
-  saveMessages = async ({ nickname, chatMessge }) => {
-    this.models.Messages.saveChatMessage(nickname, chatMessge);
+  async saveMessages({ chatMessage, nickname }) {
+    return this.models
+      .Messages.saveChatMessage(nickname, chatMessage);
   }
 }
 
