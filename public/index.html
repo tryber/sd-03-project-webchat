@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensagens Sem Nexo</title>
+
+  <!-- Carrega o socket.io -->
+  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+
+</head>
+
+<body>
+
+  <section>
+    <div id="messageWrapper">
+      <p>Bem vindo ao MSN</p>
+    </div>
+    <form id="webchat">
+      <input type="text" name="user" id="user" placeholder="username"><br>
+      <input type="text" name="message" id="message" placeholder="message"><br>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <script type="text/javascript">
+    const socket = io('http://localhost:4555')
+
+    socket.on('messageReceived', (messageObject) => {
+      const { user, message, sentTime } = messageObject;
+
+      const p = document.createElement('p')
+      p.textContent = `${user}: ${message} enviado as: ${sentTime}`;
+      document.getElementById('messageWrapper').appendChild(p)
+    })
+
+    const webchat = document.getElementById('webchat');
+    webchat.onsubmit = (event) => {
+      event.preventDefault();
+
+      const user = document.getElementById('user').value;
+      const message = document.getElementById('message').value;
+      const sentTime = Date.now();
+
+      const messageObject = { user, message, sentTime };
+
+      socket.emit('message', messageObject);
+    }
+  </script>
+</body>
+
+</html>
