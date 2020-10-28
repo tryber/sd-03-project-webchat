@@ -1,13 +1,14 @@
-const { onMessage, onConnect } = require('./messages');
-const { onChangeName } = require('./name');
+const { onMessage, getLastMessages } = require('./messages');
+const { onChangeName, getOnlineUsers, createUser, removeUser } = require('./users');
 
-module.exports = (Services) => (io) => (socket) => {
-  onConnect(socket, Services);
-  // io.emit('addOnlineUsers', nickname);
+module.exports = (Services) => (io) => async (socket) => {
+  await createUser(socket, Services);
+  await getLastMessages(socket, Services);
+  await getOnlineUsers(socket, Services);
 
   socket.on('message', onMessage(io, Services));
 
-  socket.on('changeNickname', onChangeName(socket, Services));
+  socket.on('changeNickname', onChangeName({ io, socket }, Services));
 
-  socket.on('disconnect', () => Services.Users.remove(socket.id));
+  socket.on('disconnect', removeUser({ io, socket }, Services));
 };

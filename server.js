@@ -3,7 +3,6 @@ const start = require('./index');
 const Container = require('./container');
 const Services = require('./Services');
 const Models = require('./Models');
-
 const config = require('./config');
 
 const container = new Container(

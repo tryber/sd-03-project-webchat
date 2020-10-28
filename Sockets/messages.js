@@ -4,7 +4,7 @@ const onMessage = (io, { Messages }) => async ({ chatMessage, nickname }) => {
   io.emit('message', formated);
 };
 
-const onConnect = async (socket, { Messages }) => {
+const getLastMessages = async (socket, { Messages }) => {
   const allMessages = await Messages.takeAll();
   const messages = Messages.formatMessages(allMessages);
   socket.emit('lastMessages', messages);
@@ -12,5 +12,5 @@ const onConnect = async (socket, { Messages }) => {
 
 module.exports = {
   onMessage,
-  onConnect,
+  getLastMessages,
 };

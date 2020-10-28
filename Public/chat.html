@@ -21,30 +21,42 @@
     <button data-testid="send-button" type="submit">Enviar mensagem</button>
   </form>
 
-  <ul id="online-users" />
-
+  <ul id="online-users"></ul>
   <ul id="messages"></ul>
+
 </body>
 <script>
   window.onload = () => {
     const socket = io('http://localhost:3000/');
 
-    const appendMessage = (message) => {
-      const ul = document.getElementById('messages');
+    const appendItem = (list, dataTest) => (item) => {
+      const ul = document.getElementById(list);
       const li = document.createElement('li');
-      li.innerText = message;
-      li.setAttribute('data-testid', 'message');
+      li.innerText = item;
+      li.setAttribute('data-testid', dataTest);
       ul.appendChild(li);
     }
 
-    socket.on('lastMessages', (messages) => messages.forEach(appendMessage));
-    socket.on('message', appendMessage);
-    socket.on('addOnlineUsers', (newUser) => {
+    const removeUser = (user) => {
       const ul = document.getElementById('online-users');
-      const li = document.createElement('li');
-      li.innerText = newUser;
-      li.dataTestid = 'online-user';
-      ul.appendChild(li);
+      const list = ul.childNodes;
+      for (let i = 0; i < list.length; i += 1) {
+        if (list[i].innerText === user) ul.removeChild(list[i]);
+      }
+    }
+
+    socket.on('lastMessages', (messages) => messages.forEach(appendItem('messages', 'message')));
+    socket.on('message', appendItem('messages', 'message'));
+    socket.on('onlineUsers', (users) => users.forEach(appendItem('online-users', 'online-user')));
+    socket.on('addOnlineUsers', appendItem('online-users', 'online-user'));
+    socket.on('receiveNickName', (nickname) => {
+      document.getElementById('input-nickname').value = nickname;
+      localStorage.setItem('nickname', nickname);
+    });
+    socket.on('userDisconeted', removeUser);
+    socket.on('changedName', (user) => {
+      removeUser(user);
+      appendItem('online-users', 'online-user')(user);
     });
 
     document.getElementById('chat-form').addEventListener('submit', (e) => {
@@ -56,6 +68,7 @@
       const input = document.getElementById('input-messagem');
       const chatMessage = input.value;
       if (!chatMessage) return alert('coloque muma mensagem, pf');
+
       socket.emit('message', { chatMessage, nickname });
 
       input.value = '';
