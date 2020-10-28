@@ -1,22 +1,21 @@
-const { ObjectId } = require('mongodb');
+// const { ObjectId } = require('mongodb');
 const mongoc = require('./connection');
 
-const saveMessage = async ({ chatMessage, nickname }, timestamp) =>
+const saveMessage = async ({ chatMessage, nickname, timestamp }) =>
   mongoc.connect()
-  .then((db) => db
-    .collection('messages')
-    .insertOne({ chatMessage, nickname, timestamp }))
+    .then((db) => db
+      .collection('messages')
+      .insertOne({ chatMessage, nickname, timestamp }))
     .then(({ insertedId }) => ({ _id: insertedId, chatMessage, nickname, timestamp }))
     .catch((error) => error);
 
 const getAllMessages = async () =>
   mongoc.connect()
-  .then((db) => db
-    .collection('messages')
-    .find({})
-    .toArray(),
-  )
-  .catch((error) => error);
+    .then((db) => db
+      .collection('messages')
+      .find({})
+      .toArray())
+    .catch((error) => error);
 
 // const getProductByName = async (name) =>
 //   mongoc.connect()

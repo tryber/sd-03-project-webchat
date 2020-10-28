@@ -2,7 +2,7 @@ const http = require('http');
 
 const socketIo = require('socket.io');
 
-const authController = require('./controllers/authController');
+// const authController = require('./controllers/authController');
 const notificationController = require('./controllers/notificationController');
 
 const notifications = require('./services/messageService');

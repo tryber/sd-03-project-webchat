@@ -1,7 +1,7 @@
 const model = require('../model/model');
 
-const saveMessageService = async (message, timestamp) =>
-  model.saveMessage(message, timestamp);
+const saveMessageService = async (message) =>
+  model.saveMessage(message);
 
 const getAllMessagesService = async () => model.getAllMessages();
 
