@@ -1,2 +1,3 @@
 *.spec.js
 serviceWorker.js
+models/index.js

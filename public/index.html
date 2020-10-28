@@ -129,11 +129,18 @@
   </div>
         
   </body>
-  <script
+  <!-- <script
     src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+  >
+  </script> -->
+  <script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"
   >
   </script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"
   >
@@ -142,6 +149,9 @@
   <script>
     let randomName = '';
     let randomColor = '';
+    let userId = '';
+    const socket = io('http://localhost:3000');
+
     window.onload = () => {
       const  getRandomArbitrary = (min, max) => {
       return Math.random() * (max - min) + min;
@@ -187,19 +197,21 @@
       
       const spanName = document.getElementById('nameTitle');
       spanName.innerHTML = randomName;
-      spanName.style.color = randomColor;   
+      spanName.style.color = randomColor;
     }
 
-    const messageFormart = (message, userName, color) => {
-    const date = new Date();
-    setTimeout(() => {
-      const time = document.getElementById('time-id');
-      time.innerHTML = 'Há 1 minuto'
-    }, 60000);
-    setTimeout(() => {
-      const time = document.getElementById('time-id');
-      time.innerHTML = `Enviado às ${date.getHours()}:${date.getMinutes()} `;
-    }, 100000);
+    const messageFormart = (message, userName, color, date = 'Agora mesmo') => {
+    const dateMsg = date || new Date();
+    if (date === 'Agora mesmo') {
+      setTimeout(() => {
+        const time = document.getElementById('time-id');
+        time.innerHTML = 'Há 1 minuto'
+      }, 60000);
+      setTimeout(() => {
+        const time = document.getElementById('time-id');
+        time.innerHTML = `Enviado às ${dateMsg.getHours()}:${dateMsg.getMinutes()} `;
+      }, 100000);
+    }
      return (`
       <li class="collection-item avatar">
         <div class="title-message">
@@ -210,7 +222,7 @@
           </span><br>
           ${message}
         </p>
-        <em><span id="time-id" class="real-time">Agora mesmo</span><em>
+        <em><span id="time-id" class="real-time">${date}</span><em>
         <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
       </li>`);
     }
@@ -223,21 +235,48 @@
         randomName = inputName;
       }
     }
-    $(function () {
-       const socket = io();
-       $('form').submit(function(e) {
-         e.preventDefault();
-         socket.emit('onMessage', ({
-           nickname: randomName,
-           chatMessage: $('#send-message').val(),
-           color: randomColor,
-          }));
-         $('#send-message').val('');
-         return false;
-       });
-       socket.on('message', function({ chatMessage, nickname, color }){
-         $('#messages').append($(messageFormart(chatMessage, nickname || randomName, color)))
+
+    const CLIENT_URL = 'http://localhost:3000';
+
+    // const sendMessage = async (data) => {
+    //   // return $.ajax({
+    //   //   type: 'POST',
+    //   //   contentType: "application/json",
+    //   //   url: `${CLIENT_URL}/message`,
+    //   //   data: JSON.stringify(data),
+    //   //   success: () => console.log('tudo ok'),
+    //   //   error: () => console.log('errorr'),
+    //   // });
+    //   return socket.emit('message', data);
+      
+    // };
+
+    const formSubmited = async (event, socket) => {
+        event.preventDefault();
+        const data = {
+          nickname: randomName,
+          chatMessage: $('#send-message').val(),
+          color: randomColor,
+          userId,
+        };
+        socket.emit('message', data);
+        $('#send-message').val('');
+        return false;
+    };
+    $(() => {
+
+       $('form').submit((event) => formSubmited(event, socket));
+          socket.on('message', function(message) {
+            const [ nickname, chatMessage, formatData, color ] = message.split(',');
+            $('#messages')
+              .append($(messageFormart(chatMessage, nickname || randomName, color || randomColor, formatData)));
        });
      });
+
+     socket.on('history', (allMessages) => {
+        allMessages.forEach(({ chatMessage, nickname, color, date }) => {
+          $('#messages').append($(messageFormart(chatMessage, nickname, color, date)))
+        });       
+    });
   </script>
 </html>
