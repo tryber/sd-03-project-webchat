@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 class Messages {
   constructor({ connectTo, config }) {
     this.connectTo = connectTo(config);
@@ -5,7 +7,7 @@ class Messages {
 
   async saveChatMessage(nickname, chatMessage) {
     const coll = await this.connectTo('messages');
-    const time = new Date();
+    const time = moment().format('D-M-yyyy hh:mm:ss');
     await coll.insertOne({ nickname, chatMessage, time });
     return { nickname, chatMessage, time };
   }
