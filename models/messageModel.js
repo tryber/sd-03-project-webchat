@@ -1,5 +1,4 @@
 const connection = require('./connection');
-const formatData = require('../utils/dateFormat');
 
 const addMessages = async (nickname, chatMessage, color) => {
   const date = new Date();

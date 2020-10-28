@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const connection = () =>
   MongoClient
-    .connect(`${process.env.DB_URL}/webchat`, {
+    .connect(`${process.env.DB_URL}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
