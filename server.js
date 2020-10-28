@@ -9,6 +9,16 @@ const app = express();
 
 const { PORT, IOPORT } = process.env;
 
+io.on('connect', (socket) => {
+  socket.on('message', ({ nickname, message }) => {
+    io.emit('serverResponse', { nickname, message });
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`${socket.id} disconnected`);
+  });
+});
+
 app.use(express.json());
 
 app.use('/', express.static(path.join(__dirname, 'public')));

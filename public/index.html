@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <script defer src="page.js"></script>
   <title>Webchat</title>
 </head>
+
 <body>
-  <input id="username" />
-  <p>Deu</p>
+  <div>
+    
+  </div>
+  <div>
+    <input data-testid="message-box" id="message-input" />
+    <button type="button" id="send-button" data-testid="send-button">Enviar</button>
+  </div>
 </body>
+
 </html>
