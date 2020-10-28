@@ -1,11 +1,17 @@
+const Models = require("../Models");
+
 class Users {
   constructor(models) {
     this.models = models;
   }
 
-  markAsOnline = async (nickname) => {
-    console.log(__dirname, this.models.Users);
-    await this.models.Users.activate(nickname);
+  markAsOnline = async (id, nickname) => {
+    await this.models.Users.activate(id, nickname);
+  }
+
+  async remove(id) {
+    console.log('entrou ak');
+    await this.models.Users.deactivate(id);
   }
 }
 

@@ -3,14 +3,15 @@ class Users {
     this.connectTo = connectTo(config);
   }
 
-  activate = async ({ nickname }) => {
+  activate = async (id, nickname) => {
     const coll = await this.connectTo('users');
-    await coll.insertOne({ nickname });
+
+    return await coll.insertOne({ id, nickname });
   }
 
-  deactivate = async () => {
+  deactivate = async (id) => {
     const coll = await this.connectTo('users');
-    await coll.deleteOne({ nickname });
+    await coll.deleteOne({ id });
   }
 }
 

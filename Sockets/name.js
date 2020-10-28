@@ -1,5 +1,5 @@
-const onChangeName = (_, { Users }) => async (nickname) => {
-  await Users.markAsOnline(nickname);
+const onChangeName = ({ id }, { Users }) => async (nickname) => {
+  await Users.markAsOnline(id, nickname);
 };
 
 module.exports = {

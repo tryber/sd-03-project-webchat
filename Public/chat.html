@@ -62,7 +62,7 @@
       const input = document.getElementById('input-nickname');
       const nickname = input.value;
 
-      socket.emit('changeNickname', { nickname });
+      socket.emit('changeNickname', nickname);
       localStorage.setItem('nickname', nickname);
     });
   }
