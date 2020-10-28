@@ -28,10 +28,10 @@
   window.onload = () => {
     const socket = io('http://localhost:3000/');
 
-    socket.on('message', ({ chatMessage }) => {
+    socket.on('message', (message) => {
       const ul = document.getElementById('messages');
       const li = document.createElement('li');
-      li.innerText = chatMessage;
+      li.innerText = message;
       ul.appendChild(li);
     });
 
@@ -52,7 +52,7 @@
       const input = document.getElementById('input-messagem');
       const chatMessage = input.value;
       if (!chatMessage) return alert('coloque muma mensagem, pf');
-      socket.emit('message', { chatMessage });
+      socket.emit('message', { chatMessage, nickname });
 
       input.value = '';
     });

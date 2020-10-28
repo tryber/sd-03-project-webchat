@@ -1,8 +1,8 @@
 const { MongoClient } = require('mongodb');
 
-const connect = ({ MONGO_DB_URL, DB_NAME }) => async () => {
+const connect = ({ DB_URL, DB_NAME }) => async () => {
   try {
-    const conn = await MongoClient.connect(MONGO_DB_URL || 'mongodb://localhost:27017', {
+    const conn = await MongoClient.connect(DB_URL || 'mongodb://localhost:27017', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
