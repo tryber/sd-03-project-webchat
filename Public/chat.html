@@ -10,31 +10,35 @@
 
 <body>
   <h1>Le Chat</h1>
-  <ul id="messages" data-testid="message" />
 
   <form id="nickname-form">
     <input id="input-nickname" data-testid="nickname-box" placeholder="coloque um nickname">
     <button data-testid="nickname-save" type="submit">Enviar Nickname</button>
   </form>
 
-  <form id="chat-form">
+  <form id="chat-form" disabled>
     <input data-testid="message-box" id="input-messagem" placeholder="escreva sua mensagem">
     <button data-testid="send-button" type="submit">Enviar mensagem</button>
   </form>
 
   <ul id="online-users" />
+
+  <ul id="messages"></ul>
 </body>
 <script>
   window.onload = () => {
     const socket = io('http://localhost:3000/');
 
-    socket.on('message', (message) => {
+    const appendMessage = (message) => {
       const ul = document.getElementById('messages');
       const li = document.createElement('li');
       li.innerText = message;
+      li.setAttribute('data-testid', 'message');
       ul.appendChild(li);
-    });
+    }
 
+    socket.on('lastMessages', (messages) => messages.forEach(appendMessage));
+    socket.on('message', appendMessage);
     socket.on('addOnlineUsers', (newUser) => {
       const ul = document.getElementById('online-users');
       const li = document.createElement('li');
@@ -61,6 +65,8 @@
       e.preventDefault();
       const input = document.getElementById('input-nickname');
       const nickname = input.value;
+
+      if (!nickname) return alert('Coloque um nickname, pf');
 
       socket.emit('changeNickname', nickname);
       localStorage.setItem('nickname', nickname);

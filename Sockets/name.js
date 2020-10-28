@@ -1,5 +1,5 @@
-const onChangeName = ({ id }, { Users }) => async (nickname) => {
-  await Users.markAsOnline(id, nickname);
+const onChangeName = (socket, { Users }) => async (nickname) => {
+  await Users.markAsOnline(socket.id, nickname);
 };
 
 module.exports = {
