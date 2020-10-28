@@ -7,8 +7,6 @@ module.exports = (Services) => (io) => async (socket) => {
   await getOnlineUsers(socket, Services);
 
   socket.on('message', onMessage(io, Services));
-
   socket.on('changeNickname', onChangeName({ io, socket }, Services));
-
   socket.on('disconnect', removeUser({ io, socket }, Services));
 };
