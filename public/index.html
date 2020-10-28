@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat UOL</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="user-container">
+      <input id="nameInput" type="text" placeholder="Quero ser chamado de">
+      <button id="saveName" type="button">Salvar</button>
+      <div>
+        <p></p>
+        <span></span>
+      </div>
+    </div>
+    <div>
+      <ul>
+      </ul>
+      <ol>
+      </ol>
+    </div>
+    <div>
+      <input id="message" type="text" placeholder="digite sua mensagem">
+      <button id="sendMessage" type="button">Enviar</button>
+    </div>
+  </div>
+  <script>
+    const socket = io();
+    let nickname = `user${Math.floor(Math.random() * 300)}`;
+    socket.emit('newUser', { nickname });
+    const name = document.getElementById('nameInput');
+    name.setAttribute('data-testid', 'nickname-box');
+    const saveName = document.getElementById('saveName');
+    saveName.setAttribute('data-testid', 'nickname-save');
+    const span = document.getElementsByTagName('span')[0];
+    span.innerHTML = nickname;
+    const p = document.getElementsByTagName('p')[0];
+    p.innerHTML = 'Você entrou como:'
+    saveName.addEventListener('click', () => {
+      span.innerHTML = name.value;
+      nickname = name.value;
+      name.value = '';
+      socket.emit('nameChanged', { nickname });
+    })
+    const message = document.getElementById('message');
+    message.setAttribute('data-testid', 'message-box');
+    const sendMessage = document.getElementById('sendMessage');
+    sendMessage.setAttribute('data-testid', 'send-button');
+    const ul = document.getElementsByTagName('ul')[0];
+    const ol = document.getElementsByTagName('ol')[0];
+    message.addEventListener('keypress', (e) => {
+      if (e.keyCode === 13) {
+        const chatMessage = message.value;
+        socket.emit('message', { chatMessage, nickname });
+        message.value = '';
+      }
+    })
+    sendMessage.addEventListener('click', () => {
+      const chatMessage = message.value;
+      socket.emit('message', { chatMessage, nickname });
+      message.value = '';
+    })
+    socket.on('message', (message) => {
+      const li = document.createElement('li');
+      li.setAttribute('data-testid', 'message');
+      li.innerHTML = message;
+      ul.appendChild(li);
+    })
+    socket.on('previousMessages', (arr) => {
+      arr.forEach(({ date, nickname, chatMessage }) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'message');
+        li.innerHTML = `${date}: ${nickname} - ${chatMessage}`;
+        ul.appendChild(li);
+      })
+    })
+    socket.on('listOfUsers', (arr) => {
+      ol.innerHTML = '';
+      arr.forEach((e) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid', 'online-user');
+        li.innerHTML = e;
+        ol.appendChild(li);
+      })
+    })
+  </script>
+</body>
+
+</html>
