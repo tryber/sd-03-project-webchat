@@ -15,6 +15,7 @@ module.exports = () => {
     const allNotifications = await notifications.getAllMessagesService();
     socket.emit('history', allNotifications);
     socket.on('notification', notificationController.handleNotificationEvent(io, notifications));
+    socket.on('nameChange', notificationController.handleNameChangeEvent(socket));
   });
 
   return {

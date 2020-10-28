@@ -17,7 +17,12 @@ const handleNotificationEvent = (io, notifications) => async (text) => {
   io.emit('notification', text);
 };
 
+const handleNameChangeEvent = (socket) => async (text) => {
+  socket.emit('nameChange', text);
+};
+
 module.exports = {
   // sendNotification,
   handleNotificationEvent,
+  handleNameChangeEvent,
 };
