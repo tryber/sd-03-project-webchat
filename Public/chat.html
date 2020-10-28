@@ -50,13 +50,13 @@
     socket.on('onlineUsers', (users) => users.forEach(appendItem('online-users', 'online-user')));
     socket.on('addOnlineUsers', appendItem('online-users', 'online-user'));
     socket.on('receiveNickName', (nickname) => {
-      document.getElementById('input-nickname').value = nickname;
       localStorage.setItem('nickname', nickname);
     });
     socket.on('userDisconeted', removeUser);
-    socket.on('changedName', (user) => {
-      removeUser(user);
-      appendItem('online-users', 'online-user')(user);
+    socket.on('changedName', (userString) => {
+      const { nickname, lastname } = JSON.parse(userString);
+      removeUser(lastname);
+      appendItem('online-users', 'online-user')(nickname);
     });
 
     document.getElementById('chat-form').addEventListener('submit', (e) => {

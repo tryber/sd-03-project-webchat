@@ -1,30 +1,45 @@
 class Users {
-  constructor({ config, connectTo }) {
-    this.connectTo = connectTo(config);
+  constructor() {
+    this.users = [];
+    this.guest = 0;
   }
 
-  async activate(id, nickname) {
-    const coll = await this.connectTo('users');
-    return coll.insertOne({ id, nickname });
+  async insertOne({ id, nickname }) {
+    console.log('INSERT', nickname, this.users.map(({ nickname: n }) => n), '\n');
+    this.users.push({ id, nickname });
+    return { id, nickname };
+  }
+
+  async getUserById(id) {
+    return this.users.find((user) => user.id === id);
   }
 
   async deactivate(id) {
-    const coll = await this.connectTo('users');
-    const user = await coll.findOne({ id });
-    await coll.deleteOne({ id });
+    const user = await this.getUserById(id);
+    console.log('REMOVE', user.nickname, this.users.map(({ nickname }) => nickname), '\n');
+    this.users = this.users.reduce((users, u) => {
+      if (id === u.id) return users;
+      return [...users, u];
+    }, []);
+
     return user;
+  }
+
+  getGuestId() {
+    this.guest += 1;
+    return this.guest;
   }
 
   async getAll() {
-    const coll = await this.connectTo('users');
-    return coll.find().toArray();
+    return this.users;
   }
 
   async changeName(id, nickname) {
-    const coll = await this.connectTo('users');
-    const user = await coll.findOne({ id });
-    await coll.updateOne({ id }, { $set: { nickname } });
-    return user;
+    const user = await this.getUserById(id);
+    console.log('CHANGE', `${user.nickname} => ${nickname}`, this.users.map(({ nickname: n }) => n), '\n');
+    const before = { ...user };
+    user.nickname = nickname;
+    return before;
   }
 }
 

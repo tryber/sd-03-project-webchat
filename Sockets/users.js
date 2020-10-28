@@ -1,6 +1,6 @@
 const onChangeName = ({ io, socket: { id } }, { Users }) => async (nickname) => {
-  await Users.changeName(id, nickname);
-  return io.emit('changedName', nickname);
+  const user = await Users.changeName(id, nickname);
+  return io.emit('changedName', JSON.stringify({ nickname, lastname: user.nickname }));
 };
 
 const getOnlineUsers = async (socket, { Users }) => {

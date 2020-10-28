@@ -1,11 +1,10 @@
 class Users {
   constructor(models) {
     this.models = models;
-    this.guest = 0;
   }
 
   async markAsOnline(id, nickname) {
-    await this.models.Users.activate(id, nickname);
+    await this.models.Users.insertOne({ id, nickname: nickname || this.createName });
   }
 
   async getAllOnline() {
@@ -18,8 +17,8 @@ class Users {
   }
 
   createName() {
-    this.guest += 1;
-    return `Guest${this.guest}`;
+    const id = this.models.Users.getGuestId();
+    return `Guest${id}`;
   }
 
   async removeUser(id) {
