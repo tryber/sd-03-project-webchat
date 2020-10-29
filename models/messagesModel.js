@@ -1,10 +1,10 @@
 const { dbConnection } = require('./connection');
 
-const insertMessage = async ({ message, nickname }) =>
+const insertMessage = async (obj) =>
   dbConnection('messages')
     .then((collection) =>
       collection
-        .insertOne({ message, nickname }));
+        .insertOne(obj));
 
 const allPastMessages = async () =>
   dbConnection('messages')

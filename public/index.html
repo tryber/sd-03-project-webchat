@@ -5,13 +5,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="http://localhost:4555/socket.io/socket.io.js"></script>
-  <script defer src="page.js"></script>
+  <script defef>
+    const socket = io('http://localhost:4555');
+
+    const sendMessage = () => {
+      const message = document.getElementById('message-input').value;
+      socket.emit('message', { nickname: 'Katia', message });
+    };
+
+    const createMessage = (data) => {
+      const newMessage = document.createElement('p');
+      newMessage.setAttribute('data-testid', 'message');
+      newMessage.innerText = `${data}`;
+      return newMessage;
+    };
+
+    socket.on('history', (history) => history
+      .forEach((data) => document.getElementById('all-messages')
+        .appendChild(createMessage(data.message))));
+
+    socket.on('serverResponse', ({ message }) => {
+      document.getElementById('all-messages')
+        .appendChild(createMessage(message));
+    });
+
+    window.onload = () => document.getElementById('send-button')
+      .addEventListener('click', () => sendMessage());
+  </script>
   <title>Webchat</title>
 </head>
 
 <body>
   <div id="all-messages">
-    
+
   </div>
   <div>
     <input data-testid="message-box" id="message-input" />
