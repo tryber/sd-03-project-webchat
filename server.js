@@ -11,6 +11,8 @@ const app = express();
 const { PORT = 3000, IOPORT = 4555 } = process.env;
 
 io.on('connect', async (socket) => {
+  let user = socket.id;
+
   socket.broadcast.emit('serverResponse', { message: `${socket.id} entrou no chat!` });
 
   await messagesModel.insertData({ nickname: socket.id, _id: socket.id }, 'onlineUsers');
@@ -22,6 +24,7 @@ io.on('connect', async (socket) => {
   io.emit('onlineUsers', onlineUsers);
 
   socket.on('changeNickname', async (nickname) => {
+    user = nickname;
     await messagesModel.changeNickname({ nickname, id: socket.id });
     const newList = await messagesModel.onlineUsers();
     socket.broadcast.emit('serverResponse', { message: `${socket.id} mudou seu nickname para ${nickname}!` });
@@ -31,7 +34,7 @@ io.on('connect', async (socket) => {
   socket.on('message', async ({ nickname, message }) => {
     const date = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
     const time = Date().split(' ')[4];
-    const toChat = `${date}, ${time} - (${nickname}): ${message}`;
+    const toChat = `${date}, ${time} - (${nickname || socket.id}): ${message}`;
 
     await messagesModel.insertData({ nickname, message: toChat, date: Date() }, 'messages');
 
@@ -40,6 +43,9 @@ io.on('connect', async (socket) => {
 
   socket.on('disconnect', async () => {
     await messagesModel.deleteUser(socket.id);
+    const newOnlineUsers = await messagesModel.onlineUsers();
+    io.emit('onlineUsers', newOnlineUsers);
+    io.emit('serverResponse', { message: `${user} desconectou-se!` });
   });
 });
 

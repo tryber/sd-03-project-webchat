@@ -7,12 +7,12 @@
   <script src="http://localhost:4555/socket.io/socket.io.js"></script>
   <script defef>
     const socket = io('http://localhost:4555');
+    let nickname = socket.id;
 
     const sendMessage = () => {
       const message = document.getElementById('message-input').value;
-      socket.emit('message', { nickname: 'Katia', message });
+      socket.emit('message', { nickname, message });
     };
-
 
     const createMessage = (data) => {
       const newMessage = document.createElement('p');
@@ -29,8 +29,9 @@
     }
 
     const changeNickname = () => {
-      const nickname = document.getElementById('nickname-box').value;
-      socket.emit('changeNickname', nickname);
+      const newNickname = document.getElementById('nickname-box').value;
+      nickname = newNickname;
+      socket.emit('changeNickname', newNickname);
     }
 
     socket.on('onlineUsers', (data) => {
