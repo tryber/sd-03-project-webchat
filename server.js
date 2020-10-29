@@ -3,7 +3,9 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
 const { getAllMessages } = require('./services/messageServices');
+const { getAllUsers } = require('./services/userServices');
 const messageController = require('./controllers/messageController');
+const userController = require('./controllers/userController');
 
 app.use('/', (_req, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
@@ -12,6 +14,10 @@ app.use('/', (_req, res) => {
 io.on('connection', async (socket) => {
   socket.on('message', (data) => messageController.sendMessage(io, data));
   socket.emit('history', await getAllMessages());
+  socket.emit('onlineUsers', await getAllUsers());
+  socket.on('userConnected', (data) => {
+    userController.registerUser(io, socket, data);
+  });
 });
 
 http.listen(3000, () => {

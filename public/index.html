@@ -24,15 +24,9 @@
       }
       body {
         font-family: 'Montserrat', sans-serif;
+        
       }
-/* 
-      .clearfix:after{
-        content: "";
-        display: table;
-        clear: both;
-      } */
-
-      .messages-container {
+       .messages-container {
         margin-bottom: 200px;
       }
       .title-message {
@@ -62,7 +56,7 @@
         position: fixed;
         bottom: 0;
         transition: background .2s linear;
-        width: 100%;
+        width: 70%;
       }
       .footer-input:hover{
         background-color: #00897b;  
@@ -79,60 +73,93 @@
         border: none;
         height: 100%;
       }
+
+      .right-side {
+        width: 70% !important;
+      }
+
+      .left-side {
+        border: 1px solid #00897b;
+        border-radius: 4px;
+        max-height: 700px;
+        max-width: 500px;
+        width: 29%;
+        overflow: auto;
+      }
+
+      .chat-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .online-head {
+        height: 50px;
+        text-align: center;
+      }
+
     </style>
   </head>
   <body>
-    <nav>
-      <div class="nav-wrapper">
-        <div class="input-field cyan darken-4">
-          <input 
-            data-testid="nickname-box"
-            id="nickname"
-            type="search"
-            required
-            placeholder="Digite um nickname..."
-            autocomplete="off"
-          >
-          <label class="label-icon" for="nickname"><i class="material-icons">account_circle</i></label>
-          <i data-testid="nickname-save" class="material-icons"><button class="nickname-change-btn" type="button" onclick="changeNickname()">send</button></i>
-        </div>
-      </div>
-    </nav>
-    <ul class="collection messages-container clearfix" id="messages">
-      <li class="collection-item avatar">
-        <div class="title-message">
-            <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
-          <i class="material-icons small cyan-icon">chat_bubble</i>
-          <span class="title" id="nameTitle"></span>
-        </div>
-        <p class="styled-message"><em>Suas mensagens irão aparecer aqui! Este é um exemplo de messagem :)</em></p>
+    <section class="chat-container">
+      <section class="right-side">
+        <nav>
+          <div class="nav-wrapper">
+            <div class="input-field cyan darken-4">
+              <input 
+                data-testid="nickname-box"
+                id="nickname"
+                type="search"
+                required
+                placeholder="Digite um nickname..."
+                autocomplete="off"
+              >
+              <label class="label-icon" for="nickname"><i class="material-icons">account_circle</i></label>
+              <i data-testid="nickname-save" class="material-icons"><button class="nickname-change-btn" type="button" onclick="changeNickname()">send</button></i>
+            </div>
+          </div>
+        </nav>
+        <ul class="collection messages-container clearfix" id="messages">
+          <li class="collection-item avatar">
+            <div class="title-message">
+                <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
+              <i class="material-icons small cyan-icon">chat_bubble</i>
+              <span class="title" id="nameTitle"></span>
+            </div>
+            <p class="styled-message">
+              <em>Suas mensagens irão aparecer aqui! Este é um exemplo de messagem :)</em>
+            </p>
+          
+          </li>   
+        </ul>
       
-      </li>
-      
-    </ul>
-    <!-- <form action="">
-      <input id="inputMessage" autocomplete="off" /><button>Send</button>
-    </form> -->
-   
-  <div id="sender" class="row footer-input" >
-    <form class="col s12" autocomplete="off">
-      <div class="row">
-        <div class="input-field col s12">
-          <input required data-testid="message-box" id="send-message" type="text">
-          <label for="send-message">Mande uma mensagem</label>
-          <button data-testid="send-button" class="btn waves-effect teal darken-4" type="submit" name="action">Enviar
-            <i class="material-icons right">send</i>
-          </button>
+        <div id="sender" class="row footer-input" >
+          <form class="col s12" autocomplete="off">
+            <div class="row">
+              <div class="input-field col s12">
+                <input required data-testid="message-box" id="send-message" type="text">
+                <label for="send-message">Mande uma mensagem</label>
+                <button data-testid="send-button" class="btn waves-effect teal darken-4" type="submit" name="action">Enviar
+                  <i class="material-icons right">send</i>
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
-      </div>
-    </form>
-  </div>
-        
+      </section>
+      <section class="left-side">
+        <div class="online-head">
+          <h5>Usuários conectados</h5>
+        </div>
+        <div id="online-users-container">
+          <ul class="collection" id="online-users-list">
+            
+          </ul>
+        </div>
+      </section>
+  </section>
+  
   </body>
-  <!-- <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
-  >
-  </script> -->
   <script
   src="https://code.jquery.com/jquery-3.4.1.js"
   integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
@@ -145,91 +172,73 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"
   >
   </script>
+  <script src="http://chancejs.com/chance.min.js"></script>
   
   <script>
-    let randomName = '';
-    let randomColor = '';
+    const randomName = chance.name();
+    const randomColor = chance.color();
     let userId = '';
+
     const socket = io('http://localhost:3000');
 
-    window.onload = () => {
-      const  getRandomArbitrary = (min, max) => {
-      return Math.random() * (max - min) + min;
-      }
-      const colors = [
-        '#e57373',
-        '#e91e63',
-        '#8e24aa',
-        '#4a148c',
-        '#e040fb',
-        '#1a237e',
-        '#26c6da',
-        '#00bfa5',
-        '#827717',
-        '#e65100',
-        '#6d4c41',
-        '#6d4c41',
-        '#212121',
-        '#263238',
-      ];
-      const names =  [
-        'Anbu Kakashi',
-        'Ino Yamanaka',
-        'Choji',
-        'Shikamaru Nara',
-        'Asuma',
-        'Sakura Haruno',
-        'Naruto Uzumaki',
-        'Sai',
-        'Yamato',
-        'Kiba',
-        'Shino',
-        'Hinata',
-        'Hurenai'
-      ];
-      const randomUser = (names, colors) => {
-        const position = parseInt(getRandomArbitrary(0, 12), 10);
-        return { name: names[position], color: colors[position] };
-      };
-      const { name, color } = randomUser(names, colors);
-      randomName = name;
-      randomColor = color;
-      
+    const userChatInfo = (name, color) => {
       const spanName = document.getElementById('nameTitle');
-      spanName.innerHTML = randomName;
-      spanName.style.color = randomColor;
+      spanName.innerHTML = name;
+      spanName.style.color = color;
+      return null;
+    }
+
+    window.onload = () => {
+      $(() =>  socket.emit('userConnected', { nickname: randomName, color: randomColor }));
+      $(() =>  socket.on('createdUser', ({ id }) => {
+        userId = id;
+      }));
+      userChatInfo(randomName, randomColor);
     }
 
     const messageFormart = (message, userName, color, date = 'Agora mesmo') => {
-    const dateMsg = date || new Date();
-    if (date === 'Agora mesmo') {
-      setTimeout(() => {
-        const time = document.getElementById('time-id');
-        time.innerHTML = 'Há 1 minuto'
-      }, 60000);
-      setTimeout(() => {
-        const time = document.getElementById('time-id');
-        time.innerHTML = `Enviado às ${dateMsg.getHours()}:${dateMsg.getMinutes()} `;
-      }, 100000);
+      const dateMsg = date || new Date();
+      if (date === 'Agora mesmo') {
+        setTimeout(() => {
+          const time = document.getElementById('time-id');
+          time.innerHTML = 'Há 1 minuto'
+        }, 60000);
+        setTimeout(() => {
+          const time = document.getElementById('time-id');
+          time.innerHTML = `Enviado às ${dateMsg.getHours()}:${dateMsg.getMinutes()} `;
+        }, 100000);
+      }
+      return (`
+        <li class="collection-item avatar">
+          <div class="title-message">
+          </div>
+          <p data-testid="message" class="styled-message">
+            <span class="title" style="color: ${color}">
+              ${userName}
+            </span><br>
+            ${message}
+          </p>
+          <em><span id="time-id" class="real-time">${date}</span><em>
+          <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
+        </li>`
+      );
     }
-     return (`
-      <li class="collection-item avatar">
-        <div class="title-message">
-        </div>
-        <p data-testid="message" class="styled-message">
-          <span class="title" style="color: ${color}">
-            ${userName}
-          </span><br>
-          ${message}
-        </p>
-        <em><span id="time-id" class="real-time">${date}</span><em>
-        <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
-      </li>`);
+
+    const onlineUsers = (user, id) => {
+      return (`
+      <li class="collection-item" id="${id} data-testid="online-user"">
+          ${user}
+        <a href="#!" class="secondary-content">
+          <i class="material-icons">phonelink_ring</i>
+        </a>
+      </li>`
+      );
     }
     const changeNickname = () => {
       const inputName = document.getElementById("nickname").value;
-     
+      const USER_ID = userId; //userId definido no inicio do codigo
       if (inputName !== '') {
+        socket.emit('userChangedNickName', { nickname: inputName, id: USER_ID });
         const title = document.getElementById("nameTitle");
         title.innerHTML = inputName;
         randomName = inputName;
@@ -237,19 +246,6 @@
     }
 
     const CLIENT_URL = 'http://localhost:3000';
-
-    // const sendMessage = async (data) => {
-    //   // return $.ajax({
-    //   //   type: 'POST',
-    //   //   contentType: "application/json",
-    //   //   url: `${CLIENT_URL}/message`,
-    //   //   data: JSON.stringify(data),
-    //   //   success: () => console.log('tudo ok'),
-    //   //   error: () => console.log('errorr'),
-    //   // });
-    //   return socket.emit('message', data);
-      
-    // };
 
     const formSubmited = async (event, socket) => {
         event.preventDefault();
@@ -264,7 +260,6 @@
         return false;
     };
     $(() => {
-
        $('form').submit((event) => formSubmited(event, socket));
           socket.on('message', function(message) {
             const [ nickname, chatMessage, formatData, color ] = message.split(',');
@@ -273,10 +268,27 @@
        });
      });
 
-     socket.on('history', (allMessages) => {
-        allMessages.forEach(({ chatMessage, nickname, color, date }) => {
-          $('#messages').append($(messageFormart(chatMessage, nickname, color, date)))
-        });       
+    socket.on('history', (allMessages = []) => {
+      allMessages.forEach(({ chatMessage, nickname, color, date }) => {
+        $('#messages').append($(messageFormart(chatMessage, nickname, color, date)))
+      });       
     });
+
+    socket.on('onlineUsers', (users = []) => {
+      users.forEach(({ nickname, _id: id }) => {
+        $('#online-users-list').append($(onlineUsers(nickname, id)));
+      });       
+    });
+
+    socket.on('joinedUser', ({ id, nickname }) => {
+      $('#online-users-list').append($(onlineUsers(nickname, id)));     
+    });
+
+    socket.on('userLeft', ({ id, nickname }) => {
+      $(`#${id}`).remove();     
+    });
+
+    socket.on('userChangedNickName', { nickname: inputName, id: USER_ID });
+
   </script>
 </html>

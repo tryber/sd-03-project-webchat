@@ -1,14 +1,19 @@
-// const userServices = require('../services/userServices');
+const userServices = require('../services/userServices');
 
-// const registerUser = (io) => async (req, res) => {
-//   const { nickname, color = 'black' } = req.body;
-//   const newUser = await userServices.createUser(nickname, color);
-//   if (newUser.error) return res.status(409).json(newUser.message);
-//   io.emit('createdUser', newUser);
-//   console.log('usuario criado', newUser);
-//   return res.status(201).json(newUser);
-// };
+const deleteUserById = async (ioServer, id) => {
+  const { nickname, color } = await userServices.deleteUserById(id);
+  ioServer.emit('userLeft', { nickname, color, id });
+};
 
-// module.exports = {
-//   registerUser,
-// };
+const registerUser = async (ioServer, socket, data) => {
+  const { nickname = 'Usuário', color = 'black' } = data;
+  const id = await userServices.createUser(nickname, color);
+  socket.emit('createdUser', { id });
+  ioServer.emit('joinedUser', { id, nickname });
+  socket.on('disconnect', () => deleteUserById(ioServer, id));
+};
+
+module.exports = {
+  registerUser,
+  deleteUserById,
+};

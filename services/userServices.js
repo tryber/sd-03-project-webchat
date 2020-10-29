@@ -1,11 +1,21 @@
-// const userModel = require('../models/userModel');
+const userModel = require('../models/userModel');
 
-// const createUser = async (nickname, color) => {
-//   const user = userModel.createUser(nickname, color);
-//   if (user.error) return { error: true, message: 'Algo deu errado na criação do usuário' };
-//   return user;
-// };
+const createUser = async (nickname, color) => {
+  const { userId } = await userModel.createUser(nickname, color);
+  return userId;
+};
 
-// module.exports = {
-//   createUser,
-// };
+const deleteUserById = async (id) => {
+  const user = await userModel.getUserBy(id);
+  if (!user) return { username: 'Anônimo', color: 'black' };
+  await userModel.deleteUserById(id);
+  return user;
+};
+
+const getAllUsers = async () => userModel.getAllUsers();
+
+module.exports = {
+  createUser,
+  deleteUserById,
+  getAllUsers,
+};
