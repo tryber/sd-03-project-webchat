@@ -79,5 +79,6 @@ describe('Crie um frontend para que as pessoas interajam com o chat', () => {
     expect(messages.length).toBeGreaterThanOrEqual(1);
     expect(_.last(messages)).toMatch(RegExp(nickname));
     expect(_.last(messages)).toMatch(RegExp(chatMessage));
+    
   });
 });
