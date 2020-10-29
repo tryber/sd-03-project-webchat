@@ -74,6 +74,7 @@
       return data.forEach(({ nickname }) => {
         const li = document.createElement('li');
         li.textContent = nickname;
+        li.setAttribute('data-testid', "online-user")
         document.getElementById('allUsers').appendChild(li)
       })
     });
