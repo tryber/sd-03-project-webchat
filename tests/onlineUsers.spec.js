@@ -65,7 +65,7 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     console.log(6);
     await nicknameSave.click();
     console.log(7);
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(5000)
     console.log(8);
     await page.waitForSelector(dataTestid('online-user'));
     console.log(9);
