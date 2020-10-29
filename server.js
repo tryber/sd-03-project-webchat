@@ -28,16 +28,17 @@ io.on('connection', async (socket) => {
 
   const usersName = Object.values(usersList);
 
+  // As linhas abaixo são emissões do servidor
   socket.emit('nameChange', { newNickname: usersName });
   socket.broadcast.emit('nameChange', { newNickname: usersName });
 
   const allNotifications = await notifications.getAllMessagesService();
-  socket.emit('history', allNotifications);
+  notificationController.handleHistoryEvent(socket, allNotifications);
+  // socket.emit('history', allNotifications);
 
-  // socket.on('message', notificationController.handleNotificationEvent(io, notifications));
+  // As linhas abaixo são como tratar informações dos clientes
   socket.on('message', notificationController.handleNotificationEvent(socket, notifications));
   socket.on('nameChange', notificationController.handleNameChangeEvent(socket, usersList));
-
   socket.on('disconnect', () => {
     delete usersList[socket.id];
     io.emit('nameChange', { newNickname: Object.values(usersList) });
