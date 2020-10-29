@@ -38,9 +38,7 @@
       const submit = document.getElementById("submit");
       const inputNickname = document.getElementById("input-nickname");
       const submitNickname = document.getElementById("submit-nickname");
-      // const socket = io("http://localhost:4555");
       const socket = io();
-      let nickname = 'Anônimo';
       let onlineUsers = [];
   
       submit.addEventListener("click", (e) => {
@@ -51,7 +49,7 @@
 
       submitNickname.addEventListener("click", (e) => {
         e.preventDefault();;
-         socket.emit('nameChange', { oldNickname: nickname, newNickname: inputNickname.value });
+         socket.emit('nameChange', { newNickname: inputNickname.value });
          nickname = inputNickname.value;
          onlineUsers.push(inputNickname.value);
          inputNickname.value = '';
@@ -84,14 +82,22 @@
       });
       // Recebe as natualizações de nome
       socket.on('nameChange', (data) => {
-        const li = document.createElement('li')
-        li.id = 'list-of-users';
-        li.setAttribute('data-testid', 'online-user');
-        li.textContent = `${data.newNickname}`;
-        document.getElementById('online-user').appendChild(li);
-      });
-      socket.on('userDesconnect', (socket) => {
-        console.log('Socket caiu: ', socket);
+        // Limpa a lista
+        const previusList = document.querySelectorAll('#list-of-users');
+        if (previusList.length) {
+          for (let i = previusList.length; i > 0; i -= 1) {
+            const list = document.getElementById('online-user');
+            list.removeChild(list.lastElementChild);
+          }
+        }
+        const onlyUsers = data.newNickname.slice(1,data.newNickname.length);
+        onlyUsers.map((e) => {
+          const li = document.createElement('li')
+          li.id = 'list-of-users';
+          li.setAttribute('data-testid', 'online-user');
+          li.textContent = e;
+          document.getElementById('online-user').appendChild(li);
+        });
       });
       };
     </script>
