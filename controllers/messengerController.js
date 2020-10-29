@@ -1,13 +1,11 @@
-const sendMessage = (socket, messageObject) => {
-  socket.emit('messageReceived', messageObject);
-};
+const messages = require('../models/messagesModel');
 
-const receiveMessage = (socket, messages) => (messageObject) => {
-  messages.push(messageObject);
+const sendMessage = async (socket, messageObject) => {
   socket.emit('messageReceived', messageObject);
+  const res = await messages.store(messageObject);
+  return res;
 };
 
 module.exports = {
   sendMessage,
-  receiveMessage,
 };
