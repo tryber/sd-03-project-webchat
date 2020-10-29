@@ -24,11 +24,10 @@ const handleHistoryEvent = (socket, history) => {
     const { nickname, chatMessage, timestamp } = e;
     const time = moment(timestamp).format('D-M-yyyy hh:mm:ss');
     const messageToSend = `chatMessage: [${time}] ${nickname} disse: ${chatMessage}`;
-    messageArray.push(messageToSend);
+    return messageArray.push(messageToSend);
   });
   socket.emit('history', messageArray);
   socket.broadcast.emit('history', messageArray);
-  // console.log('Histórico recebido: ', messageArray);
 };
 
 module.exports = {

@@ -34,7 +34,6 @@ io.on('connection', async (socket) => {
 
   const allNotifications = await notifications.getAllMessagesService();
   notificationController.handleHistoryEvent(socket, allNotifications);
-  // socket.emit('history', allNotifications);
 
   // As linhas abaixo são como tratar informações dos clientes
   socket.on('message', notificationController.handleNotificationEvent(socket, notifications));
