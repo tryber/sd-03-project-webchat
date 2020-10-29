@@ -8,7 +8,7 @@ const messagesModel = require('./models/messagesModel');
 
 const app = express();
 
-const { PORT, IOPORT } = process.env;
+const { PORT = 3000, IOPORT = 4555 } = process.env;
 
 io.on('connect', async (socket) => {
   const history = await messagesModel.allPastMessages();
