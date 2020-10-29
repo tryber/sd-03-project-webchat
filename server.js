@@ -29,8 +29,6 @@ io.on('connection', async (socket) => {
 
   socket.on('nameChanged', ({ nickname }) => {
     usersArr.push({ socketId: socket.id, nickname });
-    const { nickname: nick } = usersArr.filter(({ socketId }) => socketId === socket.id)[0];
-    usersArr = usersArr.filter((e) => e.nickname !== nick);
     // const index = usersArr.findIndex(({ socketId }) => socketId === socket.id);
     // console.log(index)
     // console.log(usersArr[index])

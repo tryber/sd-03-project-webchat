@@ -17,7 +17,8 @@
 // io.on('connection', async (socket) => {
 //   const previousMessages = await getPreviousMessages();
 //   const formatedPreviousMessages = previousMessages
-//     .map(({ chatMessage, nickname, date }) => ({ chatMessage, nickname, date: formatDate(date) }));
+//     .
+// map(({ chatMessage, nickname, date }) => ({ chatMessage, nickname, date: formatDate(date) }));
 
 //   socket.emit('previousMessages', formatedPreviousMessages);
 
