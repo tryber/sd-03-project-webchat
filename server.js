@@ -22,7 +22,7 @@ io.on('connection', async (socket) => {
   socket.emit('previousMessages', formatedPreviousMessages);
 
   socket.on('newUser', ({ nickname }) => {
-    console.log(nickname)
+    console.log(nickname);
     usersArr.push({ socketId: socket.id, nickname });
     const users = usersArr.map(({ nickname: name }) => name);
     io.emit('listOfUsers', users);
@@ -43,13 +43,13 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', () => {
     usersArr = usersArr.filter(({ socketId }) => socketId !== socket.id);
     const users = usersArr.map(({ nickname: name }) => name);
-    console.log(users)
+    console.log(users);
     io.emit('listOfUsers', users);
   });
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const { chatMessage: message, nickname: nick, date } = await
-    saveMessageInDB({ chatMessage, nickname });
+      saveMessageInDB({ chatMessage, nickname });
     const newDate = formatDate(date);
     io.emit('message', `${newDate} : ${nick} - ${message}`);
   });
