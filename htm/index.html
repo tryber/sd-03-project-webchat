@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebChat Socket.IO</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+      const socket = io(); // Executa uma conexão com localhost:3000
+      let username = 'Anonnnnymous';
+      let oldname = '';
+      let userlist = [];
+      let message = '';
+
+      const appendMsg = (msg) => {
+        $('.messages')
+          .append($('<li data-testid="message">')
+            .text(msg));
+      }
+
+      const manageUserList = () => {
+        $('.user-list').empty();
+          userlist.map((u) => 
+            $('.user-list').append($('<li>').text(u)));
+      }
+      
+      // Alternativa ao document.ready
+      $(() => {
+        
+        // $('.nickname').text(username);
+        // Eventos para enviar pacotes
+        $('#nickname-save').click(() => {
+          oldname = username;
+          username = $('#nickname-box').val()
+          socket.emit('userRename', { oldname, username });
+          $('.nickname').text(username);
+          $('#messageInput').val('');
+        })
+        
+        $('#send-button').click((e) => {
+          message = $('#messageInput').val();
+          socket.emit('message', { username, message });
+          $('#messageInput').val('');
+        });
+        
+        // Eventos de pacotes recebidos
+        socket.on('newUserMsg', (user) => {
+          username = user;
+          userlist.push(user);
+          appendMsg(`${user} ingressou na sala`);
+          manageUserList();
+        });
+        
+        socket.on('userRename', ({oldname, username}) => {
+          userlist.filter((e) => e !== oldname);
+          userlist.push(username);
+          appendMsg(`${oldname} mudou o nick para ${username}`);
+          manageUserList();
+        });
+
+        socket.on('message', ({username, message}) =>
+          appendMsg(`${username}: ${message}`));
+
+        socket.on('userLogOff', ({mensagem}) =>
+          appendMsg(mensagem));
+      });
+
+    </script>
+  </head>
+  <body>
+    <div class="messages">
+      <h2>Mensagens</h2>
+      <div class="message-box">
+        <input
+          id="messageInput"
+          autocomplete="off"
+          data-testid="message-box"
+        />
+        <button
+          type="submit"
+          id="send-button"
+          data-testid="send-button"
+        >
+          Enviar
+        </button>
+      </div class="message-box">
+    </div>
+    <div class="userPanel">
+      <h2>Usuários conectados</h2>
+      <ul class="user-list"></ul>
+      <div class="username-form">
+        <h3>Você está conectado como 
+          <span data-testid="online-user" class="nickname">anonymous</span>.
+        </h3>
+        <input id="nickname-box" data-testid="nickname-box" />
+        <button id="nickname-save" data-testid="nickname-save">
+          Alterar nick
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
