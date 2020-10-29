@@ -24,7 +24,7 @@ jobs:
         id: evaluator
         uses: betrybe/jest-evaluator-action@fix-puppeteer-dep
         with:
-          repository-test-name: 'betrybe/repositorio-teste-webchat-testes'
+          repository-test-name: 'betrybe/sd-0x-project-webchat-tests'
           repository-test-branch: 'main'
           npm-start: true
         env:

@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat UOL</title>
   <link rel="stylesheet" href="./style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 </head>
 
 <body>
@@ -29,7 +30,6 @@
       <button id="sendMessage" type="button">Enviar</button>
     </div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   <script>
     const socket = io();
     let nickname = `user${Math.floor(Math.random() * 300)}`;
@@ -89,7 +89,6 @@
         ol.appendChild(li);
       })
     })
-    
   </script>
 </body>
 

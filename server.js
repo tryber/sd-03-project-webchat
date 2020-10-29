@@ -22,7 +22,6 @@ io.on('connection', async (socket) => {
   socket.emit('previousMessages', formatedPreviousMessages);
 
   socket.on('newUser', ({ nickname }) => {
-    console.log(nickname);
     usersArr.push({ socketId: socket.id, nickname });
     const users = usersArr.map(({ nickname: name }) => name);
     io.emit('listOfUsers', users);
@@ -30,8 +29,8 @@ io.on('connection', async (socket) => {
 
   socket.on('nameChanged', ({ nickname }) => {
     usersArr.push({ socketId: socket.id, nickname });
-    const { nickname: nick } = usersArr.filter(({ socketId }) => socketId === socket.id)[0];
-    usersArr = usersArr.filter((e) => e.nickname !== nick);
+    // const { nickname: nick } = usersArr.filter(({ socketId }) => socketId === socket.id)[0];
+    // usersArr = usersArr.filter((e) => e.nickname !== nick);
     // const index = usersArr.findIndex(({ socketId }) => socketId === socket.id);
     // console.log(index)
     // console.log(usersArr[index])
@@ -43,7 +42,6 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', () => {
     usersArr = usersArr.filter(({ socketId }) => socketId !== socket.id);
     const users = usersArr.map(({ nickname: name }) => name);
-    console.log(users);
     io.emit('listOfUsers', users);
   });
 
