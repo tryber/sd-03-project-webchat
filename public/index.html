@@ -6,8 +6,8 @@
   <title>Socket.io - Client Demo</title>
 
   <!-- Carrega o socket.io -->
-  <!-- script src="http://localhost:3000/socket.io/socket.io.js"></script -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <!-- script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script -->
 </head>
 <body>
   <div>
@@ -50,7 +50,7 @@
 
       submitNickname.addEventListener("click", (e) => {
         e.preventDefault();;
-         socket.emit('nameChange', { newNickname: inputNickname.value });
+         socket.emit('nameChange', { newNickname: inputNickname.value, socketID: socket.id });
          nickname = inputNickname.value;
          onlineUsers.push(inputNickname.value);
          inputNickname.value = '';

@@ -5,11 +5,12 @@ const handleNotificationEvent = (io, notifications) => async (text) => {
   io.emit('message', text);
 };
 
-const handleNameChangeEvent = (socket, usersList) => async (text) => {
-  usersList.splice(usersList.indexOf(socket), 1);
-  usersList.push(text.newNickname);
-  socket.broadcast.emit('nameChange', { newNickname: usersList });
-  socket.emit('nameChange', { newNickname: usersList });
+const handleNameChangeEvent = (socket, usersList) => async (nameObj) => {
+  const userId = nameObj.socketID;
+  const userNameList = usersList;
+  userNameList[userId] = nameObj.newNickname;
+  socket.broadcast.emit('nameChange', { newNickname: Object.values(userNameList) });
+  socket.emit('nameChange', { newNickname: Object.values(userNameList) });
 };
 
 module.exports = {

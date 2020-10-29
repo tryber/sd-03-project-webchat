@@ -16,16 +16,20 @@ app.get('/', (req, res) => {
   res.sendFile(`${PUBLIC_PATH}/index.html`);
 });
 
-const usersList = [];
+const usersList = {};
 let guestId = 0;
 let usersPool = '';
 
 io.on('connection', async (socket) => {
   guestId += 1;
   usersPool = `Anônimo-${guestId}`;
-  usersList.push(usersPool);
-  socket.emit('nameChange', { newNickname: usersList });
-  socket.broadcast.emit('nameChange', { newNickname: usersList });
+
+  usersList[socket.id] = usersPool;
+
+  const usersName = Object.values(usersList);
+
+  socket.emit('nameChange', { newNickname: usersName });
+  socket.broadcast.emit('nameChange', { newNickname: usersName });
 
   const allNotifications = await notifications.getAllMessagesService();
   socket.emit('history', allNotifications);
@@ -35,8 +39,8 @@ io.on('connection', async (socket) => {
   socket.on('nameChange', notificationController.handleNameChangeEvent(socket, usersList));
 
   socket.on('disconnect', () => {
-    usersList.splice(usersList.indexOf(socket), 1);
-    io.emit('nameChange', { newNickname: usersList });
+    delete usersList[socket.id];
+    io.emit('nameChange', { newNickname: Object.values(usersList) });
   });
 });
 
