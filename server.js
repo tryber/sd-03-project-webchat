@@ -1,8 +1,19 @@
-const httpFactory = require('./http');
-const socketFactory = require('./socket');
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
-const { ioServer, io } = socketFactory();
-const http = httpFactory(io);
+const { getAllMessages } = require('./services/messageServices');
+const messageController = require('./controllers/messageController');
 
-http.listen(3001, () => { console.log('HTTP listening on 3001'); });
-ioServer.listen(3000, () => { console.log('Socket.io listening on 3000'); });
+app.use('/', (_req, res) => {
+  res.sendFile(`${__dirname}/public/index.html`);
+});
+
+io.on('connection', async (socket) => {
+  socket.on('message', (data) => messageController.sendMessage(io, data));
+  socket.emit('history', await getAllMessages());
+});
+
+http.listen(3000, () => {
+  console.log('Server listening on port 3000');
+});
