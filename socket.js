@@ -25,7 +25,7 @@ module.exports = (app, messageModel) => {
       const date = new Date().toLocaleString().split('-').join('/');
 
       await messageModel.insertGeneral({ chatMessage, nickname, date });
-      io.emit('mensagemServer', `${nickname}, ${date}: ${chatMessage}`);
+      io.emit('mensagemServer', `(${date}) ${nickname}: ${chatMessage}`);
     });
   });
 
