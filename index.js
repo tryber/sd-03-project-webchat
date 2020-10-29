@@ -24,8 +24,7 @@ app.get('/', (_req, res) => {
 });
 app.post('/chat', async (req, res) => {
   const getAll = await connection().then((db) =>
-    db.collection('messages').find({}).toArray(),
-  );
+    db.collection('messages').find({}).toArray());
   const arrayMessages = getAll.map((message) => ({
     chatMessage: message.chatMessage,
     nickname: message.nickname,
@@ -40,8 +39,7 @@ app.post('/chat', async (req, res) => {
         .then((db) =>
           db
             .collection('messages')
-            .insertOne({ chatMessage: msg, nickname: req.body.nickname }),
-        )
+            .insertOne({ chatMessage: msg, nickname: req.body.nickname }))
         .catch((e) => console.log(e));
       io.emit('message', msg);
     });
