@@ -14,10 +14,11 @@ const handleNotificationEvent = (io, notifications) => async (text) => {
   const { chatMessage, nickname } = text;
   const timestamp = new Date();
   await notifications.saveMessageService({ chatMessage, nickname, timestamp });
-  io.emit('notification', text);
+  io.emit('message', text);
 };
 
 const handleNameChangeEvent = (socket) => async (text) => {
+  socket.broadcast.emit('nameChange', text);
   socket.emit('nameChange', text);
 };
 

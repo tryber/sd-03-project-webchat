@@ -6,9 +6,16 @@
   <title>Socket.io - Client Demo</title>
 
   <!-- Carrega o socket.io -->
-  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <!-- script src="http://localhost:3000/socket.io/socket.io.js"></script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 </head>
 <body>
+  <div>
+    <span>Usuários online</span><br />
+    <div id="users">
+      <ul id="online-user"></ul>
+    </div>
+  </div>
   <div>
     <ul id="mensagem"></ul>
   </div>
@@ -26,35 +33,39 @@
   </div>
     <!-- Configura interação com o servidor -->
     <script>
+      window.onload = () => {
       const input = document.getElementById("input");
       const submit = document.getElementById("submit");
       const inputNickname = document.getElementById("input-nickname");
       const submitNickname = document.getElementById("submit-nickname");
-      const socket = io("http://localhost:4555");
+      // const socket = io("http://localhost:4555");
+      const socket = io();
       let nickname = 'Anônimo';
+      let onlineUsers = [];
   
       submit.addEventListener("click", (e) => {
         e.preventDefault();
-         socket.emit("notification", { nickname, chatMessage: input.value });
+         socket.emit('message', { nickname, chatMessage: input.value });
          input.value = '';
         });
 
       submitNickname.addEventListener("click", (e) => {
-        e.preventDefault();
-         socket.emit("nameChange", { oldNickname: nickname, newNickname: inputNickname.value });
+        e.preventDefault();;
+         socket.emit('nameChange', { oldNickname: nickname, newNickname: inputNickname.value });
          nickname = inputNickname.value;
+         onlineUsers.push(inputNickname.value);
          inputNickname.value = '';
       });
   
       // Recebe as novas mensagens e o histórico de mensagens
-      socket.on('notification', (data) => {
+      socket.on('message', (data) => {
         const li = document.createElement('li')
         li.id = 'list-of-messages';
         li.setAttribute('data-testid', 'message');
         li.textContent = `${data.nickname} disse: ${data.chatMessage}`;
         document.getElementById('mensagem').appendChild(li);
       });
-      socket.on('history', (notifications) => {
+      socket.on('history', (messages) => {
         // Limpa a lista
         const previusList = document.querySelectorAll('#list-of-messages');
         if (previusList.length) {
@@ -63,7 +74,7 @@
             list.removeChild(list.lastElementChild);
           }
         }
-        notifications.forEach(data => {
+        messages.forEach(data => {
           const li = document.createElement('li');
           li.id = 'list-of-messages';
           li.setAttribute('data-testid', 'message');
@@ -74,11 +85,15 @@
       // Recebe as natualizações de nome
       socket.on('nameChange', (data) => {
         const li = document.createElement('li')
-        li.id = 'list-of-messages';
-        li.setAttribute('data-testid', 'message');
-        li.textContent = `${data.oldNickname} mudou seu nome para ${data.newNickname}`;
-        document.getElementById('mensagem').appendChild(li);
+        li.id = 'list-of-users';
+        li.setAttribute('data-testid', 'online-user');
+        li.textContent = `${data.newNickname}`;
+        document.getElementById('online-user').appendChild(li);
       });
+      socket.on('userDesconnect', (socket) => {
+        console.log('Socket caiu: ', socket);
+      });
+      };
     </script>
 </body>
 </html> 

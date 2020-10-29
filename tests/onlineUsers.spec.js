@@ -49,38 +49,54 @@ describe('Informe a todos os clientes quem está online no momento', () => {
   });
   
   it('Será validado que quando um usuário se conecta, seu nome aparece no frontend de todos', async () => {
+    console.log('1');
     const nickname = faker.internet.userName();
     const secondNickname = faker.internet.userName();
+    console.log('2');
 
     await page.goto(BASE_URL);
+    console.log('3');
     let nicknameBox = await page.$(dataTestid('nickname-box'));
     let nicknameSave = await page.$(dataTestid('nickname-save'));
 
     await page.$eval('[data-testid="nickname-box"]', el => el.value = '');
+    console.log('4');
     await nicknameBox.type(nickname);
+    console.log('5');
     await nicknameSave.click();
+    console.log('6');
     await page.waitForTimeout(1000);
+    console.log('7');
     await page.waitForSelector(dataTestid('online-user'));
+    console.log('8');
     let usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
-
+    console.log('9');
     expect(usersOnline).toContain(nickname);
 
     const numberOfUsersOnline = usersOnline.length;
     const newPage = await browser.newPage();
-
+    console.log('10');
     await newPage.goto(BASE_URL);
+    console.log('11');
     nicknameBox = await newPage.$(dataTestid('nickname-box'));
+    console.log('12');
     nicknameSave = await newPage.$(dataTestid('nickname-save'));
-
+    console.log('13');
     await page.$eval('[data-testid="nickname-box"]', el => el.value = '');
+    console.log('14');
     await nicknameBox.type(secondNickname);
+    console.log('15');
     await nicknameSave.click();
+    console.log('16');
     await page.waitForTimeout(1000);
+    console.log('17');
     await page.waitForSelector(dataTestid('online-user'));
+    console.log('18');
     usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
-
+    console.log('19');
     expect(numberOfUsersOnline).toBe(usersOnline.length - 1);
     await newPage.close();
+    console.log('20');
   });
 
   it('Será validado que qunado um usuário se desconecta, seu nome desaparece do frontend dos outros usuários.', async () => {
