@@ -5,16 +5,20 @@ const sendMessage = () => {
   socket.emit('message', { nickname: 'Katia', message });
 };
 
-socket.on('serverResponse', ({ nickname, message }) => {
-  const date = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
-  const time = Date().split(' ')[4];
-
+const createMessage = (data) => {
   const newMessage = document.createElement('p');
   newMessage.setAttribute('data-testid', 'message');
-  newMessage.innerText = `${date}, ${time} - (${nickname}): ${message}`;
+  newMessage.innerText = `${data}`;
+  return newMessage;
+};
 
+socket.on('history', (history) => history
+  .forEach((data) => document.getElementById('all-messages')
+    .appendChild(createMessage(data.message))));
+
+socket.on('serverResponse', ({ message }) => {
   document.getElementById('all-messages')
-    .appendChild(newMessage);
+    .appendChild(createMessage(message));
 });
 
 document.getElementById('send-button')

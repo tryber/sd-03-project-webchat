@@ -4,14 +4,20 @@ const socketServer = require('http').createServer();
 const io = require('socket.io')(socketServer);
 const express = require('express');
 const path = require('path');
+const messagesModel = require('./models/messagesModel');
 
 const app = express();
 
 const { PORT, IOPORT } = process.env;
 
-io.on('connect', (socket) => {
+io.on('connect', async (socket) => {
+  const history = await messagesModel.allPastMessages();
+  socket.emit('history', history);
   socket.on('message', ({ nickname, message }) => {
-    io.emit('serverResponse', { nickname, message });
+    const date = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
+    const time = Date().split(' ')[4];
+    const toChat = `${date}, ${time} - (${nickname}): ${message}`;
+    io.emit('serverResponse', { nickname, message: toChat });
   });
 
   socket.on('disconnect', () => {
