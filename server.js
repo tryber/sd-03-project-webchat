@@ -34,8 +34,8 @@ io.on('connection', async (socket) => {
   const allNotifications = await notifications.getAllMessagesService();
   socket.emit('history', allNotifications);
 
-  socket.on('message', notificationController.handleNotificationEvent(io, notifications));
-
+  // socket.on('message', notificationController.handleNotificationEvent(io, notifications));
+  socket.on('message', notificationController.handleNotificationEvent(socket, notifications));
   socket.on('nameChange', notificationController.handleNameChangeEvent(socket, usersList));
 
   socket.on('disconnect', () => {

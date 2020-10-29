@@ -1,8 +1,13 @@
-const handleNotificationEvent = (io, notifications) => async (text) => {
-  const { chatMessage, nickname } = text;
+const moment = require('moment');
+
+const handleNotificationEvent = (socket, notifications) => async (message) => {
+  const { chatMessage, nickname } = message;
   const timestamp = new Date();
   await notifications.saveMessageService({ chatMessage, nickname, timestamp });
-  io.emit('message', text);
+  const time = moment(timestamp).format('D-M-yyyy hh:mm:ss');
+  const messageToSend = `chatMessage: [${time}] ${nickname} disse: ${chatMessage}`;
+  socket.emit('message', messageToSend);
+  socket.broadcast.emit('message', messageToSend);
 };
 
 const handleNameChangeEvent = (socket, usersList) => async (nameObj) => {
