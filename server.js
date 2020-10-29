@@ -22,6 +22,7 @@ io.on('connection', async (socket) => {
   socket.emit('previousMessages', formatedPreviousMessages);
 
   socket.on('newUser', ({ nickname }) => {
+    console.log(nickname);
     usersArr.push({ socketId: socket.id, nickname });
     const users = usersArr.map(({ nickname: name }) => name);
     io.emit('listOfUsers', users);
@@ -42,6 +43,7 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', () => {
     usersArr = usersArr.filter(({ socketId }) => socketId !== socket.id);
     const users = usersArr.map(({ nickname: name }) => name);
+    console.log(users);
     io.emit('listOfUsers', users);
   });
 

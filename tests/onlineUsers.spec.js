@@ -62,7 +62,6 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     await page.waitForTimeout(5000);
     await page.waitForSelector(dataTestid('online-user'));
     let usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
-
     expect(usersOnline).toContain(nickname);
 
     const numberOfUsersOnline = usersOnline.length;
@@ -79,6 +78,7 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     await page.waitForSelector(dataTestid('online-user'));
     usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
 
+    console.log(usersOnline.length, numberOfUsersOnline)
     expect(numberOfUsersOnline).toBe(usersOnline.length - 1);
     await newPage.close();
   });
