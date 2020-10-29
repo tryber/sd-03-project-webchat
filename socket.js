@@ -9,7 +9,10 @@ module.exports = () => {
   const io = socketIo(httpServer);
 
   io.on('connection', (socket) => {
-    socket.on('message', (data) => messengerController.sendMessage(socket, data));
+    socket.on('message', (data) => {
+      messengerController.sendMessage(socket, data);
+      socket.broadcast.emit('messageReceived', data);
+    });
   });
 
   return {
