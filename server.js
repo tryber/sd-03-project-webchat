@@ -13,7 +13,7 @@ const { PORT = 3000, IOPORT = 4555 } = process.env;
 io.on('connect', async (socket) => {
   let user = socket.id;
 
-  socket.broadcast.emit('serverResponse', { message: `${socket.id} entrou no chat!` });
+  socket.broadcast.emit('serverResponse', { chatMessage: `${socket.id} entrou no chat!` });
 
   await messagesModel.insertData({ nickname: socket.id, _id: socket.id }, 'onlineUsers');
 
@@ -27,25 +27,25 @@ io.on('connect', async (socket) => {
     user = nickname;
     await messagesModel.changeNickname({ nickname, id: socket.id });
     const newList = await messagesModel.onlineUsers();
-    socket.broadcast.emit('serverResponse', { message: `${socket.id} mudou seu nickname para ${nickname}!` });
+    socket.broadcast.emit('serverResponse', { chatMessage: `${socket.id} mudou seu nickname para ${nickname}!` });
     io.emit('onlineUsers', newList);
   });
 
-  socket.on('message', async ({ nickname, message }) => {
+  socket.on('message', async ({ nickname, chatMessage }) => {
     const date = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
     const time = Date().split(' ')[4];
-    const toChat = `${date}, ${time} - (${nickname || socket.id}): ${message}`;
+    const toChat = `${date}, ${time} - (${nickname || socket.id}): ${chatMessage}`;
 
-    await messagesModel.insertData({ nickname, message: toChat, date: Date() }, 'messages');
+    await messagesModel.insertData({ nickname, chatMessage: toChat, date: Date() }, 'messages');
 
-    io.emit('serverResponse', { nickname, message: toChat });
+    io.emit('serverResponse', { nickname, chatMessage: toChat });
   });
 
   socket.on('disconnect', async () => {
     await messagesModel.deleteUser(socket.id);
     const newOnlineUsers = await messagesModel.onlineUsers();
     io.emit('onlineUsers', newOnlineUsers);
-    io.emit('serverResponse', { message: `${user} desconectou-se!` });
+    io.emit('serverResponse', { chatMessage: `${user} desconectou-se!` });
   });
 });
 

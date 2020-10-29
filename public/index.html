@@ -10,8 +10,9 @@
     let nickname = socket.id;
 
     const sendMessage = () => {
-      const message = document.getElementById('message-input').value;
-      socket.emit('message', { nickname, message });
+      const chatMessage = document.getElementById('message-input');
+      socket.emit('message', { nickname, chatMessage: chatMessage.value });
+      chatMessage.value = '';
     };
 
     const createMessage = (data) => {
@@ -48,11 +49,11 @@
 
     socket.on('history', (history) => history
       .forEach((data) => document.getElementById('all-messages')
-        .appendChild(createMessage(data.message))));
+        .appendChild(createMessage(data.chatMessage))));
 
-    socket.on('serverResponse', ({ message }) => {
+    socket.on('serverResponse', ({ chatMessage }) => {
       document.getElementById('all-messages')
-        .appendChild(createMessage(message));
+        .appendChild(createMessage(chatMessage));
     });
 
     window.onload = () => {
