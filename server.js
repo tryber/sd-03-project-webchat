@@ -47,7 +47,7 @@ io.on('connection', async (socket) => {
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const { chatMessage: message, nickname: nick, date } = await
-      saveMessageInDB({ chatMessage, nickname });
+    saveMessageInDB({ chatMessage, nickname });
     const newDate = formatDate(date);
     io.emit('message', `${newDate} : ${nick} - ${message}`);
   });
