@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb')
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 let schema = null;
