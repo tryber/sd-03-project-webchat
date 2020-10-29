@@ -2,7 +2,6 @@ const formatMessages = (messages) => {
   if (!Array.isArray(messages)) {
     return `${messages.nickname} ${messages.time} ${messages.chatMessage}`;
   }
-
   return messages.map((message) =>
     `${message.nickname} ${message.time} ${message.chatMessage}`);
 };
