@@ -1,4 +1,3 @@
-const { ObjectId } = require('mongodb');
 const connection = require('./connection');
 
 const createUser = async (nickname, color) =>
@@ -6,7 +5,7 @@ const createUser = async (nickname, color) =>
     .then((db) => db
       .collection('users')
       .insertOne({ nickname, color }))
-    .then(({ insertedId }) => ({ userId: ObjectId(insertedId) }))
+    .then(({ insertedId }) => ({ userId: insertedId }))
     .catch((error) => {
       console.error(error);
       return { error: true, message: error.message, stack: error.stack };
@@ -17,7 +16,7 @@ const deleteUserById = async (id) =>
   connection()
     .then((db) => db
       .collection('users')
-      .deleteOne({ _id: ObjectId(id) }))
+      .deleteOne({ _id: id }))
     .catch((error) => {
       console.error(error);
       return { error: true, message: error.message, stack: error.stack };
@@ -50,7 +49,7 @@ const updateNickname = async (id, nickname) => {
   connection()
     .then((db) => db
       .collection('users')
-      .updateOne({ _id: ObjectId(id) }, { $set: { nickname } }))
+      .updateOne({ _id: id }, { $set: { nickname } }))
     .catch((error) => {
       console.error(error);
       return { error: true, message: error.message, stack: error.stack };
