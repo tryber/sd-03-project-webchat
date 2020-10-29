@@ -9,6 +9,9 @@
   <!-- Carrega o socket.io -->
   <script src="http://localhost:4555/socket.io/socket.io.js"></script>
 
+  <!-- Carrega o moment.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+
 </head>
 
 <body>
@@ -27,13 +30,12 @@
   <script type="text/javascript">
     const socket = io('http://localhost:4555')
 
-    socket.on('messageReceived', (messageObject) => {
+    const renderMessage = (messageObject) => {
       const { user, message, sentTime } = messageObject;
-
       const p = document.createElement('p')
       p.textContent = `${user}: ${message} enviado as: ${sentTime}`;
       document.getElementById('messageWrapper').appendChild(p)
-    })
+    }
 
     const webchat = document.getElementById('webchat');
     webchat.onsubmit = (event) => {
@@ -41,12 +43,18 @@
 
       const user = document.getElementById('user').value;
       const message = document.getElementById('message').value;
-      const sentTime = Date.now();
+      const sentTime = moment().format('D-M-YYYY, HH:mm:ss');
 
       const messageObject = { user, message, sentTime };
 
+      renderMessage(messageObject);
+
       socket.emit('message', messageObject);
     }
+
+    socket.on('messageReceived', (messageObject) => renderMessage(messageObject));
+
+    
   </script>
 </body>
 
