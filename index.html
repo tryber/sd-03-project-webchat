@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zap Efron</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" media="screen" />
+    <script src="http://localhost:4555/socket.io.socket.io.js"></script>
+    <script>
+      const socket = io('http://localhosy:4555');
+
+      socket.on('message', (data) => {
+        const li = document.createElement('li');
+        li.textContent = data;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('ul-messages').appendChild(li);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="app-content">
+      <div id="header">
+        <h1>Zap Efron</h1>
+      </div>
+      <div id="user-content">
+        <div id="user-photo"></div>
+        <form id="form-nickname">
+          <input id="nickname-box" placeholder="Digite seu nickname" data-testid="nickname-box" />
+          <button id="nickname-save" data-testid="nickname-save">Salvar</button>
+        </form>
+      </div>
+      <div id="chat-content">
+        <div>
+          <ul id="ul-messages"></ul>
+        </div>
+        <div>
+          <form id="form-message">
+            <input
+              id="message-box"
+              placeholder="Digite sua mensagem"
+              data-testid="message-box"
+            />
+            <button id="send-button" data-testid="send-button">Enviar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
