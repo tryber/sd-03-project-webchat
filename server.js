@@ -18,6 +18,7 @@ io.on('connection', async (socket) => {
   socket.on('userConnected', (data) => {
     userController.registerUser(io, socket, data);
   });
+  socket.on('userChangedNickName', (data) => userController.updateNickname(io, data));
 });
 
 http.listen(3000, () => {

@@ -175,7 +175,7 @@
   <script src="http://chancejs.com/chance.min.js"></script>
   
   <script>
-    const randomName = chance.name();
+    let randomName = chance.name();
     const randomColor = chance.color();
     let userId = '';
 
@@ -226,7 +226,7 @@
 
     const onlineUsers = (user, id) => {
       return (`
-      <li class="collection-item" id="${id} data-testid="online-user"">
+      <li class="collection-item" id="${id}" data-testid="online-user"">
           ${user}
         <a href="#!" class="secondary-content">
           <i class="material-icons">phonelink_ring</i>
@@ -285,10 +285,12 @@
     });
 
     socket.on('userLeft', ({ id, nickname }) => {
-      $(`#${id}`).remove();     
+      $(`#${id}`).remove();
     });
 
-    socket.on('userChangedNickName', { nickname: inputName, id: USER_ID });
+    socket.on('userChangedNickName', ({ id, nickname }) => {
+      document.getElementById(id).innerHTML = nickname;
+    });
 
   </script>
 </html>

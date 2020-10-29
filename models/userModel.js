@@ -28,7 +28,7 @@ const getUserBy = async (id) =>
   connection()
     .then((db) => db
       .collection('users')
-      .findOne({ _id: ObjectId(id) }))
+      .findOne({ _id: id }))
     .catch((error) => {
       console.error(error);
       return { error: true, message: error.message, stack: error.stack };
@@ -46,9 +46,22 @@ const getAllUsers = async () =>
       // process.exit(1);
     });
 
+const updateNickname = async (id, nickname) => {
+  connection()
+    .then((db) => db
+      .collection('users')
+      .updateOne({ _id: ObjectId(id) }, { $set: { nickname } }))
+    .catch((error) => {
+      console.error(error);
+      return { error: true, message: error.message, stack: error.stack };
+    // process.exit(1);
+    });
+};
+
 module.exports = {
   createUser,
   deleteUserById,
   getUserBy,
   getAllUsers,
+  updateNickname,
 };

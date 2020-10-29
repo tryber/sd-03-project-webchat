@@ -14,8 +14,15 @@ const deleteUserById = async (id) => {
 
 const getAllUsers = async () => userModel.getAllUsers();
 
+const updateNickname = async (id, nickname) => {
+  console.log('update nick para', nickname);
+  await userModel.updateNickname(id, nickname);
+  return { id, nickname };
+};
+
 module.exports = {
   createUser,
   deleteUserById,
   getAllUsers,
+  updateNickname,
 };
