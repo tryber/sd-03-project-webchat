@@ -46,71 +46,80 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <body>
-    <input type="text" name="" id="nickname", data-testid="nickname-box">
-    <button 
+    <div>
+      <input type="text" name="" id="nickname", data-testid="nickname-box">
+      <button 
       type="button"  
       data-testid="send-button"
       id='sendButton'
-    > Save name
+      > Save name
+    </div>
     </button>
+    <div id='usersOnline'>
+    </div>
     <ul id="messagens"></ul>
     <form action="">
       <input id="mensagemInput" autocomplete="off" data-testid="message-box" />
       <button data-testid="send-button">Send</button>
     </form>
     <script>
-      const form = document.querySelector('form');
-      const messageInput = document.querySelector('#mensagemInput');
-      const messagens = document.querySelector('#messagens');
-      const sendButton = document.getElementById('sendButton');
-      const nicknameElement = document.getElementById('nickname');
+const form = document.querySelector('form');
+const messageInput = document.querySelector('#mensagemInput');
+const messagens = document.querySelector('#messagens');
+const sendButton = document.getElementById('sendButton');
+const nicknameElement = document.getElementById('nickname');
+const usersOnlineElement = document.getElementById('usersOnline');
 
-      const createChatMessage = (message) => {
-        const li = document.createElement('li');
+const createChatMessage = (message) => {
+  const li = document.createElement('li');
 
-        li.setAttribute('data-testid', 'message')
-        li.innerHTML = `
-          <p className='message'>${message}</p>
-        `;
+  li.setAttribute('data-testid', 'message');
+  li.innerHTML = `
+    <p className='message'>${message}</p>
+  `;
 
-        messagens.appendChild(li);
-      }
+  messagens.appendChild(li);
+};
 
-      const socket = io(); /* 'http://localhost:3000' */
-      
-      socket.on('history', (messages) => {
-        messages.forEach((message) => createChatMessage(message)
-)
-      })
+const socket = io(); /* 'http://localhost:3000' */
 
-      let nickname = 'not a random name';
+socket.on('history', (messages) => {
+  messages.forEach((message) => createChatMessage(message));
+});
 
-      sendButton.onclick = () => {
-        nickname = nicknameElement.value;
-      };
+let nickname = `Guest ${Math.random().toString().split('.')[1]}`
+nicknameElement.value = nickname;
 
-      const randomName = fetch('https://randomuser.me/api/').then(
-        async (data) => {
-          const json =  await data.json()
-          const { results: [{ name: { title, first, last } }]} = await json;
-          const name = await `${title} ${first} ${last}`
-          nickname = name;
-          nicknameElement.value = nickname;
-        })
+sendButton.onclick = () => {
+  nickname = nicknameElement.value;
+  socket.emit('userChangeName', nickname)
+};
 
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const message = { 
-          chatMessage: messageInput.value,
-          nickname,
-        }
-        socket.emit('message', message);
-        messageInput.value = '';
-      });
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const message = {
+    chatMessage: messageInput.value,
+    nickname,
+  };
+  socket.emit('message', message);
+  messageInput.value = '';
+});
 
-      socket.on('mensagemServer', (message) => createChatMessage(message));
+socket.emit('userConn', nickname)
 
-      socket.on('disconnect', () => ({ nickname }));
+socket.on('message', (message) => createChatMessage(message));
+
+socket.on('usersOnline', (users) => {
+  console.log(users)
+  const li = document.createElement('li');
+  const ul = document.createElement('ul');
+  users.forEach(({ nickname }) => {
+    li.innerText = nickname;
+    ul.appendChild(li) 
+  })
+  usersOnlineElement.appendChild(ul);
+})
+/* socket.on('disconnect', () => nickname); */
     </script>
   </body>
 </html>

@@ -32,3 +32,18 @@
 //     console.log(error);
 //   }
 // };
+
+/* const randomName = fetch('https://randomuser.me/api/').then(async (data) => {
+  const json = await data.json();
+  const {
+    results: [
+      {
+        name: { title, first, last },
+      },
+    ],
+  } = await json;
+  const name = await `${title} ${first} ${last}`;
+  nickname = name;
+  nicknameElement.value = nickname;
+  socket.emit('userChangeName', nickname)
+}); */
