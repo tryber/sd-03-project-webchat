@@ -18,17 +18,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <style>
       body {
+        font-family: 'Montserrat', sans-serif;
         margin: 0;
         padding: 0;
-   
       }
-      body {
-        font-family: 'Montserrat', sans-serif;
-        
-      }
-       .messages-container {
+
+      .messages-container {
         margin-bottom: 200px;
       }
+
+      .messages-container li {
+        background-color: #f2f2f2 !important;
+      }
+
       .title-message {
         display: flex;
         align-items: center;
@@ -262,7 +264,7 @@
     $(() => {
        $('form').submit((event) => formSubmited(event, socket));
           socket.on('message', function(message) {
-            const [ nickname, chatMessage, formatData, color ] = message.split(',');
+            const [ nickname, chatMessage, formatData, color ] = message.split('---');
             $('#messages')
               .append($(messageFormart(chatMessage, nickname || randomName, color || randomColor, formatData)));
        });

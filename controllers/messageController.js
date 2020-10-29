@@ -6,7 +6,7 @@ const sendMessage = async (io, data) => {
 
   const { date } = await messageServices.addMessages(nickname, chatMessage, color);
 
-  io.emit('message', `${nickname},${chatMessage}, ${formatData(date)}, ${color}`);
+  io.emit('message', `${nickname} --- ${chatMessage} --- ${formatData(date)} --- ${color}`);
 };
 
 module.exports = {
