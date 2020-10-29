@@ -1,7 +1,7 @@
 const { dbConnection } = require('./connection');
 
-const insertMessage = async (obj) =>
-  dbConnection('messages')
+const insertData = async (obj, coll) =>
+  dbConnection(coll)
     .then((collection) =>
       collection
         .insertOne(obj));
@@ -13,7 +13,26 @@ const allPastMessages = async () =>
         .find()
         .toArray());
 
+const onlineUsers = async () =>
+  dbConnection('onlineUsers')
+    .then((collection) => collection
+      .find()
+      .toArray());
+
+const changeNickname = async (obj) =>
+  dbConnection('onlineUsers')
+    .then((collection) => collection
+      .updateOne({ _id: obj.id }, { $set: { nickname: obj.nickname } }));
+
+const deleteUser = async (_id) =>
+  dbConnection('onlineUsers')
+    .then((collection) => collection
+      .deleteOne({ _id }));
+
 module.exports = {
-  insertMessage,
+  insertData,
   allPastMessages,
+  onlineUsers,
+  changeNickname,
+  deleteUser,
 };

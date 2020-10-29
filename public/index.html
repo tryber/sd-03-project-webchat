@@ -13,12 +13,37 @@
       socket.emit('message', { nickname: 'Katia', message });
     };
 
+
     const createMessage = (data) => {
       const newMessage = document.createElement('p');
       newMessage.setAttribute('data-testid', 'message');
       newMessage.innerText = `${data}`;
       return newMessage;
     };
+
+    const userOnlineTag = (user) => {
+      const newOnlineUser = document.createElement('p');
+      newOnlineUser.setAttribute('data-testid', 'online-user')
+      newOnlineUser.innerText = user;
+      return newOnlineUser;
+    }
+
+    const changeNickname = () => {
+      const nickname = document.getElementById('nickname-box').value;
+      socket.emit('changeNickname', nickname);
+    }
+
+    socket.on('onlineUsers', (data) => {
+      const allOnlineUsers = document.getElementById('all-online-users');
+
+      while (allOnlineUsers.firstChild) {
+        allOnlineUsers.removeChild(allOnlineUsers.lastChild);
+      }
+
+      data.map((user) => document
+        .getElementById('all-online-users')
+        .appendChild(userOnlineTag(user.nickname)))
+    });
 
     socket.on('history', (history) => history
       .forEach((data) => document.getElementById('all-messages')
@@ -29,19 +54,35 @@
         .appendChild(createMessage(message));
     });
 
-    window.onload = () => document.getElementById('send-button')
-      .addEventListener('click', () => sendMessage());
+    window.onload = () => {
+      document.getElementById('send-button')
+        .addEventListener('click', () => sendMessage());
+      document.getElementById('nickname-save')
+        .addEventListener('click', () => changeNickname());
+    };
+
   </script>
   <title>Webchat</title>
 </head>
 
 <body>
+  <div>
+    <h4>Nickname</h4>
+    <input data-testid="nickname-box" id="nickname-box" />
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar</button>
+  </div>
   <div id="all-messages">
-
+    <h4>Mensagens</h4>
   </div>
   <div>
     <input data-testid="message-box" id="message-input" />
     <button type="button" id="send-button" data-testid="send-button">Enviar</button>
+  </div>
+  <div>
+    <h4>Online</h4>
+    <div id="all-online-users">
+
+    </div>
   </div>
 </body>
 
