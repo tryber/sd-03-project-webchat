@@ -17,11 +17,13 @@
 <body>
 
   <section>
+    <form id="webchat">
+      <label for="user">Nome de usuario:</label>
+      <input type="text" name="user" id="user" placeholder="username"><br>
+
     <div id="messageWrapper">
       <p>Bem vindo ao MSN</p>
     </div>
-    <form id="webchat">
-      <input type="text" name="user" id="user" placeholder="username"><br>
       <input type="text" name="message" id="message" placeholder="message"><br>
       <button type="submit">Send</button>
     </form>
@@ -29,6 +31,8 @@
 
   <script type="text/javascript">
     const socket = io('http://localhost:4555')
+
+    socket.on('messageHistory', (history) => history.map((message) => renderMessage(message)));
 
     const renderMessage = (messageObject) => {
       const { user, message, sentTime } = messageObject;
