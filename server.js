@@ -29,8 +29,8 @@ io.on('connection', async (socket) => {
 
   socket.on('nameChanged', ({ nickname }) => {
     usersArr.push({ socketId: socket.id, nickname });
-    // const { nickname: nick } = usersArr.filter(({ socketId }) => socketId === socket.id)[0];
-    // usersArr = usersArr.filter((e) => e.nickname !== nick);
+    const { nickname: nick } = usersArr.filter(({ socketId }) => socketId === socket.id)[0];
+    usersArr = usersArr.filter((e) => e.nickname !== nick);
     // const index = usersArr.findIndex(({ socketId }) => socketId === socket.id);
     // console.log(index)
     // console.log(usersArr[index])
@@ -47,7 +47,7 @@ io.on('connection', async (socket) => {
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const { chatMessage: message, nickname: nick, date } = await
-    saveMessageInDB({ chatMessage, nickname });
+      saveMessageInDB({ chatMessage, nickname });
     const newDate = formatDate(date);
     io.emit('message', `${newDate} : ${nick} - ${message}`);
   });
