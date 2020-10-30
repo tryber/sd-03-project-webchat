@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Better than WhatsApp</title>
+    <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+  <div>
+    <section id="mensagem" data-testid="mensagem"></section>
+  </div>
+    <input type="text" id="message-box" data-testid="message-box"/>
+    <button type="submit" id="send-button" data-testid="send-button">Enviar Mensagem</button>
+    <input type="text" id="nickname-box" data-testid="nickname-box"placeholder="nickname" />
+    <button type="submit" id="nickname-save" data-testid="nickname-save">salvar</button>
+  </body>
+  <script>
+    const input = document.getElementById("message-box");
+    const nicknameBox = document.getElementById("nickname-box");
+    const submit = document.getElementById("send-button");
+    const nickname = document.getElementById("nickname-save");
+    const mensagemInput = document.getElementById('mensagem');
+
+    const socket = io("http://localhost:4555");
+    function message({ chatMessage, nickname }) {
+      const paragraph = document.createElement('p')
+      paragraph.textContent = `${nickname} ${chatMessage} ${(new Date()).getUTCDay()}-${(new Date()).getUTCMonth()}-${(new Date()).getUTCFullYear()}`
+      mensagemInput.appendChild(paragraph)
+      input.value = ''
+    };
+
+    socket.on('history', notifications => {
+      notifications.forEach((messages) => message(messages))
+    });
+
+    socket.on('newMessage', (msg) => message(msg));
+
+    //  socket.on('newNickname', ({ chatMessage, nickname }) => {
+    //      document.getElementById('mensagem').appendChild(paragraph)
+    //      input.value = ''
+    //  });
+
+    submit.addEventListener("click", (e) => {
+      e.preventDefault();
+      socket.emit("message", input.value);
+    });
+
+    nickname.addEventListener("click", (e) => {
+      e.preventDefault();
+      socket.emit("newNickname", nicknameBox.value);
+      nicknameBox.value = "";
+    });
+  </script>
+</html>
