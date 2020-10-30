@@ -14,6 +14,10 @@
     <button type="submit" id="send-button" data-testid="send-button">Enviar Mensagem</button>
     <input type="text" id="nickname-box" data-testid="nickname-box"placeholder="nickname" />
     <button type="submit" id="nickname-save" data-testid="nickname-save">salvar</button>
+  <div>
+    Usuários Online
+    <ul id='online-users'></ul>
+  </div>
   </body>
   <script>
     const input = document.getElementById("message-box");
@@ -21,8 +25,15 @@
     const submit = document.getElementById("send-button");
     const nickname = document.getElementById("nickname-save");
     const mensagemInput = document.getElementById('mensagem');
+    const onlineUl = document.getElementById('online-users');
 
     const socket = io("http://localhost:4555");
+    function setOnline({ nickname }) {
+      const li = document.createElement('li')
+      li.textContent = `${nickname}`
+      onlineUl.appendChild(li)
+    };
+
     function message({ chatMessage, nickname }) {
       const paragraph = document.createElement('p')
       paragraph.textContent = `${nickname} ${chatMessage} ${(new Date()).getUTCDay()}-${(new Date()).getUTCMonth()}-${(new Date()).getUTCFullYear()}`
@@ -30,8 +41,12 @@
       input.value = ''
     };
 
-    socket.on('history', notifications => {
-      notifications.forEach((messages) => message(messages))
+    socket.on('history', (ChatMessages, users, id = 0) => {
+      mensagemInput.innerHTML = '';
+      onlineUl.innerHTML = '';
+      if(id !== 0 ) users.push({ id, nickname: id });
+      users.forEach((userOnline) => setOnline(userOnline));
+      ChatMessages.forEach((messages) => message(messages))
     });
 
     socket.on('newMessage', (msg) => message(msg));
