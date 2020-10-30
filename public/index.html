@@ -16,16 +16,16 @@
     };
 
     const createMessage = (data) => {
-      const newMessage = document.createElement('p');
+      const newMessage = document.createElement('li');
       newMessage.setAttribute('data-testid', 'message');
-      newMessage.innerText = `${data}`;
+      newMessage.textContent = `${data}`;
       return newMessage;
     };
 
     const userOnlineTag = (user) => {
-      const newOnlineUser = document.createElement('p');
+      const newOnlineUser = document.createElement('li');
       newOnlineUser.setAttribute('data-testid', 'online-user')
-      newOnlineUser.innerText = user;
+      newOnlineUser.textContent = user;
       return newOnlineUser;
     }
 
@@ -46,10 +46,6 @@
         .getElementById('all-online-users')
         .appendChild(userOnlineTag(user.nickname)))
     });
-
-    socket.on('history', (history) => history
-      .forEach((data) => document.getElementById('all-messages')
-        .appendChild(createMessage(data.chatMessage))));
 
     socket.on('message', (chatMessage) => {
       document.getElementById('all-messages')
@@ -73,8 +69,10 @@
     <input data-testid="nickname-box" id="nickname-box" />
     <button type="button" id="nickname-save" data-testid="nickname-save">Salvar</button>
   </div>
-  <div id="all-messages">
+  <div>
     <h4>Mensagens</h4>
+    <ul id="all-messages">
+    </ul>
   </div>
   <div>
     <input data-testid="message-box" id="message-input" />
@@ -82,9 +80,9 @@
   </div>
   <div>
     <h4>Online</h4>
-    <div id="all-online-users">
+    <ul id="all-online-users">
 
-    </div>
+    </ul>
   </div>
 </body>
 
