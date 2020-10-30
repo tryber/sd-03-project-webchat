@@ -13,7 +13,7 @@ const { PORT = 3000, IOPORT = 4555 } = process.env;
 io.on('connect', async (socket) => {
   let user = socket.id;
 
-  socket.broadcast.emit('serverResponse', { chatMessage: `${socket.id} entrou no chat!` });
+  socket.broadcast.emit('message', `${socket.id} entrou no chat!`);
 
   await messagesModel.insertData({ nickname: socket.id, _id: socket.id }, 'onlineUsers');
 
@@ -27,7 +27,7 @@ io.on('connect', async (socket) => {
     user = nickname;
     await messagesModel.changeNickname({ nickname, id: socket.id });
     const newList = await messagesModel.onlineUsers();
-    socket.broadcast.emit('serverResponse', { chatMessage: `${socket.id} mudou seu nickname para ${nickname}!` });
+    socket.broadcast.emit('message', `${socket.id} mudou seu nickname para ${nickname}!`);
     io.emit('onlineUsers', newList);
   });
 
@@ -38,14 +38,14 @@ io.on('connect', async (socket) => {
 
     await messagesModel.insertData({ nickname, chatMessage: toChat, date: Date() }, 'messages');
 
-    io.emit('serverResponse', { nickname, chatMessage: toChat });
+    io.emit('message', toChat);
   });
 
   socket.on('disconnect', async () => {
     await messagesModel.deleteUser(socket.id);
     const newOnlineUsers = await messagesModel.onlineUsers();
     io.emit('onlineUsers', newOnlineUsers);
-    io.emit('serverResponse', { chatMessage: `${user} desconectou-se!` });
+    io.emit('message', `${user} desconectou-se!`);
   });
 });
 

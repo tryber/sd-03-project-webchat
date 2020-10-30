@@ -51,7 +51,7 @@
       .forEach((data) => document.getElementById('all-messages')
         .appendChild(createMessage(data.chatMessage))));
 
-    socket.on('serverResponse', ({ chatMessage }) => {
+    socket.on('message', (chatMessage) => {
       document.getElementById('all-messages')
         .appendChild(createMessage(chatMessage));
     });
