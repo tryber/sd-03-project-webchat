@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO - trybe</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet"/>
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css"/>
+    <link type="text/css" rel="stylesheet" href="/styles.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body>
+    <section class="chat-container">
+      <section class="right-side">
+        <nav>
+          <div class="nav-wrapper">
+            <div class="input-field cyan darken-4">
+              <input 
+                data-testid="nickname-box"
+                id="nickname"
+                type="search"
+                required
+                placeholder="Escolha seu novo nickname..."
+              >
+              <label class="label-icon" for="nickname"><i class="material-icons">account_circle</i></label>
+              <i data-testid="nickname-save" class="material-icons"><button class="nickname-change-btn" type="button" onclick="changeNickname()">send</button></i>
+            </div>
+          </div>
+        </nav>
+        <ul class="collection messages-container clearfix" id="messages">
+          <li class="collection-item avatar">
+            <div class="title-message">
+              Bem vindo ao chat, 
+              <span class="title" id="nameTitle"></span>
+            </div>
+          </li>   
+        </ul>
+        <div id="sender" class="row footer-input" >
+          <form class="col s12" autocomplete="off">
+            <div class="row">
+              <div class="input-field col s12">
+                <input required data-testid="message-box" id="send-message" type="text">
+                <label for="send-message">Mensagem</label>
+                <button data-testid="send-button" class="btn waves-effect teal darken-4" type="submit" name="action">Enviar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="left-side">
+        <div class="online-head">
+          <h5>Usuários conectados</h5>
+        </div>
+        <div id="online-users-container">
+          <ul class="collection" id="online-users-list"></ul>
+        </div>
+      </section>
+  </section>
+  
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+  <script src="http://chancejs.com/chance.min.js"></script>
+  <script>
+    let randomName = chance.name();
+    const randomColor = chance.color();
+    let userId = '';
+
+    const socket = io();
+
+    const userChatInfo = (name) => {
+      const spanName = document.getElementById('nameTitle');
+      spanName.innerHTML = " " + name;
+    };
+
+    window.onload = () => {
+      $(() => socket.emit('userConnected', { nickname: randomName }));
+      $(() => socket.on('createdUser', ({ id }) => { userId = id }));
+      userChatInfo(randomName);
+    };
+
+    const messageFormart = (message, userName, date = 'Agora mesmo') => {
+      const dateMsg = date || new Date();
+      if (date === 'Agora mesmo') {
+        setTimeout(() => {
+          const time = document.getElementById('time-id');
+          time.innerHTML = 'Há 1 minuto';
+        }, 60000);
+        setTimeout(() => {
+          const time = document.getElementById('time-id');
+          time.innerHTML = `Enviado às ${dateMsg.getHours()}:${dateMsg.getMinutes()} `;
+        }, 100000);
+      }
+      return `
+            <li class="collection-item avatar">
+              <div class="title-message">
+              </div>
+              <p data-testid="message" class="styled-message">
+                <span class="title">
+                  ${userName}
+                </span><br>
+                ${message}
+              </p>
+              <em><span id="time-id" class="real-time">${date}</span><em>
+              <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
+            </li>`;
+    };
+
+    const onlineUsers = (user, id) =>
+      `<li class="collection-item" id="${id}" data-testid="online-user"">
+          ${user}
+      </li>`;
+
+    const changeNickname = () => {
+      const inputName = document.getElementById("nickname").value;
+      const USER_ID = userId; //userId definido no inicio do codigo
+      if (inputName !== '') {
+        socket.emit('userChangedNickName', { nickname: inputName, id: USER_ID });
+        const title = document.getElementById("nameTitle");
+        title.innerHTML = inputName;
+        randomName = inputName;
+      }
+    }
+
+    const formSubmited = async (event, socket) => {
+      event.preventDefault();
+      const data = {
+        nickname: randomName,
+        chatMessage: $('#send-message').val(),
+        userId,
+      };
+      socket.emit('message', data);
+      $('#send-message').val('');
+      return false;
+    };
+    $(() => {
+      $('form').submit((event) => formSubmited(event, socket));
+      socket.on('message', function (message) {
+        const { nickname, chatMessage } = message;
+        $('#messages').append(
+          $(messageFormart(chatMessage, nickname || randomName))
+        );
+      });
+    });
+
+    socket.on('history', (allMessages = []) => {
+      allMessages.forEach(({ chatMessage, nickname, date }) => {
+        $('#messages').append($(messageFormart(chatMessage, nickname, date)));
+      });
+    });
+
+    socket.on('onlineUsers', (users = []) => {
+      users.forEach(({ nickname, _id: id }) => {
+        $('#online-users-list').append($(onlineUsers(nickname, id)));
+      });
+    });
+
+    socket.on('joinedUser', ({ id, nickname }) => {
+      $('#online-users-list').append($(onlineUsers(nickname, id)));
+    });
+
+    socket.on('userLeft', ({ id }) => {
+      $(`#${id}`).remove();
+    });
+
+    socket.on('userChangedNickName', ({ id, nickname }) => {
+      document.getElementById(id).innerHTML = nickname;
+    });
+  </script>
+  </body>
+</html>

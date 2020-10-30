@@ -1,0 +1,82 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .messages-container {
+    margin-bottom: 200px;
+  }
+
+  .messages-container li {
+    background-color: #f2f2f2 !important;
+  }
+
+  .title-message {
+    display: flex;
+    align-items: center;
+  }
+
+  .cyan-icon {
+    color: #006064;
+  }
+
+  .styled-message {
+    font-size: 1rem;
+    margin: 5px !important;
+  }
+
+  .title {
+    font-weight: 700;
+  }
+
+  .collection-item  {
+    padding: 15px !important;
+  }
+  .footer-input {
+    background-color: #00695c ;
+    color: #f2f2f2;
+    position: fixed;
+    bottom: 0;
+    transition: background .2s linear;
+    width: 70%;
+  }
+  .footer-input:hover{
+    background-color: #00897b;  
+  }
+
+  .real-time {
+    right: 10px;
+    bottom: 10px;
+    position: absolute;
+  }
+
+  .nickname-change-btn {
+    background: transparent;
+    border: none;
+    height: 100%;
+  }
+
+  .right-side {
+    width: 70% !important;
+  }
+
+  .left-side {
+    border: 1px solid #00897b;
+    border-radius: 4px;
+    max-height: 700px;
+    max-width: 500px;
+    width: 29%;
+    overflow: auto;
+  }
+
+  .chat-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .online-head {
+    height: 50px;
+    text-align: center;
+  }
