@@ -7,6 +7,7 @@ const saveMessage = async (messageObj, room) => {
 
 const getChatRoomByNumber = async (room) => {
   const chatRoom = await messagesModel.getChatRoomByNumber(room);
+
   return chatRoom;
 };
 

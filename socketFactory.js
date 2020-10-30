@@ -23,6 +23,8 @@ const handleUsersDisconnection = (socketId, io) => () => {
   return io.emit('onlines', onlines);
 };
 
+const handleNickName = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
+
 module.exports = () => {
   const httpServer = http.createServer();
   const io = socketIo(httpServer);
@@ -30,6 +32,7 @@ module.exports = () => {
   io.on('connection', async (socket) => {
     // vem os on, emit, podendo passar o socket até para os controllers utilizarem.
     socket.emit('history', await controllers.messageController.getAllMessages());
+    socket.emit('nickname', handleNickName());
     socket.on('message', controllers.messageController.newMessage(io));
     socket.on('nickname', handleUsersOnlines(socket.id, io));
     socket.on('disconnect', handleUsersDisconnection(socket.id, io));

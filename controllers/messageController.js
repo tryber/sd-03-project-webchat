@@ -15,6 +15,9 @@ const newMessage = (io) => async (messageObj) => {
 
 const getAllMessages = async () => {
   const chatRoom = await messagesService.getChatRoomByNumber(1);
+
+  if (chatRoom === null) return [];
+
   return chatRoom.messagesArray;
 };
 

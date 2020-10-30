@@ -59,9 +59,11 @@
       li.textContent = `${nickname}: ${chatMessage}`;
       document.getElementById('allMessages').appendChild(li)
     });
-
-    nickname.textContent = `Guest ${ Math.floor(((Math.random() * 1000) + 1)) }`;
-    socket.emit('nickname', nickname.textContent);
+    
+    socket.on('nickname', () =>{
+      nickname.textContent  = `Guest ${ Math.floor(((Math.random() * 1000) + 1)) }`;
+      socket.emit('nickname', nickname.textContent);
+    });
 
     nicknameSaveBtn.addEventListener('click', () => {
       nickname.textContent = nicknameTextBox.value;
