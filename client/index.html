@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebChat Project</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Carrega o socket.io a partir do servidor-->
+  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <script>
+    // configura interação com o servidor
+    const socket = io('http://localhost:4555');
+
+    const sendMessage = () => {
+      const message = document.getElementById('message-input').value;
+      socket.emit('message', { message });
+      document.getElementById('message-input').value = '';
+    }
+
+    socket.on('messageToChat', (data) => {
+      const p = document.createElement('p');
+      p.innerText = data.message;
+      console.log(p);
+      document.getElementById('chat-messages').appendChild(p);
+    });
+
+    window.onload = () => 
+    document.getElementById('send-button')
+      .addEventListener('click', () => 
+      sendMessage());
+  </script>
+</head>
+<body>
+  <div id="chat-messages"></div>
+  <form>
+    <input id="message-input">
+    <button type="button" id="send-button">Enviar Mensagem</button>
+  </form>
+</body>
+</html>
