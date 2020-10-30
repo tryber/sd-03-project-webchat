@@ -31,7 +31,7 @@ describe('Informe a todos os clientes quem está online no momento', () => {
       useUnifiedTopology: true,
     });
     db = connection.db(process.env.DB_NAME);
-    browser = await puppeteer.launch({ args: ['--no-sandbox', '--window-size=1920,1080'], headless: true });
+    browser = await puppeteer.launch({ args: ['--no-sandbox', '--window-size=1920,1080'], headless: false });
   });
 
   beforeEach(async () => {
