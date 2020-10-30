@@ -1,4 +1,4 @@
-const net = require('net');
+/* const net = require('net');
 
 const client = new net.Socket();
 const stdin = process.openStdin();
@@ -24,3 +24,4 @@ client.connect(3000, 'localhost', () => {
     client.write(message);
   });
 });
+ */
