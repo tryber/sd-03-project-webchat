@@ -13,12 +13,9 @@
         document.getElementById("messagens").appendChild(li);
       });
 
-      const getRandomName = () => {
-        const nickName = `User ${Math.random() * 100}`;
-        return nickName;
-      };
-      
-      const sendToBackEnd = () => {
+      const getRandomName = () => `User ${Math.random() * 100}`;
+   
+        const sendToBackEnd = () => {
         const mensagem = document.getElementById('mensagemInput');
         socket.emit("message", { chatMessage: mensagem.value, nickname: getRandomName });
       }
