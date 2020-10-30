@@ -23,6 +23,7 @@ describe('Crie um frontend para que as pessoas interajam com o chat', () => {
     });
     db = connection.db(process.env.DB_NAME);
     browser = await puppeteer.launch({ args: ['--no-sandbox', '--window-size=1920,1080'], headless: true });
+    console.log(browser)
   });
 
   beforeEach(async () => {

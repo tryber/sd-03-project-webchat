@@ -15,9 +15,11 @@ async function start() {
 
   const httpServer = http.createServer(app);
   const io = socketIo(httpServer);
+
   app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
   });
+
   const db = await connection();
   const messageModel = model(db);
   socketFactory(io, messageModel, users);

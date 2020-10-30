@@ -90,6 +90,8 @@ socket.on('history', (messages) => {
 let nickname = `Guest ${Math.random().toString().split('.')[1]}`
 nicknameElement.value = nickname;
 
+socket.emit('userConn', nickname)
+
 sendButton.onclick = () => {
   nickname = nicknameElement.value;
   socket.emit('userChangeName', nickname)
@@ -105,18 +107,20 @@ form.addEventListener('submit', (e) => {
   messageInput.value = '';
 });
 
-socket.emit('userConn', nickname)
+
 
 socket.on('message', (message) => createChatMessage(message));
 
 socket.on('usersOnline', (users) => {
   console.log(users)
-  const li = document.createElement('li');
   const ul = document.createElement('ul');
   users.forEach(({ nickname }) => {
+    const li = document.createElement('li');
     li.innerText = nickname;
     ul.appendChild(li) 
   })
+  console.log(ul)
+  usersOnlineElement.innerHTML = '';
   usersOnlineElement.appendChild(ul);
 })
 /* socket.on('disconnect', () => nickname); */

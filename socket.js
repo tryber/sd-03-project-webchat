@@ -7,8 +7,8 @@ const emitHistory = async (messageModel, socket) => {
 
   socket.emit('history', history);
 };
-
-module.exports = (io, messageModel, users) => {
+const users = [];
+module.exports = (io, messageModel) => {
   io.on('connection', async (socket) => {
     await emitHistory(messageModel, socket);
 
@@ -29,13 +29,16 @@ module.exports = (io, messageModel, users) => {
 
     socket.on('disconnecting', () => {
       // on user disconnect pass socket.id
-      console.log(socket.id);
-      console.log('users:', users);
+      // console.log(socket.id);
+      console.log('users on disconnecting:', users);
+
       const user = users.find((u) => u.id === socket.id);
       console.log('disconnecting user:', user);
       io.emit('mensagemServer', `${socket.id} saiu`);
       const index = users.indexOf(user);
+
       users.splice(index, 1);
+
       console.log('users on disc', users);
       io.emit('usersOnline', users);
     });
