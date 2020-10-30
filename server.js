@@ -8,12 +8,15 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 
+const { saveMessage } = require('./models/saveMessage');
+
 const PUBLIC_PATH = path.join(__dirname, 'public');
 
 app.use(bodyParser.json());
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
 io.on('connection', async (socket) => {
+  // lida com as mensagens req: 1
   socket.on('message', ({ chatMessage, nickname }) => {
     const timesTamp = new Date();
     // const timesTamp = new Date().toLocaleDateString() formata local
@@ -21,6 +24,14 @@ io.on('connection', async (socket) => {
     const renderMessagens = `${nickname} Time: ${time} Say: ${chatMessage}`;
     socket.emit('message', renderMessagens);
     socket.broadcast.emit('message', renderMessagens);
+    return saveMessage(chatMessage, nickname, time);
+  });
+
+  // mudar nome do nick req: 2
+  socket.on('changeName', ({ newNickName }) => {
+    console.log(newNickName);
+    socket.emit('changeName', { newNickName });
+    socket.broadcast.emit('changeName', { newNickName });
   });
 });
 

@@ -9,20 +9,19 @@
   <body>
     <ul id="messagens"></ul>
     <form action="">
-      <input id="mensagemInput" type="text" autocomplete="off" />
-      <input
-        data-testid="message-box"
-        type="text"
-        id="input"
-        name="message-input"
-      />
-      <button data-testid="send-button" type="submit" id="submit">
-        Enviar
-      </button>
+      <input data-testid="message-box" type="text" id="input" name="message-input" />
+      <button data-testid="send-button" type="submit" id="submit">Enviar</button>
+
+
+      <input data-testid="nickname-box" id="newNick" type="text" autocomplete="off" />
+      <button data-testid="nickname-save" type="submit" id="submitNick">Change Name</button>
+
     </form>
     <script>
       window.onload = () => {
         const submit = document.getElementById("mensagemInput");
+        const newNick = document.getElementById('newNick');
+        const submitNewNick = document.getElementById('submitNick');
         const socket = io();
 
         socket.on("message", (data) => {
@@ -44,6 +43,14 @@
           });
           mensagem.value = "";
         });
+
+
+        submitNewNick.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          socket.emit('changeName', ({ newNickName: newNick.value }));
+          newNick.value = '';
+        })
       };
     </script>
   </body>
