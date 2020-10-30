@@ -43,7 +43,6 @@ app.get('/', (_req, res) => {
 // });
 
 io.on('connection', async (socket) => {
-  io.to(socket.id).emit('bem-vindo', 'Welcome to the chat!');
   onlineUsers.push(socket.id);
   console.log('onlineUsers', onlineUsers);
   const getAll = await connection().then((db) =>
@@ -54,11 +53,12 @@ io.on('connection', async (socket) => {
     console.log('User disconnected');
     socket.disconnect();
     onlineUsers = onlineUsers.filter((user) => user !== socket.id);
+    console.log('Someone disconnected', onlineUsers);
   });
   socket.on('message', (msg) => {
     // socket.broadcast.emit({ chatMessage: msg });
     const myDate = new Date();
-    const formattedDate = moment(myDate).format('YYYY-MM-DD HH:mm:ss');
+    const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
     connection()
       .then((db) =>
         db
@@ -71,8 +71,8 @@ io.on('connection', async (socket) => {
       .catch((e) => console.log(e));
     const newMessage = msg;
     newMessage.date = formattedDate;
-    console.log(newMessage);
-    io.emit('message', newMessage);
+    const { nickname, date, chatMessage } = newMessage;
+    io.emit('message', `${nickname} - ${date}: ${chatMessage}`);
   });
 });
 io.on('connection', (_socket) => {
