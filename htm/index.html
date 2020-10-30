@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebChat Socket.IO</title>
+    <title>SlackWebChat</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script>
       const socket = io(); // Executa uma conexão com localhost:3000
-      let username = 'Anonnnnymous';
+      let nickname = 'Anonnnnymous';
       let oldname = '';
       let userlist = [];
-      let message = '';
+      let chatMessage = '';
 
-      const appendMsg = (msg) => {
+      const appendMsg = (msg, isChatMsg) => {
         $('.messages')
-          .append($('<li data-testid="message">')
+          .append(
+            $(isChatMsg
+            ? '<li data-testid="message">'
+            : '<li class="chat-event">')
             .text(msg));
       }
 
@@ -27,41 +30,62 @@
       // Alternativa ao document.ready
       $(() => {
         
-        // $('.nickname').text(username);
-        // Eventos para enviar pacotes
+        // ----- Eventos para enviar pacotes ----- \\
+        // Alteração do nickname
         $('#nickname-save').click(() => {
-          oldname = username;
-          username = $('#nickname-box').val()
-          socket.emit('userRename', { oldname, username });
-          $('.nickname').text(username);
-          $('#messageInput').val('');
-        })
-        
-        $('#send-button').click((e) => {
-          message = $('#messageInput').val();
-          socket.emit('message', { username, message });
+          oldname = nickname;
+          nickname = $('#nickname-box').val();
+          appendMsg(`${oldname} alterou o nick para ${nickname}`);
+          socket.emit('userRename', { oldname, nickname, userlist });
+          $('.nickname').text(nickname);
           $('#messageInput').val('');
         });
         
-        // Eventos de pacotes recebidos
+        // Envio da mensagem
+        $('#send-button').click((e) => {
+          chatMessage = $('#messageInput').val();
+          socket.emit('message', { nickname, chatMessage });
+          $('#messageInput').val('');
+        });
+        
+        // ----- Eventos de pacotes recebidos ----- \\
+        // Carregamento das mensagens do banco
+        socket.on('loadHistory', (messages) => {
+          messages.map(({
+            nickname,
+            chatMessage,
+            currTime
+          }) => appendMsg(`(${currTime}) - ${nickname}: ${chatMessage}`, true));
+        });
+
+        socket.on('getUserList', (users) => {
+          userlist = users;
+        });
+
+        // Notificação de que usuário ingressou na sala
         socket.on('newUserMsg', (user) => {
-          username = user;
+          nickname = user;
           userlist.push(user);
           appendMsg(`${user} ingressou na sala`);
           manageUserList();
         });
         
-        socket.on('userRename', ({oldname, username}) => {
-          userlist.filter((e) => e !== oldname);
-          userlist.push(username);
-          appendMsg(`${oldname} mudou o nick para ${username}`);
-          manageUserList();
+        // Notificação de usuário que renomeou o nick
+        socket.on('userRename', (newList) => {
+          manageUserList(newList);
         });
+        
+        // Recebimento de mensagem padrão
+        socket.on('message', (string) => {
+          appendMsg(string, true);
+        })
 
-        socket.on('message', ({username, message}) =>
-          appendMsg(`${username}: ${message}`));
-
+        // Alguém saiu da sala
         socket.on('userLogOff', ({mensagem}) =>
+          appendMsg(mensagem));
+
+        // O próprio cliente se desconectou
+        socket.on('disconnect', ({mensagem}) =>
           appendMsg(mensagem));
       });
 
@@ -70,25 +94,11 @@
   <body>
     <div class="messages">
       <h2>Mensagens</h2>
-      <div class="message-box">
-        <input
-          id="messageInput"
-          autocomplete="off"
-          data-testid="message-box"
-        />
-        <button
-          type="submit"
-          id="send-button"
-          data-testid="send-button"
-        >
-          Enviar
-        </button>
-      </div class="message-box">
     </div>
     <div class="userPanel">
       <h2>Usuários conectados</h2>
       <ul class="user-list"></ul>
-      <div class="username-form">
+      <div class="nickname-form">
         <h3>Você está conectado como 
           <span data-testid="online-user" class="nickname">anonymous</span>.
         </h3>
@@ -98,5 +108,19 @@
         </button>
       </div>
     </div>
+    <div class="message-box">
+      <input
+        id="messageInput"
+        autocomplete="off"
+        data-testid="message-box"
+      />
+      <button
+        type="submit"
+        id="send-button"
+        data-testid="send-button"
+      >
+        Enviar
+      </button>
+    </div class="message-box">
   </body>
 </html>

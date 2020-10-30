@@ -26,7 +26,7 @@ h2, h3 {
   color: crimson;
 }
 
-.username-form {
+.nickname-form {
   position: fixed;
   bottom: 3em;
   width: 30%;
@@ -58,7 +58,12 @@ h2, h3 {
 .messages {
   background-color: wheat;
   height: 100%;
+  overflow: auto;
   width: 70%;
+}
+
+.chat-event {
+  font-style: italic;
 }
 
 .userPanel {
