@@ -6,7 +6,8 @@
   <title>Socket.io - Client Demo</title>
 
   <!-- Carrega o socket.io -->
-  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 
   <!-- Configura interação com o servidor -->
   
@@ -14,34 +15,42 @@
 <body>
   <div>
     <span id="nickname"></span><br>
-    <input type="text" id="nickname-box" />
-    <button type="button" id="nickname-save">Salvar Nickname</button>
+    <input type="text" id="nickname-box" data-testid="nickname-box" />
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar Nickname</button>
     <fieldset>
       <span>Mensagens</span>
       <ul id="allMessages"></ul>
     </fieldset>
-    <input type="text" id="message-box" />
-    <button type="submit" id="send-button">Enviar</button>
+    <input type="text" id="message-box" data-testid="message-box" />
+    <button type="submit" id="send-button" data-testid="send-button" value="public">Enviar</button><br>
+    <button type="button" id="public-chat-button" data-testid="public-chat-button">Voltar para chat público</button>
     <fieldset>
       <span>Online</span>
       <ul id="allUsers"></ul>
     </fieldset>
   </div>
   <script>
-    const socket = io('http://localhost:4555');
+    const socket = io('http://localhost:3000');
     const textInput = document.getElementById('message-box');
     const sendButton = document.getElementById('send-button');
+    const publicChatButton = document.getElementById('public-chat-button');
     const nickname = document.getElementById('nickname');
     const nicknameSaveBtn = document.getElementById('nickname-save');
     const nicknameTextBox = document.getElementById('nickname-box');
-    
+
+
     sendButton.addEventListener('click', (e) => {
+      console.log(e.target.value)
       e.preventDefault();
-      const messageObj = {
-        chatMessage: textInput.value,
-        nickname: nickname.textContent,
+      if (e.target.value === 'public') {
+        const messageObj = {
+          chatMessage: textInput.value,
+          nickname: nickname.textContent,
+        }
+        socket.emit('message', messageObj);
+      } else {
+        
       }
-      socket.emit('message', messageObj);
       textInput.value = '';
     });
     
@@ -49,14 +58,16 @@
       document.getElementById('allMessages').innerHTML = '';
       return messages.forEach(({ nickname, chatMessage }) => {
         const li = document.createElement('li');
-        li.textContent = `${nickname}: ${chatMessage}`;
+        li.textContent = chatMessage;
+        li.setAttribute('data-testid', 'message');
         document.getElementById('allMessages').appendChild(li);
       });
     });
 
-    socket.on('newText', ({ nickname, chatMessage }) => {
+    socket.on('message', (message) => {
       const li = document.createElement('li');
-      li.textContent = `${nickname}: ${chatMessage}`;
+      li.textContent = message;
+      li.setAttribute('data-testid', 'message');
       document.getElementById('allMessages').appendChild(li)
     });
     
@@ -71,13 +82,27 @@
       nicknameTextBox.value = '';
     });
 
+    publicChatButton.addEventListener('click', () => {
+      sendButton.setAttribute('value', 'public');
+    })
+
     socket.on('onlines', (data) => {
       document.getElementById('allUsers').innerHTML = '';
-      return data.forEach(({ nickname }) => {
+      return data.forEach(({ nickname, id }) => {
         const li = document.createElement('li');
+        const button = document.createElement('button');
         li.textContent = nickname;
-        li.setAttribute('data-testid', "online-user")
-        document.getElementById('allUsers').appendChild(li)
+        button.textContent = `DM`;
+        button.setAttribute('data-testid', 'private');
+
+        button.addEventListener('click', () => {
+          sendButton.setAttribute('value', 'private');
+        });
+
+        li.setAttribute('data-testid', 'online-user');
+
+        document.getElementById('allUsers').appendChild(li);
+        document.getElementById('allUsers').appendChild(button);
       })
     });
 
