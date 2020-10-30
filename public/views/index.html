@@ -18,8 +18,9 @@
           return false;
         });
         socket.on('message', function (msg) {
-          $('#messages').append($('<p>').text(msg.nickname + ' '+ msg.date));
-          $('#messages').append($('<li>').text(msg.chatMessage));
+          const complete_message =
+            msg.nickname + ' ' + msg.date + ': ' + msg.chatMessage;
+          $('#messages').append($('<li data-testid="message">').text(complete_message));
           window.scrollTo(0, document.body.scrollHeight);
         });
         socket.on('bem-vindo', function (msg) {
@@ -27,8 +28,9 @@
           window.scrollTo(0, document.body.scrollHeight);
         });
         socket.on('history', function (msg) {
-          $('#messages').append($('<p>').text(msg.nickname + ' ' + msg.date));
-          $('#messages').append($('<li>').text(msg.chatMessage));
+          const complete_message =
+            msg.nickname + ' ' + msg.date + ': ' + msg.chatMessage;
+          $('#messages').append($('<li data-testid="message">').text(complete_message));
           window.scrollTo(0, document.body.scrollHeight);
         });
       });
