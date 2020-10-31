@@ -49,14 +49,15 @@ describe('Informe a todos os clientes quem está online no momento', () => {
   });
   
   it('Será validado que quando um usuário se conecta, seu nome aparece no frontend de todos', async () => {
-    const nickname = faker.internet.userName();
-    const secondNickname = faker.internet.userName();
+    const nickname = 'Joao da carrocinha'
+    const secondNickname = 'Zacarias'
 
     await page.goto(BASE_URL);
     let nicknameBox = await page.$(dataTestid('nickname-box'));
     let nicknameSave = await page.$(dataTestid('nickname-save'));
 
     await page.$eval('[data-testid="nickname-box"]', el => el.value = '');
+    await page.waitForTimeout(1000);
     await nicknameBox.type(nickname);
     await nicknameSave.click();
     await page.waitForTimeout(1000);
@@ -64,8 +65,7 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     let usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
 
     expect(usersOnline).toContain(nickname);
-
-    const numberOfUsersOnline = usersOnline.length;
+    
     const newPage = await browser.newPage();
 
     await newPage.goto(BASE_URL);
@@ -73,51 +73,56 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     nicknameSave = await newPage.$(dataTestid('nickname-save'));
 
     await page.$eval('[data-testid="nickname-box"]', el => el.value = '');
+    await page.waitForTimeout(1000);
     await nicknameBox.type(secondNickname);
     await nicknameSave.click();
     await page.waitForTimeout(1000);
     await page.waitForSelector(dataTestid('online-user'));
-    usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
+    usersOnline2 = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
 
-    expect(numberOfUsersOnline).toBe(usersOnline.length - 1);
-    await newPage.close();
+    expect(usersOnline2).toContain(nickname);
+    await newPage.close(); 
   });
 
   it('Será validado que qunado um usuário se desconecta, seu nome desaparece do frontend dos outros usuários.', async () => {
-    const nickname = faker.internet.userName();
-    const secondNickname = faker.internet.userName();
+    const nickname = 'Joao da carrocinha'
+    const secondNickname = 'Zacarias'
 
     await page.goto(BASE_URL);
     let nicknameBox = await page.$(dataTestid('nickname-box'));
     let nicknameSave = await page.$(dataTestid('nickname-save'));
 
     await page.$eval('[data-testid="nickname-box"]', el => el.value = '');
+    await page.waitForTimeout(1000);
     await nicknameBox.type(nickname);
     await nicknameSave.click();
-    wait(1000);
+    await page.waitForTimeout(1000);
     await page.waitForSelector(dataTestid('online-user'));
     let usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
 
     expect(usersOnline).toContain(nickname);
 
-    const numberOfUsersOnline = usersOnline.length;
     const newPage = await browser.newPage();
 
     await newPage.goto(BASE_URL);
+
     nicknameBox = await newPage.$(dataTestid('nickname-box'));
     nicknameSave = await newPage.$(dataTestid('nickname-save'));
 
     await page.$eval('[data-testid="nickname-box"]', el => el.value = '');
+    await page.waitForTimeout(1000);
     await nicknameBox.type(secondNickname);
     await nicknameSave.click();
+    await page.waitForTimeout(1000);
     await page.waitForSelector(dataTestid('online-user'));
-    usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
+    let usersOnline2 = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
 
-    expect(numberOfUsersOnline).toBe(usersOnline.length - 1);
+    await page.bringToFront();
+    expect(usersOnline2).toContain(secondNickname);
+
+    await newPage.bringToFront();
     await newPage.close();
-    wait(1000);
-    usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
 
-    expect(numberOfUsersOnline).toBe(usersOnline.length);
+    expect(usersOnline).not.toContain(secondNickname);
   });
 });
