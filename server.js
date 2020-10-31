@@ -24,29 +24,31 @@ app.use('/', express.static(`${__dirname}`));
 app.get('/', (_req, res) => {
   res.sendFile(`${__dirname}/public/views/index.html`);
 });
-// app.post('/chat', async (req, res) => {
-//   const { nickname } = req.body;
-//   console.log(nickname);
-//   // if (nickname === undefined) return res.redirect('/');
-//   userNickname = nickname;
-//   onlineUsers.push(nickname);
-//   console.log(onlineUsers);
-//   const getAll = await connection().then((db) =>
-//     db.collection('messages').find({}).toArray(),
-//   );
-//   const arrayMessages = getAll.map((message) => ({
-//     chatMessage: message.chatMessage,
-//     nickname: message.nickname,
-//   }));
-//   console.log(arrayMessages, 'array');
-//   res.sendFile(`${__dirname}/public/views/index.html`);
-// });
 
 io.on('connection', async (socket) => {
-  onlineUsers.push(socket.id);
+  socket.on('updateNickname', (data) => {
+    connection().then((db) =>
+      db
+        .collection('messages')
+        .updateMany(
+          { id: socket.id },
+          { $set: { nickname: data.newNick } },
+        ));
+    onlineUsers.forEach((user) => {
+      const usuario = user;
+      if (user.id === socket.id) usuario.nickname = data.newNick;
+      return usuario;
+    });
+    console.log('Online after nickChange', onlineUsers);
+  });
+  onlineUsers.push({ nickname: socket.id, id: socket.id });
   console.log('onlineUsers', onlineUsers);
-  const getAll = await connection().then((db) =>
-    db.collection('messages').find({}).toArray());
+  const getAll = await connection()
+    .then((db) =>
+      db
+        .collection('messages')
+        .find({})
+        .toArray());
   getAll.forEach((message) => {
     const { nickname, date, chatMessage } = message;
     const completeMessage = `${nickname} ${date} ${chatMessage}`;
@@ -55,7 +57,7 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected');
     socket.disconnect();
-    onlineUsers = onlineUsers.filter((user) => user !== socket.id);
+    onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
     console.log('Someone disconnected', onlineUsers);
   });
   socket.on('message', (msg) => {
@@ -64,25 +66,20 @@ io.on('connection', async (socket) => {
     const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
     connection()
       .then((db) =>
-        db
-          .collection('messages')
-          .insertOne({
-            chatMessage: msg.chatMessage,
-            nickname: msg.nickname,
-            date: formattedDate,
-          }))
+        db.collection('messages').insertOne({
+          id: socket.id,
+          nickname: msg.nickname,
+          chatMessage: msg.chatMessage,
+          date: formattedDate,
+        }))
       .catch((e) => console.log(e));
     const newMessage = msg;
     newMessage.date = formattedDate;
-    const { nickname, date, chatMessage } = newMessage;
-    io.emit('message', `${nickname} - ${date}: ${chatMessage}`);
+    const updatedNickname = onlineUsers.filter((user) => user.id === socket.id)[0].nickname;
+    const { date, chatMessage } = newMessage;
+    io.emit('message', `${updatedNickname} - ${date}: ${chatMessage}`);
   });
 });
-
-// io.on('connection', (socket) => {
-//   socket.broadcast.emit();
-//   console.log('A user connected');
-// });
 
 http.listen(3000, () => {
   console.log('listening on *:3000');
