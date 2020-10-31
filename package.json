@@ -7,7 +7,7 @@
     "test": "jest --detectOpenHandles",
     "test-coverage": "jest --coverage",
     "start": "node server.js",
-    "debug": "nodemon index.js",
+    "debug": "nodemon server.js",
     "lint": "eslint --no-inline-config --fix --no-error-on-unmatched-pattern -c .eslintrc.json ."
   },
   "keywords": [],

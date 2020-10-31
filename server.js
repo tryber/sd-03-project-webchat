@@ -75,9 +75,11 @@ io.on('connection', async (socket) => {
     io.emit('message', `${nickname} - ${date}: ${chatMessage}`);
   });
 });
-io.on('connection', (_socket) => {
-  console.log('A user connected');
-});
+
+// io.on('connection', (socket) => {
+//   socket.broadcast.emit();
+//   console.log('A user connected');
+// });
 
 http.listen(3000, () => {
   console.log('listening on *:3000');
