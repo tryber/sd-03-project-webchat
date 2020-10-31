@@ -13,21 +13,22 @@ app.use('/', express.static('/public', { extensions: ['html'] }));
 const PORT = 3000;
 const sockets = [];
 let guestId = 0;
-/* const broadcastMessage = (from, message) => {
-  sockets
-    .filter((socket) => socket.guest !== from)
-    .forEach((socket) => socket.write(message));
-}; */
 
 app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
-io.on('connection', (socket) => {
+io.on('connect', (socket) => {
   guestId += 1;
-  console.log(`${guestId} connected`);
-
+  socket.nickname = guestId;
   socket.on('error', (err) => console.log('Erro no socket', err));
-  socket.emit('message', [{ chatMessage: 'teste de envio de mensagem', nickname: 'fulano' }]);
+
+  socket.on('message', (msg) => {
+    const { chatMessage } = msg;
+    socket.msg = chatMessage;
+    sockets.push(socket);
+    socket.broadcast.emit('message', chatMessage);
+    console.log(`Guest ${guestId} disse >  ${socket.msg}`);
+  });
 });
 
 http.listen(PORT, () => console.log('Servidor ouvindo na porta 3000'));
