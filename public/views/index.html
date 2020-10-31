@@ -26,9 +26,7 @@
           window.scrollTo(0, document.body.scrollHeight);
         });
         socket.on('history', function (msg) {
-          const complete_message =
-            msg.nickname + ' ' + msg.date + ': ' + msg.chatMessage;
-          $('#messages').append($('<li data-testid="message">').text(complete_message));
+          $('#messages').append($('<li data-testid="message">').text(msg));
           window.scrollTo(0, document.body.scrollHeight);
         });
       });

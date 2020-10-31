@@ -47,8 +47,11 @@ io.on('connection', async (socket) => {
   console.log('onlineUsers', onlineUsers);
   const getAll = await connection().then((db) =>
     db.collection('messages').find({}).toArray());
-  getAll.forEach((message) =>
-    io.to(socket.id).emit('history', message));
+  getAll.forEach((message) => {
+    const { nickname, date, chatMessage } = message;
+    const completeMessage = `${nickname} ${date} ${chatMessage}`;
+    io.to(socket.id).emit('history', completeMessage);
+  });
   socket.on('disconnect', () => {
     console.log('User disconnected');
     socket.disconnect();
