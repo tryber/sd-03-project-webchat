@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use('/', express.static('/public', { extensions: ['html'] }));
 
 const PORT = 3000;
-const sockets = [];
+const sockets = { nickname: '', chatMessage: {} };
 /* const guestId = 0;
  */
 app.get('/', (req, res) => {
@@ -29,13 +29,16 @@ io.on('connect', (socket) => {
     const dateObj = new Date();
     const date = `${dateObj.getDate()}-${dateObj.getMonth()}-${dateObj.getFullYear()}`;
     const time = `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
-    console.log(date);
     const { chatMessage, nickname } = msg;
-    // socket.msg = chatMessage;
-    sockets.push(socket);
-    socket.broadcast.emit('message', `${nickname} ${chatMessage} ${date} ${time}`);
+    sockets.chatMessage = chatMessage;
+    sockets.nickname = nickname;
+    socket.broadcast.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
     socket.emit('message', `${nickname} ${chatMessage} ${date} ${time}`);
-    console.log(`Guest ${nickname} disse >  ${socket.msg}`);
+    console.log(`Guest ${sockets.nickname} disse >  ${socket.msg}`);
+  });
+  socket.on('changeNicknanme', (newNickname) => {
+    sockets.nickname = newNickname;
+    console.log(`new Nickname ${sockets.nickname}`);
   });
 });
 
