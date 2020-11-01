@@ -4,8 +4,8 @@ const getAll = () =>
   connection()
     .then((db) =>
       db
-        .collection('recipes')
-        .find({})
+        .collection('online')
+        .find({}, { projection: { _id: 0 } })
         .toArray());
 
 const addUser = (id) =>

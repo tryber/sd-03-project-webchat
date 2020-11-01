@@ -29,11 +29,14 @@
         socket.on('history', function (msg) {
           $('#messages').append($('<li class="message" data-testid="message">').text(msg));
         });
+        socket.on('updateOnline', function (users) {
+          document.getElementById("online-users").innerHTML = "";
+          users.forEach((user) => {
+            $('#online-users').append($('<li data-testid="online-user">').text(user.nickname));
+          })
+        });
       });
     </script>
-    <!-- <script>
-      
-    </script> -->
   </head>
   <body>
     <div class="forms">

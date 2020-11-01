@@ -18,7 +18,7 @@ app.get('/', (_req, res) => {
 
 io.on('connection', async (socket) => {
   const { id } = socket;
-  socket.on('updateNickname', (data) => {
+  socket.on('updateNickname', async (data) => {
     const { newNick } = data;
     connection().then((db) =>
       db
@@ -27,15 +27,12 @@ io.on('connection', async (socket) => {
           { id: socket.id },
           { $set: { nickname: newNick } },
         ));
-    onlineUsers.forEach((user) => {
-      const usuario = user;
-      if (user.id === id) usuario.nickname = newNick;
-      return usuario;
-    });
-    online.updateNickname(id, newNick);
+    await online.updateNickname(id, newNick);
+    onlineUsers = await online.getAll();
     console.log('Online after nickChange', onlineUsers);
   });
   onlineUsers.push({ nickname: socket.id, id: socket.id });
+  io.emit('updateOnline', onlineUsers);
   online.addUser(id);
   console.log('onlineUsers', onlineUsers);
   const getAll = await connection()
@@ -49,12 +46,14 @@ io.on('connection', async (socket) => {
     const completeMessage = `${nickname} ${date} ${chatMessage}`;
     io.to(socket.id).emit('history', completeMessage);
   });
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     console.log('User disconnected');
     socket.disconnect();
     onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
     online.removeUser(id);
     console.log('Someone disconnected', onlineUsers);
+    onlineUsers = await online.getAll();
+    io.emit('updateOnline', onlineUsers);
   });
   socket.on('message', (msg) => {
     // socket.broadcast.emit({ chatMessage: msg });
