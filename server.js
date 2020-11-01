@@ -25,12 +25,11 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', (socket) => { // `socket` é num escopo de quem conectar
-
   const newNickname = generateRandom();
   insertIntoList(newNickname, io, socket.id, onlineSrvUsers);
   socket.emit('syncNewNick', newNickname);
   console.log(newNickname, 'conectou-se');
-  
+
   messageController.getAll(socket);
   socket.emit('syncOnlineUsers', onlineSrvUsers);
 
