@@ -6,18 +6,9 @@ const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 const moment = require('moment');
 const connection = require('./tests/helpers/db');
+const online = require('./models/online');
 
 let onlineUsers = [];
-
-const createStructure = async () => {
-  try {
-    await connection.createCollection('messages');
-    console.log('Banco criado');
-  } catch (error) {
-    console.log('Banco já existe');
-  }
-};
-createStructure();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', express.static(`${__dirname}`));
@@ -26,22 +17,26 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', async (socket) => {
+  const { id } = socket;
   socket.on('updateNickname', (data) => {
+    const { newNick } = data;
     connection().then((db) =>
       db
         .collection('messages')
         .updateMany(
           { id: socket.id },
-          { $set: { nickname: data.newNick } },
+          { $set: { nickname: newNick } },
         ));
     onlineUsers.forEach((user) => {
       const usuario = user;
-      if (user.id === socket.id) usuario.nickname = data.newNick;
+      if (user.id === id) usuario.nickname = newNick;
       return usuario;
     });
+    online.updateNickname(id, newNick);
     console.log('Online after nickChange', onlineUsers);
   });
   onlineUsers.push({ nickname: socket.id, id: socket.id });
+  online.addUser(id);
   console.log('onlineUsers', onlineUsers);
   const getAll = await connection()
     .then((db) =>
@@ -58,6 +53,7 @@ io.on('connection', async (socket) => {
     console.log('User disconnected');
     socket.disconnect();
     onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
+    online.removeUser(id);
     console.log('Someone disconnected', onlineUsers);
   });
   socket.on('message', (msg) => {
