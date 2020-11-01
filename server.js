@@ -28,6 +28,26 @@ const handleUsersDisconnection = (socketId, io) => () => {
 
 const handleNickName = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
 
+const handlePrivateMessage = (io, socket) => (data) => {
+  const currentDate = new Date();
+  const formattedDate = `
+    ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
+    ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
+  `;
+
+  const { nickname } = onlines.find((user) => user.id === data.to);
+
+  const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
+
+  io.sockets.sockets[data.to].emit('private', {
+    from: data.nickname, to: nickname, message,
+  });
+
+  socket.emit('private', {
+    from: data.nickname, to: nickname, message,
+  });
+};
+
 const app = express();
 
 const httpServer = http.createServer(app);
@@ -47,6 +67,7 @@ io.on('connection', async (socket) => {
   socket.on('message', controllers.messageController.newMessage(io));
   socket.on('nickname', handleUsersOnlines(socket.id, io));
   socket.on('disconnect', handleUsersDisconnection(socket.id, io));
+  socket.on('private', handlePrivateMessage(io, socket));
 });
 
 httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));
