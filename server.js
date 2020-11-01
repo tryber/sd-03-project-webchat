@@ -1,3 +1,4 @@
+const connection = require('./tests/helpers/db');
 const express = require('express');
 const path = require('path');
 
@@ -5,7 +6,7 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
-const { connect } = require('./models/dbConnection');
+// const { connect } = require('./models/dbConnection');
 
 const PATH_STATIC = path.join(`${__dirname}/public`);
 app.use(bodyParser.json());
@@ -18,8 +19,8 @@ const sockets = { nickname: '', chatMessage: {} };
 app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
-io.on('connect', (socket) => {
-  connect();
+io.on('connect', async (socket) => {
+  const db  = await connection();
   /*   guestId += 1;
 */
   // socket.nickname = guestId;
