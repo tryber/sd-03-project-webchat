@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Chat </title>
 <script src="/socket.io/socket.io.js"></script>
-
+<script src="http://chancejs.com/chance.min.js"></script>
 </head>
 <body>
     <input type="text" id="messageInput"> </input>
     <button id="enviar">enviar mensagem</button>
     <script >
+        const nickname = chance.name();
         const client = io();
         const messageInput = document.getElementById('messageInput');
         const button = document.getElementById('enviar');
         button.addEventListener('click',() => {
-            const messageObject = {chatMessage: messageInput.value}
+            const messageObject = {chatMessage: messageInput.value, nickname}
             client.emit('message', messageObject);
         });
         client.on('connect', (data) => {
