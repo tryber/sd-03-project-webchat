@@ -44,7 +44,7 @@ io.on('connection', async (socket) => {
         .toArray());
   getAll.forEach((message) => {
     const { nickname, date, chatMessage } = message;
-    const completeMessage = `${date} ${nickname}: ${chatMessage}`;
+    const completeMessage = `${nickname} ${date} ${chatMessage}`;
     io.to(socket.id).emit('history', completeMessage);
   });
   socket.on('disconnect', async () => {
