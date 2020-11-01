@@ -24,10 +24,10 @@
           return false;
         });
         socket.on('message', function (msg) {
-          $('#messages').append($('<li data-testid="message">').text(msg));
+          $('#messages').append($('<li class="message" data-testid="message">').text(msg));
         });
         socket.on('history', function (msg) {
-          $('#messages').append($('<li data-testid="message">').text(msg));
+          $('#messages').append($('<li class="message" data-testid="message">').text(msg));
         });
       });
     </script>
@@ -36,6 +36,7 @@
     </script> -->
   </head>
   <body>
+    <div class="forms">
       <form class="send-message" action="">
         <input id="m" data-testid="message-box" autocomplete="off" />
         <button data-testid="send-button">Send</button>
@@ -44,6 +45,9 @@
         <input id="n" data-testid="nickname-box" autocomplete="off" />
         <button data-testid="nickname-save">Save nickname</button>
       </form>
+    </div>
     <ul id="messages"></ul>
+    <ul id="online-users">
+    </ul>
   </body>
 </html>
