@@ -20,25 +20,29 @@ app.get('/', (req, res) => {
 });
 io.on('connect', (socket) => {
   connect();
-/*   guestId += 1;
+  /*   guestId += 1;
 */
-// socket.nickname = guestId;
+  // socket.nickname = guestId;
   socket.on('error', (err) => console.log('Erro no socket', err));
-
+  socket.on('changeNicknanme', (newNickname) => {
+    sockets.newNickname = newNickname;
+    console.log(`new Nickname ${sockets.nickname}`);
+  });
   socket.on('message', (msg) => {
     const dateObj = new Date();
     const date = `${dateObj.getDate()}-${dateObj.getMonth()}-${dateObj.getFullYear()}`;
     const time = `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
     const { chatMessage, nickname } = msg;
+    console.log(`${sockets.newNickname}new name`);
+    if (sockets.newNickname !== undefined) {
+      sockets.nickname = sockets.newNickname;
+    } else {
+      sockets.nickname = nickname;
+    }
     sockets.chatMessage = chatMessage;
-    sockets.nickname = nickname;
     socket.broadcast.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
-    socket.emit('message', `${nickname} ${chatMessage} ${date} ${time}`);
-    console.log(`Guest ${sockets.nickname} disse >  ${socket.msg}`);
-  });
-  socket.on('changeNicknanme', (newNickname) => {
-    sockets.nickname = newNickname;
-    console.log(`new Nickname ${sockets.nickname}`);
+    socket.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
+    console.log(`Guest ${sockets.nickname} disse >  ${sockets.msg}`);
   });
 });
 

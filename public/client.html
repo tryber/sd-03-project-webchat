@@ -43,11 +43,13 @@
           console.log(data);  
         }) */
         client.on('message', (message) => {
+       
             const MessageList = document.createElement('li');
             messageList.setAttribute('data-testid','message');
             MessageList.innerHTML = message;
             listContainer.appendChild(MessageList);
         })
+        
     </script>
 </body>
 </html>
