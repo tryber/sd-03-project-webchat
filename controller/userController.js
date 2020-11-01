@@ -1,25 +1,24 @@
 const crypto = require('crypto');
 
-const generateUser = (socket) => {
-  const newUserName = `Anonymous-${crypto.randomBytes(2).toString('hex').toUpperCase()}`;
-  socket.broadcast.emit('newUserMsg', newUserName);
+const generateRandom = () => { return `USER-${crypto.randomBytes(2).toString('hex').toUpperCase()}` };
+
+const removeFromList = (namesList, id) => namesList.filter((e) => e.id !== id);
+
+const insertIntoList = (nickname, socket, id, namesList) => {
+  namesList.push({nickname, id});
+  socket.emit('newUserMsg', nickname);
+  socket.emit('listsync', namesList);
 };
 
-const removeFromList = (namesList, name) => namesList.filter((e) => e !== name);
-
-const insertIntoList = (namesList, name) => {
-  namesList.push(name);
-};
-
-const swapUserFromList = ({ oldname, username, userlist }) => {
-  const updatedList = userlist.filter((e) => e !== oldname);
-  updatedList.push(username);
+const swapFromList = ({ oldname, nickname, userlist }, id) => {
+  const updatedList = userlist.filter((e) => e.nickname !== oldname);
+  updatedList.push({nickname, id});
   return updatedList;
 };
 
 module.exports = {
-  generateUser,
+  generateRandom,
   removeFromList,
   insertIntoList,
-  swapUserFromList,
+  swapFromList,
 };

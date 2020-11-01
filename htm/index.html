@@ -24,18 +24,16 @@
       const manageUserList = () => {
         $('.user-list').empty();
           userlist.map((u) => 
-            $('.user-list').append($('<li>').text(u)));
+            $('.user-list').append($('<li data-testid="online-user">').text(u.nickname)));
       }
       
-      // Alternativa ao document.ready
+      // O mesmo que document.ready
       $(() => {
-        
         // ----- Eventos para enviar pacotes ----- \\
         // Alteração do nickname
         $('#nickname-save').click(() => {
           oldname = nickname;
           nickname = $('#nickname-box').val();
-          appendMsg(`${oldname} alterou o nick para ${nickname}`);
           socket.emit('userRename', { oldname, nickname, userlist });
           $('.nickname').text(nickname);
           $('#messageInput').val('');
@@ -58,35 +56,38 @@
           }) => appendMsg(`(${currTime}) - ${nickname}: ${chatMessage}`, true));
         });
 
-        socket.on('getUserList', (users) => {
+        socket.on('syncOnlineUsers', (users) => {
           userlist = users;
+          manageUserList();
         });
 
         // Notificação de que usuário ingressou na sala
-        socket.on('newUserMsg', (user) => {
-          nickname = user;
-          userlist.push(user);
-          appendMsg(`${user} ingressou na sala`);
+        socket.on('newUserMsg', (nickname, list) => {
+          appendMsg(`${nickname} ingressou na sala`);
           manageUserList();
         });
         
         // Notificação de usuário que renomeou o nick
-        socket.on('userRename', (newList) => {
+        socket.on('userRename', ({oldname, nickname}) => {
+          appendMsg(`${oldname} alterou seu nick para ${nickname}`);
+        });
+        
+        // Atualização de lista de usuários
+        socket.on('listsync', (newList) => {
+          userlist = newList;
           manageUserList(newList);
+        });
+        
+        // Recebimento do nome randômico
+        socket.on('syncNewNick', (newNick) => {
+          nickname = newNick;
+          $('.nickname').text(nickname);
         });
         
         // Recebimento de mensagem padrão
         socket.on('message', (string) => {
           appendMsg(string, true);
         })
-
-        // Alguém saiu da sala
-        socket.on('userLogOff', ({mensagem}) =>
-          appendMsg(mensagem));
-
-        // O próprio cliente se desconectou
-        socket.on('disconnect', ({mensagem}) =>
-          appendMsg(mensagem));
       });
 
     </script>
@@ -100,7 +101,7 @@
       <ul class="user-list"></ul>
       <div class="nickname-form">
         <h3>Você está conectado como 
-          <span data-testid="online-user" class="nickname">anonymous</span>.
+          <span class="nickname">anonymous</span>.
         </h3>
         <input id="nickname-box" data-testid="nickname-box" />
         <button id="nickname-save" data-testid="nickname-save">
