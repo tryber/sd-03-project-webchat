@@ -33,16 +33,24 @@ io.on('connect', (socket) => {
     const date = `${dateObj.getDate()}-${dateObj.getMonth()}-${dateObj.getFullYear()}`;
     const time = `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
     const { chatMessage, nickname } = msg;
-    console.log(`${sockets.newNickname}new name`);
-    if (sockets.newNickname !== undefined) {
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log('antes do if', `sockets.newNickname => ${sockets.newNickname}
+    - nickname =>  ${nickname} sockets.nickname - => ${sockets.nickname}`);
+    if (sockets.newNickname !== nickname && sockets.newNickname !== undefined) {
       sockets.nickname = sockets.newNickname;
-    } else {
-      sockets.nickname = nickname;
+      console.log('trocar user', `sockets.newNickname => ${sockets.newNickname}
+      - nickname =>  ${nickname} sockets.nickname - => ${sockets.nickname}`);
+      sockets.chatMessage = chatMessage;
+      socket.broadcast.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
+      return socket.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
     }
+
+    sockets.nickname = nickname;
+    console.log('mesmo user', `sockets.newNickname => ${sockets.newNickname}
+    - nickname =>  ${nickname} sockets.nickname - => ${sockets.nickname}`);
     sockets.chatMessage = chatMessage;
     socket.broadcast.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
-    socket.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
-    console.log(`Guest ${sockets.nickname} disse >  ${sockets.msg}`);
+    socket.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
   });
 });
 
