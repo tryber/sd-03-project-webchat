@@ -30,6 +30,7 @@ io.on('connection', async (socket) => {
     await online.updateNickname(id, newNick);
     onlineUsers = await online.getAll();
     console.log('Online after nickChange', onlineUsers);
+    io.emit('updateOnline', onlineUsers);
   });
   onlineUsers.push({ nickname: socket.id, id: socket.id });
   io.emit('updateOnline', onlineUsers);
