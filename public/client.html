@@ -8,19 +8,32 @@
 <script src="http://chancejs.com/chance.min.js"></script>
 </head>
 <body>
-    <input type="text" id="messageInput"> </input>
-    <button id="enviar">enviar mensagem</button>
+    <label for="nickname_change"></label>
+    <input type="text" name="nickname_change" id="changeNickname" data-testid="nickname-box"> </input>
+    <button id="enviar" data-testid="nickname-save">enviar mensagem</button>
+    <input type="text" id="messageInput" data-testid="message-box"> </input>
+    <button id="enviar" data-testid="send-button">enviar mensagem</button>
+    <ul id="messageList">
+
+    </ul>
     <script >
         const nickname = chance.name();
         const client = io();
         const messageInput = document.getElementById('messageInput');
         const button = document.getElementById('enviar');
+        const listContainer = document.getElementById('messageList');
         button.addEventListener('click',() => {
             const messageObject = {chatMessage: messageInput.value, nickname}
             client.emit('message', messageObject);
         });
-        client.on('connect', (data) => {
+       /*  client.on('connect', (data) => {
           console.log(data);  
+        }) */
+        client.on('message', (message) => {
+            const MessageList = document.createElement('li');
+            messageList.setAttribute('data-testid','message');
+            MessageList.innerHTML = message;
+            listContainer.appendChild(MessageList);
         })
     </script>
 </body>

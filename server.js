@@ -5,6 +5,7 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
+const { connect } = require('./models/dbConnection');
 
 const PATH_STATIC = path.join(`${__dirname}/public`);
 app.use(bodyParser.json());
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
 io.on('connect', (socket) => {
+  connect();
 /*   guestId += 1;
 */
 // socket.nickname = guestId;
@@ -32,6 +34,7 @@ io.on('connect', (socket) => {
     // socket.msg = chatMessage;
     sockets.push(socket);
     socket.broadcast.emit('message', `${nickname} ${chatMessage} ${date} ${time}`);
+    socket.emit('message', `${nickname} ${chatMessage} ${date} ${time}`);
     console.log(`Guest ${nickname} disse >  ${socket.msg}`);
   });
 });
