@@ -74,7 +74,7 @@ io.on('connection', async (socket) => {
     newMessage.date = formattedDate;
     const updatedNickname = onlineUsers.filter((user) => user.id === socket.id)[0].nickname;
     const { date, chatMessage } = newMessage;
-    io.emit('message', `${updatedNickname} - ${date}: ${chatMessage}`);
+    io.emit('message', `${date} ${updatedNickname}: ${chatMessage}`);
   });
 });
 
