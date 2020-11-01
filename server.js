@@ -59,11 +59,12 @@ io.on('connection', async (socket) => {
     // socket.broadcast.emit({ chatMessage: msg });
     const myDate = new Date();
     const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
+    const currentUser = onlineUsers.filter((user) => user.id === socket.id)[0];
     connection()
       .then((db) =>
         db.collection('messages').insertOne({
           id: socket.id,
-          nickname: msg.nickname,
+          nickname: currentUser.nickname,
           chatMessage: msg.chatMessage,
           date: formattedDate,
         }))
