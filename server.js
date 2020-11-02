@@ -20,15 +20,15 @@ app.get('/', (_req, res) => {
 io.on('connection', async (socket) => {
   const { id } = socket;
   socket.on('updateNickname', async (data) => {
-    const { nickname } = data;
+    const { newNick } = data;
     connection().then((db) =>
       db
         .collection('messages')
         .updateMany(
           { id: socket.id },
-          { $set: { nickname } },
+          { $set: { nickname: newNick } },
         ));
-    await online.updateNickname(id, nickname);
+    await online.updateNickname(id, newNick);
     onlineUsers = await online.getAll();
     console.log('Online after nickChange', onlineUsers);
     io.emit('updateOnline', onlineUsers);
@@ -73,8 +73,9 @@ io.on('connection', async (socket) => {
       .catch((e) => console.log(e));
     const newMessage = msg;
     newMessage.date = formattedDate;
+    const updatedNickname = onlineUsers.filter((user) => user.id === socket.id)[0].nickname;
     const { date, chatMessage } = newMessage;
-    io.emit('message', `${date} ${currentUser.nickname}: ${chatMessage}`);
+    io.emit('message', `${updatedNickname} - ${date}: ${chatMessage}`);
   });
 });
 
