@@ -18,7 +18,7 @@
           return false;
         });
         $('.nick-change').submit(function () {
-          const nickObject = { newNick: $('#n').val(), id: socket.id };
+          const nickObject = { nickname: $('#n').val(), id: socket.id };
           socket.emit('updateNickname', nickObject);
           $('#m').val('');
           return false;

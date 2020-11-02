@@ -20,15 +20,15 @@ app.get('/', (_req, res) => {
 io.on('connection', async (socket) => {
   const { id } = socket;
   socket.on('updateNickname', async (data) => {
-    const { newNick } = data;
+    const { nickname } = data;
     connection().then((db) =>
       db
         .collection('messages')
         .updateMany(
           { id: socket.id },
-          { $set: { nickname: newNick } },
+          { $set: { nickname } },
         ));
-    await online.updateNickname(id, newNick);
+    await online.updateNickname(id, nickname);
     onlineUsers = await online.getAll();
     console.log('Online after nickChange', onlineUsers);
     io.emit('updateOnline', onlineUsers);
@@ -45,8 +45,8 @@ io.on('connection', async (socket) => {
         .toArray());
   getAll.forEach((message) => {
     const { nickname, date, chatMessage } = message;
-    const completeMessage = `${nickname} ${date} ${chatMessage}`;
-    io.to(socket.id).emit('history', completeMessage);
+    const completeMessage = `${date} ${nickname}: ${chatMessage}`;
+    socket.emit('history', completeMessage);
   });
   socket.on('disconnect', async () => {
     console.log('User disconnected');
@@ -73,9 +73,8 @@ io.on('connection', async (socket) => {
       .catch((e) => console.log(e));
     const newMessage = msg;
     newMessage.date = formattedDate;
-    const updatedNickname = onlineUsers.filter((user) => user.id === socket.id)[0].nickname;
     const { date, chatMessage } = newMessage;
-    io.emit('message', `${date} ${updatedNickname}: ${chatMessage}`);
+    io.emit('message', `${date} ${currentUser.nickname}: ${chatMessage}`);
   });
 });
 
