@@ -5,7 +5,6 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
-const connection = require('./tests/helpers/db');
 // const { connect } = require('./models/dbConnection');
 
 const PATH_STATIC = path.join(`${__dirname}/public`);
@@ -20,8 +19,7 @@ app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
 io.on('connect', async (socket) => {
-  const db = await connection();
-  db.then((data) => console.log(data));
+  // const db = await connect();
   /*   guestId += 1;
 */
   // socket.nickname = guestId;
