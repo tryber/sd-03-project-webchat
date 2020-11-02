@@ -33,7 +33,7 @@ io.on('connection', async (socket) => {
 
   socket.on('nameChange', (nickname) => {
     const index = onlineArray.findIndex((e) => e.id === socket.id);
-    onlineArray[index].nickname = nickname;
+    if (onlineArray[index]) onlineArray[index].nickname = nickname;
     io.emit('userList', onlineArray);
   });
 
