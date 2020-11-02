@@ -19,6 +19,7 @@ app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
 io.on('connect', async (socket) => {
+  sockets.newNickname = '';
   // const db = await connect();
   /*   guestId += 1;
 */
@@ -33,19 +34,16 @@ io.on('connect', async (socket) => {
     const date = `${dateObj.getDate()}-${dateObj.getMonth()}-${dateObj.getFullYear()}`;
     const time = `${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
     const { chatMessage, nickname } = msg;
-    if (sockets.newNickname !== nickname && sockets.newNickname !== undefined) {
+    if (sockets.newNickname !== '') {
       sockets.nickname = sockets.newNickname;
-
-      sockets.chatMessage = chatMessage;
-      socket.broadcast.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
-      return socket.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
+    } else {
+      sockets.nickname = nickname;
     }
 
-    sockets.nickname = nickname;
     sockets.chatMessage = chatMessage;
-    socket.broadcast.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
-
-    return socket.emit('message', `${sockets.nickname} ${sockets.chatMessage} ${date} ${time}`);
+    console.log(sockets.newNickname);
+    socket.broadcast.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
+    socket.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
   });
 });
 
