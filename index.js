@@ -11,19 +11,17 @@ const connection = require('./models/connection');
 
 async function start() {
   const app = express();
-  const users = [];
+
+  app.get('/', (_req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  });
 
   const httpServer = http.createServer(app);
   const io = socketIo(httpServer);
 
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
-  });
-
   const db = await connection();
   const messageModel = model(db);
-  socketFactory(io, messageModel, users);
-  // const http = httpFactory(ioServer);
+  socketFactory(io, messageModel);
 
   httpServer.listen(process.env.PORT, () => console.log('HTTP listening on 3000'));
 }

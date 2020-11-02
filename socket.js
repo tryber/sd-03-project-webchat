@@ -34,11 +34,10 @@ module.exports = (io, messageModel) => {
 
       const user = users.find((u) => u.id === socket.id);
       console.log('disconnecting user:', user);
-      io.emit('mensagemServer', `${socket.id} saiu`);
+      // io.emit('menssage', `${socket.id} saiu`);
+
       const index = users.indexOf(user);
-
       users.splice(index, 1);
-
       console.log('users on disc', users);
       io.emit('usersOnline', users);
     });

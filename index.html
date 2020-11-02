@@ -44,13 +44,12 @@
       }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <body>
     <div>
       <input type="text" name="" id="nickname", data-testid="nickname-box">
       <button 
       type="button"  
-      data-testid="send-button"
+      data-testid="nickname-save"
       id='sendButton'
       > Save name
     </div>
@@ -91,9 +90,13 @@ let nickname = `Guest ${Math.random().toString().split('.')[1]}`
 nicknameElement.value = nickname;
 
 socket.emit('userConn', nickname)
+nicknameElement.addEventListener('change', (e) =>{ 
+  console.log('certo ' + e.target.value)})
 
 sendButton.onclick = () => {
+  console.log('first',nickname)
   nickname = nicknameElement.value;
+  console.log('segundo',nickname)
   socket.emit('userChangeName', nickname)
 };
 
@@ -112,14 +115,13 @@ form.addEventListener('submit', (e) => {
 socket.on('message', (message) => createChatMessage(message));
 
 socket.on('usersOnline', (users) => {
-  console.log(users)
   const ul = document.createElement('ul');
   users.forEach(({ nickname }) => {
     const li = document.createElement('li');
+    li.setAttribute('data-testid','online-user');
     li.innerText = nickname;
     ul.appendChild(li) 
   })
-  console.log(ul)
   usersOnlineElement.innerHTML = '';
   usersOnlineElement.appendChild(ul);
 })
