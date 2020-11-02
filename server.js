@@ -1,4 +1,3 @@
-const connection = require('./tests/helpers/db');
 const express = require('express');
 const path = require('path');
 
@@ -6,6 +5,7 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
+const connection = require('./tests/helpers/db');
 // const { connect } = require('./models/dbConnection');
 
 const PATH_STATIC = path.join(`${__dirname}/public`);
@@ -20,7 +20,8 @@ app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
 io.on('connect', async (socket) => {
-  const db  = await connection();
+  const db = await connection();
+  db.then((data) => console.log(data));
   /*   guestId += 1;
 */
   // socket.nickname = guestId;
