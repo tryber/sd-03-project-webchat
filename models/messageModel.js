@@ -1,4 +1,4 @@
-const connection = require('../tests/helpers/db');
+const connection = require('./connection');
 
 const listAll = async () => {
   const db = await connection();
