@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test-coverage": "jest --coverage",
+    "test": "jest --runInBand  --detectOpenHandles --forceExit",
     "start": "node server.js",
     "debug": "nodemon server.js",
     "lint": "eslint --no-inline-config --no-error-on-unmatched-pattern -c .eslintrc.json ."
