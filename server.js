@@ -59,6 +59,7 @@ io.on('connection', async (socket) => {
   });
   socket.on('message', (msg) => {
     // socket.broadcast.emit({ chatMessage: msg });
+    console.log('Mensagem que recebi do front', msg);
     const myDate = new Date();
     const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
     const currentUser = onlineUsers.filter((user) => user.id === socket.id)[0];
@@ -75,7 +76,8 @@ io.on('connection', async (socket) => {
     newMessage.date = formattedDate;
     const updatedNickname = onlineUsers.filter((user) => user.id === socket.id)[0].nickname;
     const { date, chatMessage } = newMessage;
-    io.emit('message', `${date} ${updatedNickname} ${chatMessage}`);
+    console.log('nickAtualizado', updatedNickname);
+    io.emit('message', `${date} ${msg.nickname ? msg.nickname : updatedNickname} ${chatMessage}`);
   });
 });
 
