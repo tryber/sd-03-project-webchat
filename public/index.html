@@ -37,24 +37,27 @@
         submitMsg.addEventListener("click", (e) => {
           e.preventDefault();
           const message = document.getElementById('messageInput').value;
-          console.log(message);
-          socket.emit("message", {
-            chatMessage: message,
-            nickname,
-          });
+
+          const nickInput = document.getElementById('newNick').value;
+      
+          const nickname = nickInput.length ? nickInput : getRandomName();
+        
+          socket.emit("message", { chatMessage: message,  nickname });
           message.value = "";
         });
 
         submitNewNick.addEventListener('click', (e) => {
           e.preventDefault();
-          socket.emit('changeName', ({ newNickName: 'newNick.value' }));
+
+
+          const nickInput = document.getElementById('newNick').value;
+      
+          const nickname = nickInput.length ? nickInput : getRandomName();
+
+          socket.emit('changeName', ({ newNickName }));
           newNick.value = '';
         });
   
-        socket.on('changeName', (nick) => {
-          const nickInput = document.getElementById('newNick').innerHTML = nick;
-        });
-
         socket.on('history', (data) => {
         });
 
