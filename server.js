@@ -21,40 +21,22 @@ io.on('connection', async (socket) => {
   const { id } = socket;
   socket.on('updateNickname', async (data) => {
     const { newNick } = data;
-    connection().then((db) =>
-      db
-        .collection('messages')
-        .updateMany(
-          { id: socket.id },
-          { $set: { nickname: newNick } },
-        ));
-    await online.updateNickname(id, newNick);
-    onlineUsers = await online.getAll();
-    console.log('Online after nickChange', onlineUsers);
+    const index = onlineUsers.findIndex((user) => user.id === socket.id);
+    onlineUsers[index].nickname = newNick;
     io.emit('updateOnline', onlineUsers);
   });
   onlineUsers.push({ nickname: socket.id, id: socket.id });
   io.emit('updateOnline', onlineUsers);
-  online.addUser(id);
-  console.log('onlineUsers', onlineUsers);
-  const getAll = await connection()
-    .then((db) =>
-      db
-        .collection('messages')
-        .find({})
-        .toArray());
+  const getAll = await connection().then((db) =>
+    db.collection('messages').find({}).toArray());
   getAll.forEach((message) => {
     const { nickname, date, chatMessage } = message;
     const completeMessage = `${date} ${nickname} ${chatMessage}`;
     socket.emit('history', completeMessage);
   });
   socket.on('disconnect', async () => {
-    console.log('User disconnected');
     socket.disconnect();
     onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
-    online.removeUser(id);
-    console.log('Someone disconnected', onlineUsers);
-    onlineUsers = await online.getAll();
     io.emit('updateOnline', onlineUsers);
   });
   socket.on('message', (msg) => {
@@ -73,9 +55,14 @@ io.on('connection', async (socket) => {
       .catch((e) => console.log(e));
     const newMessage = msg;
     newMessage.date = formattedDate;
-    const updatedNickname = onlineUsers.filter((user) => user.id === socket.id)[0].nickname;
+    const updatedNickname = onlineUsers.filter(
+      (user) => user.id === socket.id,
+    )[0].nickname;
     const { date, chatMessage } = newMessage;
-    io.emit('message', `${date} ${msg.nickname ? msg.nickname : updatedNickname} ${chatMessage}`);
+    io.emit(
+      'message',
+      `${date} ${msg.nickname ? msg.nickname : updatedNickname} ${chatMessage}`,
+    );
   });
 });
 
