@@ -6,7 +6,6 @@ const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 const moment = require('moment');
 const connection = require('./tests/helpers/db');
-const online = require('./models/online');
 const { SERVER_PORT } = require('./config/constraints');
 
 let onlineUsers = [];
@@ -18,7 +17,7 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', async (socket) => {
-  const { id } = socket;
+  // const { id } = socket;
   socket.on('updateNickname', async (data) => {
     const { newNick } = data;
     const index = onlineUsers.findIndex((user) => user.id === socket.id);
