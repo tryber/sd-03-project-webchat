@@ -1,4 +1,6 @@
 const io = require('socket.io-client');
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
 const BASE_URL = 'http://localhost:3000/';
 
@@ -7,15 +9,25 @@ describe('Crie um backend back-end que permite que várias pessoas se conectem s
   const nickname = 'Joel';
   let client1;
   let client2;
+  let connection;
+  let db;
 
-  beforeAll(() => {
+  beforeEach(async () => {
+    connection = await MongoClient.connect(process.env.DB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    db = connection.db(process.env.DB_NAME);
+    await db.collection('messages').deleteMany({});
     client1 = io.connect(BASE_URL);
     client2 = io.connect(BASE_URL);
   });
 
-  afterAll(() => {
+  afterEach(async () => {
+    await db.collection('messages').deleteMany({});
     client1.disconnect();
     client2.disconnect();
+    await connection.close();
   });
 
   it('Será validado que vários clientes conseguem se conectar ao mesmo tempo', (done) => {
