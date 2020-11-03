@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Chat</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+  <script src="http://chancejs.com/chance.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <form id="chat">
+    <input data-testid="nickname-box" type="text" name="username" placeholder="Digite seu usuário" />
+    <button data-testid="nickname-save" type="submit">Alterar Nome</button>
+    <div class="messages"></div>
+    <input data-testid="message-box" type="text" name="message" placeholder="Digite sua menssagem" />
+    <button data-testid="send-button" type="submit">Enviar</button>
+  </form>
+
+  <script type="text/javascript">
+    const name = chance.name();
+    const socket = io('http://localhost:3000');
+
+    function renderMessage(message) {
+      $('.messages').append('<div class="message" data-testid="message">'+ message +'</div>');
+    };
+
+    socket.on('history', (messages) => {
+      console.log(messages)
+      messages.forEach((message) => {
+        $('.messages')
+          .append(
+            '<div class="message" data-testid="message">'+ message.nickname +''+ message.timestamp +''+ message.chatMessage +'</div>'
+          );
+      });
+    });
+
+    socket.on('message', function(message) {
+      renderMessage(message);
+    });
+
+    $('#chat').submit(function(event) {
+      event.preventDefault();
+
+      const chatMessage = $('input[name=message').val();
+      const newNickName =$('input[name=username').val();
+      let nickname = newNickName.length ? newNickName : name;
+
+      socket.emit('message', { chatMessage, nickname });
+      $('input[name=message').val('');
+    });
+
+  </script>
+</body>
+</html>
