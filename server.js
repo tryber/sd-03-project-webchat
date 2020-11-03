@@ -8,14 +8,14 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 
-const { saveMessage, getAllMessages } = require('./models/saveMessage');
+const { saveMessage } = require('./models/saveMessage');
 
 const PUBLIC_PATH = path.join(__dirname, 'public');
 
 app.use(bodyParser.json());
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
-const getRandomName = () => `User ${Math.ceil(Math.random() * 100)}`;
+// const getRandomName = () => `User ${Math.ceil(Math.random() * 100)}`;
 
 io.on('connection', async (socket) => {
   socket.on('message', ({ chatMessage, nickname }) => {
