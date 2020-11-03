@@ -11,7 +11,6 @@ app.get('/', (_req, res) => {
 });
 
 io.on('connection', async (socket) => {
-  console.log('Conectado!');
   const history = await listAll();
 
   socket.emit('history', history);
