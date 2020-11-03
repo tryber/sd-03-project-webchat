@@ -26,26 +26,21 @@ describe('Permita que usuários troquem mensagens particulares', () => {
   let connection;
   let db;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     connection = await MongoClient.connect(process.env.DB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     db = connection.db(process.env.DB_NAME);
-    browser = await puppeteer.launch({ args: ['--no-sandbox', '--window-size=1920,1080'], headless: true });
-  });
-
-  beforeEach(async () => {
+    browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1920,1080'], headless: true });
     await db.collection('messages').deleteMany({});
     page = await browser.newPage();
+    await page.goto(BASE_URL);
   });
 
   afterEach(async () => {
-    await page.close();
-  });
-
-  afterAll(async () => {
-    await browser.close();
+    browser.close();
+    await db.collection('messages').deleteMany({});
     await connection.close();
   });
 
