@@ -25,6 +25,7 @@ io.on('connection', async (socket) => {
     const renderMessagens = `${nickname} Time: ${time} Say: ${chatMessage}`;
     socket.emit('message', renderMessagens);
     socket.broadcast.emit('message', renderMessagens);
+
     socket.on('changeName', ({ newNickName }) => {
       socket.emit('changeName', newNickName);
     });
