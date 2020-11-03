@@ -39,7 +39,6 @@ describe.skip('Permita que usuários troquem mensagens particulares', () => {
   });
 
   afterEach(async () => {
-    page.close();
     browser.close();
     await db.collection('messages').deleteMany({});
     await connection.close();

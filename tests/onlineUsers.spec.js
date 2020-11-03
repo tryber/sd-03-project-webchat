@@ -28,7 +28,6 @@ describe('Informe a todos os clientes quem está online no momento', () => {
   });
 
   afterEach(async () => {
-    page.close();
     browser.close();
     await db.collection('messages').deleteMany({});
     await connection.close();
