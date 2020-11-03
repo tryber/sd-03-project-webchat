@@ -10,42 +10,28 @@ function dataTestid(name) {
   return `[data-testid=${name}]`;
 }
 
-function wait(time) {
-  const start = Date.now();
-  while (true) {
-    if (Date.now() - start >= time) {
-      return true;
-    }
-  }
-}
-
 describe('Informe a todos os clientes quem está online no momento', () => {
   let browser;
   let page;
   let connection;
   let db;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     connection = await MongoClient.connect(process.env.DB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     db = connection.db(process.env.DB_NAME);
-    browser = await puppeteer.launch({ args: ['--no-sandbox', '--window-size=1920,1080'], headless: true });
-  });
-
-  beforeEach(async () => {
+    browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1920,1080'], headless: true });
     await db.collection('messages').deleteMany({});
     page = await browser.newPage();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     page.close();
-  });
-
-  afterAll(async () => {
-    await connection.close();
     browser.close();
+    await db.collection('messages').deleteMany({});
+    await connection.close();
   });
   
   it('Será validado que quando um usuário se conecta, seu nome aparece no frontend de todos', async () => {
