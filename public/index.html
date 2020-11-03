@@ -8,8 +8,8 @@
   </head>
   <body>
     <ul id="messagens"></ul>
-    <form action="">
-      <input data-testid="message-box" type="text" id="input" name="message-input" />
+    <form>
+      <input data-testid="message-box" type="text" id="messageInput" name="message-input" />
       <button data-testid="send-button" type="submit" id="submit">Enviar</button>
 
 
@@ -19,7 +19,7 @@
     </form>
     <script>
       window.onload = () => {
-        const submit = document.getElementById("mensagemInput");
+        const submitMsg = document.getElementById("submit");
         const newNick = document.getElementById('newNick');
         const submitNewNick = document.getElementById('submitNick');
         const socket = io();
@@ -34,23 +34,30 @@
 
         const getRandomName = () => `User ${Math.ceil(Math.random() * 100)}`;
 
-        submit.addEventListener("click", (e) => {
+        submitMsg.addEventListener("click", (e) => {
           e.preventDefault();
-          const mensagem = document.getElementById("submit");
+          const message = document.getElementById('messageInput').value;
+          console.log(message);
           socket.emit("message", {
-            chatMessage: mensagem.value,
-            nickname: getRandomName,
+            chatMessage: message,
+            nickname,
           });
-          mensagem.value = "";
+          message.value = "";
         });
-
 
         submitNewNick.addEventListener('click', (e) => {
           e.preventDefault();
-
-          socket.emit('changeName', ({ newNickName: newNick.value }));
+          socket.emit('changeName', ({ newNickName: 'newNick.value' }));
           newNick.value = '';
-        })
+        });
+  
+        socket.on('changeName', (nick) => {
+          const nickInput = document.getElementById('newNick').innerHTML = nick;
+        });
+
+        socket.on('history', (data) => {
+        });
+
       };
     </script>
   </body>
