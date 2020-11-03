@@ -1,6 +1,13 @@
 const mongoClient = require('mongodb').MongoClient;
 require('dotenv').config();
 
+// para rodar localmente os testes
+/* const user = encodeURIComponent(process.env.DB_USER);
+const password = encodeURIComponent(process.env.DB_PASSWORD);
+const authMechanism = 'DEFAULT';
+
+const DB_URL = `mongodb://${user}:${password}@localhost:27017/?authMechanism=${authMechanism}`; */
+
 let schema = null;
 
 async function connection() {

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <!-- <style>
+
+    </style> -->
+    <link rel="stylesheet" href="/public/css/style.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        $('.send-message').submit(function () {
+          const msgObject = { chatMessage: $('#m').val() };
+          socket.emit('message', msgObject);
+          $('#m').val('');
+          return false;
+        });
+        $('.nick-change').submit(function () {
+          const nickObject = { newNick: $('#n').val(), id: socket.id };
+          socket.emit('updateNickname', nickObject);
+          $('#m').val('');
+          return false;
+        });
+        socket.on('message', function (msg) {
+          $('#messages').append($('<li class="message" data-testid="message">').text(msg));
+        });
+        socket.on('history', function (msg) {
+          $('#messages').append($('<li class="message" data-testid="message">').text(msg));
+        });
+        socket.on('updateOnline', function (users) {
+          document.getElementById("online-users").innerHTML = "";
+          users.forEach((user) => {
+            $('#online-users').append($('<li data-testid="online-user">').text(user.nickname));
+          })
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="forms">
+      <form class="send-message" action="">
+        <input id="m" data-testid="message-box" autocomplete="off" />
+        <button data-testid="send-button">Send</button>
+      </form>
+      <form class="nick-change" action="">
+        <input id="n" data-testid="nickname-box" autocomplete="off" />
+        <button data-testid="nickname-save">Save nickname</button>
+      </form>
+    </div>
+    <ul id="messages"></ul>
+    <ul id="online-users">
+    </ul>
+  </body>
+</html>
