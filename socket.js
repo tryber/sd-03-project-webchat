@@ -4,18 +4,21 @@ const socketIo = require('socket.io');
 
 const notificationController = require('./controllers/notificationController');
 
-const ChatMessages = [];
 const users = [];
 
-module.exports = (connection) => {
-  const httpServer = http.createServer();
+module.exports = (connection, app) => {
+  const httpServer = http.createServer(app);
   const io = socketIo(httpServer);
 
   io.on('connection', async (socket) => {
-    await connection();
-    socket.emit('history', ChatMessages, users, socket.id);
-    socket.on('message', notificationController.handleNotificationEvent(ChatMessages, socket, users));
-    socket.on('newNickname', notificationController.handleNewName(ChatMessages, socket, users));
+    const db = await connection();
+
+    const chatMessages = await db.collection('messages').find({}).toArray();
+    socket.emit('history', chatMessages, users, socket.id);
+    socket.on('online', notificationController.handleOnline(socket, users, io));
+    socket.on('message', notificationController.handleNotificationEvent(db, socket, io));
+    socket.on('newNickname', notificationController.handleNewName(db, socket, users));
+    socket.on('disconnect', notificationController.handleDisconnect(socket, users, io));
   });
 
   return {
