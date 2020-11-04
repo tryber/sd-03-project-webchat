@@ -9,19 +9,31 @@
   <body>
     <ul id="messagens"></ul>
     <form>
-      <input data-testid="message-box" type="text" id="messageInput" name="message-input" />
-      <button data-testid="send-button" type="submit" id="submit">Enviar</button>
+      <input
+        data-testid="message-box"
+        type="text"
+        id="messageInput"
+        name="message-input"
+      />
+      <button data-testid="send-button" type="submit" id="submit">
+        Enviar
+      </button>
 
-
-      <input data-testid="nickname-box" id="newNick" type="text" autocomplete="off" />
-      <button data-testid="nickname-save" type="submit" id="submitNick">Change Name</button>
-
+      <input
+        data-testid="nickname-box"
+        id="newNick"
+        type="text"
+        autocomplete="off"
+      />
+      <button data-testid="nickname-save" type="submit" id="submitNick">
+        Change Name
+      </button>
     </form>
     <script>
       window.onload = () => {
         const submitMsg = document.getElementById("submit");
-        const newNick = document.getElementById('newNick');
-        const submitNewNick = document.getElementById('submitNick');
+        const newNick = document.getElementById("newNick");
+        const submitNewNick = document.getElementById("submitNick");
         const socket = io();
 
         socket.on("message", (data) => {
@@ -36,32 +48,35 @@
 
         submitMsg.addEventListener("click", (e) => {
           e.preventDefault();
-          const message = document.getElementById('messageInput').value;
+          const message = document.getElementById("messageInput").value;
 
-          const nickInput = document.getElementById('newNick').value;
-      
+          const nickInput = document.getElementById("newNick").value;
+
           const nickname = nickInput.length ? nickInput : getRandomName();
-        
-          socket.emit("message", { chatMessage: message,  nickname });
+
+          socket.emit("message", { chatMessage: message, nickname });
           message.value = "";
         });
 
-        submitNewNick.addEventListener('click', (e) => {
+        submitNewNick.addEventListener("click", (e) => {
           e.preventDefault();
-
-
-          const nickInput = document.getElementById('newNick').value;
-      
+          const nickInput = document.getElementById("newNick").value;
           const nickname = nickInput.length ? nickInput : getRandomName();
-
-          socket.emit('changeName', ({ newNickName }));
-          newNick.value = '';
-        });
-  
-        socket.on('history', (data) => {
+          socket.emit("changeName", { newNickName });
+          newNick.value = "";
         });
 
+        socket.on("history", (msg) => {
+          msg.forEach((data) => {
+            const li = document.createElement("li");
+            li.id = "list-of-messages";
+            li.setAttribute("data-testid", "message");
+            li.textContent = `${data}`;
+            document.getElementById("mensagem").appendChild(li);
+          });
+        });
       };
+    
     </script>
   </body>
 </html>

@@ -8,7 +8,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 
-const { saveMessage } = require('./models/saveMessage');
+const { saveMessage, getAllMessages } = require('./models/saveMessage');
 
 const PUBLIC_PATH = path.join(__dirname, 'public');
 
@@ -33,7 +33,23 @@ io.on('connection', async (socket) => {
     return saveMessage(chatMessage, nickname, time);
   });
 
-  socket.emit('history');
+  const messages = [];
+  const previosMessage = await getAllMessages();
+  console.log(previosMessage)
+
+  const persistenceMsg = () => {
+    if (previosMessage) {
+      previosMessage.map((e) => {
+        const [{ nickname, chatMessage, timestamp }] = e;
+        console.log(e);
+        const time = moment(timestamp).format('D-M-yyyy hh:mm:ss');
+        const messageToSend = `chatMessage: [${time}] ${nickname} say: ${chatMessage}`;
+        return messages.push(messageToSend);
+      });
+    }
+    return false;
+  };
+  socket.emit('history', persistenceMsg);
 });
 
 http.listen(3000, () => console.log('Servidor ouvindo na porta 3000'));
