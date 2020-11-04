@@ -1,29 +1,30 @@
-const express = require('express');
-// const bodyParser = require('body-parser');
 const http = require('http');
+const express = require('express');
 const socketIo = require('socket.io');
-
-const socketIOServer = http.createServer();
-const io = socketIo(socketIOServer);
+const bodyParser = require('body-parser');
+const { getMessageController } = require('./controllers');
+const getRandomicNickname = require('./utils/getRandomicNickname');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
-app.post('/message', (req, res) => {
-  const { message } = req.body;
+const messageController = getMessageController(io);
+const { PORT = 3000 } = process.env;
 
-  if (!message) {
-    return res.status(422).json({ message: 'Missing message text ' });
-  }
+app.use(bodyParser.json());
 
-  io.emit('message', message);
+app.post('/message', messageController.sendMessage);
 
-  res.status(200).json({ message: 'Message sent' });
+app.use('/', express.static('./public', { extensions: ['html'] }));
+
+io.on('connection', (socket) => {
+  const nickname = getRandomicNickname();
+
+  socket.emit('connect');
+  socket.broadcast.emit('joined', { nickname });
 });
 
-app.listen(3000, () => {
-  console.log('App escutando na porta 3000');
-});
-
-socketIOServer.listen(4555, () => {
-  console.log('Socket.io escutando na porta 4555');
+server.listen(PORT, () => {
+  console.log(`Listen on port ${PORT}`);
 });
