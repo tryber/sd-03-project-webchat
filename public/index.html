@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebChat</title>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   </head>
   <body>
     <ul id="messagens"></ul>
@@ -45,15 +46,13 @@
         });
 
         const getRandomName = () => `User ${Math.ceil(Math.random() * 100)}`;
+        
 
         submitMsg.addEventListener("click", (e) => {
           e.preventDefault();
           const message = document.getElementById("messageInput").value;
-
           const nickInput = document.getElementById("newNick").value;
-
           const nickname = nickInput.length ? nickInput : getRandomName();
-
           socket.emit("message", { chatMessage: message, nickname });
           message.value = "";
         });
@@ -67,16 +66,14 @@
         });
 
         socket.on("history", (msg) => {
-          msg.forEach((data) => {
-            const li = document.createElement("li");
-            li.id = "list-of-messages";
-            li.setAttribute("data-testid", "message");
-            li.textContent = `${data}`;
-            document.getElementById("mensagem").appendChild(li);
-          });
+          const li = document.createElement("li");
+          li.id = "list-of-messages";
+          li.setAttribute("data-testid", "message");
+          li.textContent = `${msg}`;
+          document.getElementById("messagens").appendChild(li);
         });
+        
       };
-    
     </script>
   </body>
 </html>
