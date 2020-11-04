@@ -1,10 +1,10 @@
 require('dotenv/config');
 const { MongoClient } = require('mongodb');
 
-// const { DB_URL, DB_NAME } = process.env;
+const { DB_URL, DB_NAME } = process.env;
 
-const dbURL = process.env.DB_URL;
-const dbName = process.env.DB_NAME;
+const dbURL = DB_URL || 'mongodb://localhost:27017';
+const dbName = DB_NAME || 'webchat';
 
 const connect = () =>
   MongoClient.connect(dbURL, {
