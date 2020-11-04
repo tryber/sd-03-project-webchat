@@ -1,4 +1,4 @@
-const { connect } = require('./dbConnection');
+const connect = require('./dbConnection');
 
 const getAllMessages = () =>
   connect().then((db) => db
