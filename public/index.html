@@ -42,8 +42,9 @@
       const chatMessage = $('input[name=message').val();
       const newNickName =$('input[name=username').val();
       let nickname = newNickName.length ? newNickName : name;
-
-      socket.emit('message', { chatMessage, nickname });
+      if (chatMessage.length) {
+        socket.emit('message', { chatMessage, nickname });
+      }
       $('input[name=message').val('');
     });
 

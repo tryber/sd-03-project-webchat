@@ -21,9 +21,7 @@ io.on('connection', async (socket) => {
 
   previousMessage.forEach(({ chatMessage, timestamp, nickname }) => {
     const message = `${nickname} ${timestamp} ${chatMessage}`;
-    if (chatMessage.length) {
-      socket.emit('history', message);
-    }
+    socket.emit('history', message);
   });
 
   socket.on('message', ({ chatMessage, nickname }) => {
