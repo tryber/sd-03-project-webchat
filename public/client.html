@@ -44,13 +44,13 @@
         }) */
 
         client.on('history', (allMessages) =>  
-        allMessages.forEach(message => {
+        allMessages
+        .slice().reverse()
+        .forEach(message => {
         const MessageList = document.createElement('li');
-        messageList.setAttribute('data-testid','message');
-        MessageList.innerHTML = `${message.nickname} ${message.chatMessage} ${message.date}`;
+        MessageList.setAttribute('data-testid','message');
+        MessageList.innerHTML = `${message.nickname} ${message.chatMessage} ${message.datastamps}`;       
         listContainer.appendChild(MessageList);
-        console.log(message)
-         
         }))
 
         client.on('message', (message) => {       
