@@ -5,81 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebChat</title>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   </head>
   <body>
-    <ul id="messagens"></ul>
-    <ul id="online"></ul>
-    <form>
-      <input
-        data-testid="message-box"
-        type="text"
-        id="messageInput"
-        name="message-input"
-      />
-      <button data-testid="send-button" type="submit" id="submit">
-        Enviar
-      </button>
-
-      <input
-        data-testid="nickname-box"
-        id="newNick"
-        type="text"
-        autocomplete="off"
-      />
-      <button data-testid="nickname-save" type="submit" id="submitNick">
-        Change Name
-      </button>
-    </form>
+    <div>
+      <span>Usuários online</span><br />
+      <div id="users">
+        <ul id="online-user"></ul>
+      </div>
+    </div>
+    <div>
+      <ul id="mensagem"></ul>
+    </div>
+    <div>
+      <div>
+        <label for="nickname">Apelido</label><br />
+        <input
+          data-testid="nickname-box"
+          type="text"
+          id="input-nickname"
+          name="nickname"
+        />
+        <button data-testid="nickname-save" type="submit" id="submit-nickname">
+          Salvar
+        </button>
+      </div>
+      <div>
+        <label for="message-input">Mensagem</label><br />
+        <input
+          data-testid="message-box"
+          type="text"
+          id="input"
+          name="message-input"
+        />
+        <button data-testid="send-button" type="submit" id="submit">
+          Enviar
+        </button>
+      </div>
+    </div>
+    <!-- Configura interação com o servidor -->
     <script>
       window.onload = () => {
-        const submitMsg = document.getElementById("submit");
-        const newNick = document.getElementById("newNick");
-        const submitNewNick = document.getElementById("submitNick");
+        const input = document.getElementById("input");
+        const submit = document.getElementById("submit");
+
+        const inputNickname = document.getElementById("input-nickname");
+        const submitNickname = document.getElementById("submit-nickname");
         const socket = io();
+        let onlineUsers = [];
+
+        submit.addEventListener("click", (e) => {
+          e.preventDefault();
+          socket.emit("message", { nickname, chatMessage: input.value });
+          input.value = "";
+        });
+
+        submitNickname.addEventListener("click", (e) => {
+          e.preventDefault();
+          socket.emit("changeName", {
+            newNickname: inputNickname.value,
+            socketID: socket.id,
+          });
+          nickname = inputNickname.value;
+          onlineUsers.push(inputNickname.value);
+          inputNickname.value = "";
+        });
+
+        socket.on("changeName", (data) => {
+          const previusList = document.querySelectorAll("#list-of-users");
+          if (previusList.length) {
+            for (let i = previusList.length; i > 0; i -= 1) {
+              const list = document.getElementById("online-user");
+              list.removeChild(list.lastElementChild);
+            }
+          }
+          const onlyUsers = data.newNickname;
+          onlyUsers.map((e) => {
+            const li = document.createElement("li");
+            li.id = "list-of-users";
+            li.setAttribute("data-testid", "online-user");
+            li.textContent = e;
+            document.getElementById("online-user").appendChild(li);
+          });
+        });
 
         socket.on("message", (data) => {
           const li = document.createElement("li");
           li.id = "list-of-messages";
           li.setAttribute("data-testid", "message");
-          li.textContent = data;
-          document.getElementById("messagens").appendChild(li);
+          li.textContent = `${data}`;
+          document.getElementById("mensagem").appendChild(li);
         });
 
-        const getRandomName = () => `User ${Math.ceil(Math.random() * 100)}`;
-        
-
-        submitMsg.addEventListener("click", (e) => {
-          e.preventDefault();
-          const message = document.getElementById("messageInput").value;
-          const nickInput = document.getElementById("newNick").value;
-          const nickname = nickInput.length ? nickInput : getRandomName();
-          socket.emit("message", { chatMessage: message, nickname });
-          message.value = "";
-        });
-
-        submitNewNick.addEventListener("click", (e) => {
-          e.preventDefault();
-          const nickInput = document.getElementById("newNick").value;
-          const nickname = nickInput.length ? nickInput : getRandomName();
-          socket.emit("changeName", { newNickName });
-          newNick.value = "";
-        });
-
-        socket.on("history", (msg) => {
-          const li = document.createElement("li");
-          li.id = "list-of-messages";
-          li.setAttribute("data-testid", "message");
-          li.textContent = `${msg}`;
-          document.getElementById("messagens").appendChild(li);
-        });
-
-        socket.on('online', (data) => {
-          data.forEach((user) => {
+        socket.on("history", (messages) => {
+          const previusList = document.querySelectorAll("#list-of-messages");
+          if (previusList.length) {
+            for (let i = previusList.length; i > 0; i -= 1) {
+              const list = document.getElementById("mensagem");
+              list.removeChild(list.lastElementChild);
+            }
+          }
+          messages.forEach((data) => {
             const li = document.createElement("li");
-            li.setAttribute("data-testid", "online-user");
-            li.textContent = data;
-            document.getElementById('online').appendChild(user)
+            li.id = "list-of-messages";
+            li.setAttribute("data-testid", "message");
+            li.textContent = `${data}`;
+            document.getElementById("mensagem").appendChild(li);
           });
         });
       };
