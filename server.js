@@ -17,7 +17,7 @@ const sockets = { nickname: '', chatMessage: {} };
 app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
-io.on('connect', async (socket) => {
+io.on('connection', async (socket) => {
   const messagesRegisters = await getAllMessages();
   socket.emit('history', messagesRegisters);
   sockets.newNickname = '';
