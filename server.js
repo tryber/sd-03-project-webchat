@@ -35,21 +35,16 @@ io.on('connection', async (socket) => {
 
   const messages = [];
   const previosMessage = await getAllMessages();
-  console.log(previosMessage)
+  console.log(previosMessage);
 
-  const persistenceMsg = () => {
-    if (previosMessage) {
-      previosMessage.map((e) => {
-        const [{ nickname, chatMessage, timestamp }] = e;
-        console.log(e);
-        const time = moment(timestamp).format('D-M-yyyy hh:mm:ss');
-        const messageToSend = `chatMessage: [${time}] ${nickname} say: ${chatMessage}`;
-        return messages.push(messageToSend);
-      });
-    }
-    return false;
-  };
-  socket.emit('history', persistenceMsg);
+  previosMessage.forEach((e) => {
+    const { nickname, chatMessage, timestamp } = e;
+    console.log(e);
+    const time = moment(timestamp).format('D-M-yyyy hh:mm:ss');
+    const messageToSend = `chatMessage: ${time} ${nickname} say: ${chatMessage}`;
+    messages.push(messageToSend);
+    return socket.emit('history', messages);
+  });
 });
 
 http.listen(3000, () => console.log('Servidor ouvindo na porta 3000'));
