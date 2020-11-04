@@ -1,20 +1,22 @@
-require('dotenv/config');
-const { MongoClient } = require('mongodb');
+const mongoClient = require('mongodb').MongoClient;
+require('dotenv').config();
 
-const { DB_URL, DB_NAME } = process.env;
-
-const dbURL = DB_URL || 'mongodb://localhost:27017';
-const dbName = DB_NAME || 'webchat';
-
-const connect = () =>
-  MongoClient.connect(dbURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-    .then((connection) => connection.db(dbName))
+let schema = null;
+const connection = () => {
+  if (schema) return Promise.resolve(schema);
+  return mongoClient
+    .connect(process.env.DB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then((conn) => conn.db(process.env.DB_NAME))
+    .then((dbSchema) => {
+      schema = dbSchema;
+      return schema;
+    })
     .catch((err) => {
       console.error(err);
       process.exit(1);
     });
-
-module.exports = connect;
+};
+module.exports = connection;
