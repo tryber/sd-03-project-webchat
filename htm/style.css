@@ -18,18 +18,27 @@ h2, h3 {
   padding: 10px;
 }
 
-.msgUser {
-  color: blue;
-}
-
-.msgText {
-  color: crimson;
-}
-
 .nickname-form {
+  bottom: 4em;
+  height: 50px;
   position: fixed;
-  bottom: 3em;
   width: 30%;
+}
+
+.nickname-form input {
+  border: 0;
+  bottom: 4em;
+  padding: 5px;
+  width: 70%;
+}
+
+.nickname-form button {
+  background: midnightblue;
+  border: none;
+  color: #eee;
+  cursor: pointer;
+  padding: 5px;
+  width: 27%;
 }
 
 .message-box {
@@ -48,15 +57,21 @@ h2, h3 {
 }
 
 .message-box button {
-  width: 9%;
-  background: rgb(130, 224, 255);
+  background: forestgreen;
   border: none;
-  padding: 5px;
+  color: aliceblue;
   cursor: pointer;
+  padding: 5px;
+  width: 9%;
+}
+
+button:hover {
+  color: darkblue;
 }
 
 .messages {
-  background-color: wheat;
+  background-color: navy;
+  color: snow;
   height: 100%;
   overflow: auto;
   width: 70%;
@@ -67,7 +82,7 @@ h2, h3 {
 }
 
 .userPanel {
-  background-color: turquoise;
+  background-color: gray;
   height: 100%;
   width: 30%;
 }
@@ -84,6 +99,7 @@ h2, h3 {
 
 .messages li:nth-child(odd) {
   background: #eee;
+  color: navy;
 }
 
 .userPanel ul {
@@ -96,6 +112,6 @@ h2, h3 {
   padding: 5px 10px;
 }
 
-.userPanel li:nth-child(odd) {
+.userPanel li:nth-child(even) {
   background: #eee;
 }

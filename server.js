@@ -41,8 +41,6 @@ io.on('connection', (socket) => { // `socket` é num escopo de quem conectar
   // Cliente trocou de nome
   socket.on('userRename', (names) => {
     onlineSrvUsers = swapFromList(names, socket.id);
-    console.log('Lista recebida: ', names.oldname);
-    console.log('Online no server após renomear', onlineSrvUsers);
     io.emit('listsync', onlineSrvUsers);
     io.emit('userRename', names);
   });
