@@ -82,9 +82,10 @@
             document.getElementById("messagens").appendChild(li);
           });
         });
+        // como fiz o req 4: Juntamente com Marco barbosa
+        // https://github.com/tryber/sd-03-project-webchat/blob/3eb4378ac07a60a0c85f5363b071ff6f9310da62/public/index.html#L85
         socket.on("changeName", (data) => {
-          // Limpa a lista
-          console.log(data, 'data')
+
           const previusList = document.querySelectorAll("#list-of-users");
           if (previusList.length) {
             for (let i = previusList.length; i > 0; i -= 1) {
@@ -102,6 +103,7 @@
           });
         });
       };
+      
     </script>
   </body>
 </html>
