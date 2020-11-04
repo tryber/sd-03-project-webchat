@@ -15,7 +15,10 @@ const PUBLIC_PATH = path.join(__dirname, 'public');
 app.use(bodyParser.json());
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
+let online = [];
+
 io.on('connection', async (socket) => {
+  socket.emit('online', online);
   const previosMessage = await getAllMessages();
   previosMessage.forEach((e) => {
     const { nickname, chatMessage, timestamp } = e;
@@ -33,7 +36,6 @@ io.on('connection', async (socket) => {
     socket.on('changeName', ({ newNickName }) => {
       socket.emit('changeName', newNickName);
     });
-
     return saveMessage(socket.id, chatMessage, nickname, time);
   });
 });

@@ -9,6 +9,7 @@
   </head>
   <body>
     <ul id="messagens"></ul>
+    <ul id="online"></ul>
     <form>
       <input
         data-testid="message-box"
@@ -72,7 +73,15 @@
           li.textContent = `${msg}`;
           document.getElementById("messagens").appendChild(li);
         });
-        
+
+        socket.on('online', (data) => {
+          data.forEach((user) => {
+            const li = document.createElement("li");
+            li.setAttribute("data-testid", "online-user");
+            li.textContent = data;
+            document.getElementById('online').appendChild(user)
+          });
+        });
       };
     </script>
   </body>
