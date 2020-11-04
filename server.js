@@ -40,13 +40,14 @@ io.on('connect', async (socket) => {
     }
 
     sockets.chatMessage = chatMessage;
+
+    socket.broadcast.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
+    socket.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
     await insertMessages({
       chatMessage,
       nickname: sockets.nickname,
       date: `${date} ${time}`,
     });
-    socket.broadcast.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
-    socket.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
   });
 });
 

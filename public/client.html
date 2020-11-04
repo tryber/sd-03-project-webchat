@@ -47,9 +47,9 @@
         allMessages.forEach(message => {
         const MessageList = document.createElement('li');
         messageList.setAttribute('data-testid','message');
-        MessageList.innerHTML = `${message.chatMessage}`;
+        MessageList.innerHTML = `${message.nickname} ${message.chatMessage} ${message.date}`;
         listContainer.appendChild(MessageList);
-        console.log(message.chatMessage)
+        console.log(message)
          
         }))
 
