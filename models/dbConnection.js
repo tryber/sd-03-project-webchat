@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 
 const { DB_URL, DB_NAME } = process.env;
 
-const dbURL = DB_URL || 'mongodb://localhost:27017';
+const dbURL = DB_URL || 'localhost:27017';
 const dbName = DB_NAME || 'webchat';
 
 const connect = () =>
