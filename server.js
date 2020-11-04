@@ -15,7 +15,7 @@ const PUBLIC_PATH = path.join(__dirname, 'public');
 app.use(bodyParser.json());
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
-let online = [];
+const online = [];
 
 io.on('connection', async (socket) => {
   socket.emit('online', online);
