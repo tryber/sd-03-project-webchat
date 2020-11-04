@@ -52,22 +52,40 @@
       data-testid="nickname-save"
       id='sendButton'
       > Save name
-    </div>
     </button>
+  </div>
+  <button 
+    type="button"  
+    data-testid="public"
+    id='public'
+    > Go to Public
+  </button>
+  <h3>Chating with: 
+    <h3 id='chat'></h3>
+  </h3>
     <div id='usersOnline'>
     </div>
-    <ul id="messagens"></ul>
+    <ul id="messages"></ul>
     <form action="">
-      <input id="mensagemInput" autocomplete="off" data-testid="message-box" />
-      <button data-testid="send-button">Send</button>
+      <input id="messageInput" autocomplete="off" data-testid="message-box" />
+      <button data-testid="send-button" data-testid="public">Send</button>
+      <button data-testid="send-button" data-testid="private"
+      >Send</button>
     </form>
     <script>
 const form = document.querySelector('form');
-const messageInput = document.querySelector('#mensagemInput');
-const messagens = document.querySelector('#messagens');
+const messageInput = document.getElementById('messageInput');
+const messages = document.getElementById('messages');
 const sendButton = document.getElementById('sendButton');
 const nicknameElement = document.getElementById('nickname');
 const usersOnlineElement = document.getElementById('usersOnline');
+const chattingWithElement = document.getElementById('chat');
+
+const publicChatButton = document.getElementById('public');
+
+publicChatButton.onclick = () =>{
+  messages.innerHTML = '';
+}
 
 const createChatMessage = (message) => {
   const li = document.createElement('li');
@@ -77,7 +95,7 @@ const createChatMessage = (message) => {
     <p className='message'>${message}</p>
   `;
 
-  messagens.appendChild(li);
+  messages.appendChild(li);
 };
 
 const socket = io(); /* 'http://localhost:3000' */
@@ -87,16 +105,16 @@ socket.on('history', (messages) => {
 });
 
 let nickname = `Guest ${Math.random().toString().split('.')[1]}`
-nicknameElement.value = nickname;
+// nicknameElement.value = '';
 
 socket.emit('userConn', nickname)
-nicknameElement.addEventListener('change', (e) =>{ 
-  console.log('certo ' + e.target.value)})
+// nicknameElement.addEventListener('change', (e) =>{ 
+//   console.log('certo ' + e.target.value)})
 
 sendButton.onclick = () => {
-  console.log('first',nickname)
+  // console.log('first',nickname)
   nickname = nicknameElement.value;
-  console.log('segundo',nickname)
+  // console.log('segundo',nickname)
   socket.emit('userChangeName', nickname)
 };
 
@@ -120,6 +138,14 @@ socket.on('usersOnline', (users) => {
     const li = document.createElement('li');
     li.setAttribute('data-testid','online-user');
     li.innerText = nickname;
+    const btn = document.createElement('button');
+    btn.setAttribute('data-testid', 'private');
+    btn.onclick = () => {
+      chattingWithElement.value = nickname;
+      // clear pub_history and create private history
+      messages.innerHTML = '';
+
+    }
     ul.appendChild(li) 
   })
   usersOnlineElement.innerHTML = '';
