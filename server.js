@@ -1,4 +1,3 @@
-
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
@@ -45,7 +44,6 @@ const handlePrivateMessage = (io, socket) => async (data) => {
   );
 
   io.in('room1').emit('private', { from: data.nickname, to: nickname, message });
-
 };
 
 const getAllMessages = (socket) => async () => {
