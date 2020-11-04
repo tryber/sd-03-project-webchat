@@ -42,8 +42,10 @@
        /*  client.on('connect', (data) => {
           console.log(data);  
         }) */
-        client.on('message', (message) => {
-       
+
+        client.on('history', (allMessages) =>  console.log(allMessages));
+
+        client.on('message', (message) => {       
             const MessageList = document.createElement('li');
             messageList.setAttribute('data-testid','message');
             MessageList.innerHTML = message;
