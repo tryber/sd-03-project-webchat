@@ -2,12 +2,12 @@ const { connect } = require('./dbConnection');
 
 const getAllMessages = () =>
   connect().then((db) => db
-    .collection('message')
+    .collection('messages')
     .find().toArray());
 
 const insertMessages = ({ chatMessage, nickname, datastamps }) => {
   connect().then((db) => db
-    .collection('message').insertOne({ chatMessage, nickname, datastamps }));
+    .collection('messages').insertOne({ chatMessage, nickname, datastamps }));
 };
 
 module.exports = {

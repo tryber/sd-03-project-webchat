@@ -39,13 +39,10 @@
                client.emit('changeNicknanme', newNickname);
             }
         })
-       /*  client.on('connect', (data) => {
-          console.log(data);  
-        }) */
-
+        
         client.on('history', (allMessages) =>  
         allMessages
-        .slice().reverse()
+        //.slice().reverse()
         .forEach(message => {
         const MessageList = document.createElement('li');
         MessageList.setAttribute('data-testid','message');
