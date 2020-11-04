@@ -13,8 +13,7 @@ app.use('/', express.static('/public', { extensions: ['html'] }));
 
 const PORT = 3000;
 const sockets = { nickname: '', chatMessage: {} };
-/* const guestId = 0;
- */
+
 app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
