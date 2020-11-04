@@ -11,19 +11,14 @@ const { getAllMessage, saveMessage } = require('./models/messageModel');
 const PORT = 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'public'));
-app.engine('html', require('ejs').renderFile);
-
-app.set('view engine', 'html');
-
-app.use('/', (_req, res) => {
-  res.render('index.html');
-});
 
 io.on('connection', async (socket) => {
-  const previousMessages = await getAllMessage();
+  const previousMessage = await getAllMessage();
 
-  socket.emit('history', previousMessages);
+  previousMessage.forEach(({ chatMessage, timestamp, nickname }) => {
+    const message = `${nickname} ${timestamp} ${chatMessage}`;
+    socket.emit('history', message);
+  });
 
   socket.on('message', ({ chatMessage, nickname }) => {
     const timesTamp = new Date();

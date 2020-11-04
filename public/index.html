@@ -6,7 +6,7 @@
   <title>Web Chat</title>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="http://chancejs.com/chance.min.js"></script>
 
   <link rel="stylesheet" href="styles.css">
@@ -25,17 +25,11 @@
     const socket = io('http://localhost:3000');
 
     function renderMessage(message) {
-      $('.messages').append('<div class="message" data-testid="message">'+ message +'</div>');
+      $('.messages').append('<li class="message" data-testid="message">'+ message +'</li>');
     };
 
-    socket.on('history', (messages) => {
-      console.log(messages)
-      messages.forEach((message) => {
-        $('.messages')
-          .append(
-            '<div class="message" data-testid="message">'+ message.nickname +''+ message.timestamp +''+ message.chatMessage +'</div>'
-          );
-      });
+    socket.on('history', (message) => {
+      renderMessage(message)
     });
 
     socket.on('message', function(message) {
