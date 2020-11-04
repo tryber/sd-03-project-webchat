@@ -13,12 +13,11 @@ app.use('/', express.static('/public', { extensions: ['html'] }));
 
 const PORT = 3000;
 const sockets = { nickname: '', chatMessage: {} };
-/* const guestId = 0;
- */
+
 app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
-io.on('connect', async (socket) => {
+io.on('connection', async (socket) => {
   const messagesRegisters = await getAllMessages();
   socket.emit('history', messagesRegisters);
   sockets.newNickname = '';
