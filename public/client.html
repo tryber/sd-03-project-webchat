@@ -43,7 +43,15 @@
           console.log(data);  
         }) */
 
-        client.on('history', (allMessages) =>  console.log(allMessages));
+        client.on('history', (allMessages) =>  
+        allMessages.forEach(message => {
+        const MessageList = document.createElement('li');
+        messageList.setAttribute('data-testid','message');
+        MessageList.innerHTML = `${message.chatMessage}`;
+        listContainer.appendChild(MessageList);
+        console.log(message.chatMessage)
+         
+        }))
 
         client.on('message', (message) => {       
             const MessageList = document.createElement('li');
