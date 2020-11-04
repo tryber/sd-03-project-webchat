@@ -1,171 +1,141 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Socket.IO - trybe</title>
-    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet"/>
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css"/>
-    <link type="text/css" rel="stylesheet" href="/styles.css"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  </head>
-  <body>
-    <section class="chat-container">
-      <section class="right-side">
-        <nav>
-          <div class="nav-wrapper">
-            <div class="input-field cyan darken-4">
-              <input 
-                data-testid="nickname-box"
-                id="nickname"
-                type="search"
-                required
-                placeholder="Escolha seu novo nickname..."
-              >
-              <label class="label-icon" for="nickname"><i class="material-icons">account_circle</i></label>
-              <i data-testid="nickname-save" class="material-icons"><button class="nickname-change-btn" type="button" onclick="changeNickname()">send</button></i>
-            </div>
-          </div>
-        </nav>
-        <ul class="collection messages-container clearfix" id="messages">
-          <li class="collection-item avatar">
-            <div class="title-message">
-              Bem vindo ao chat, 
-              <span class="title" id="nameTitle"></span>
-            </div>
-          </li>   
-        </ul>
-        <div id="sender" class="row footer-input" >
-          <form class="col s12" autocomplete="off">
-            <div class="row">
-              <div class="input-field col s12">
-                <input required data-testid="message-box" id="send-message" type="text">
-                <label for="send-message">Mensagem</label>
-                <button data-testid="send-button" class="btn waves-effect teal darken-4" type="submit" name="action">Enviar</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </section>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.io - Client Demo</title>
 
-      <section class="left-side">
-        <div class="online-head">
-          <h5>Usuários conectados</h5>
-        </div>
-        <div id="online-users-container">
-          <ul class="collection" id="online-users-list"></ul>
-        </div>
-      </section>
-  </section>
-  
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <!-- Carrega o socket.io -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
-  <script src="http://chancejs.com/chance.min.js"></script>
+
+  <!-- Configura interação com o servidor -->
+  
+</head>
+<body>
+  <div>
+    <span id="nickname"></span><br>
+    <input type="text" id="nickname-box" data-testid="nickname-box" />
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar Nickname</button>
+    <fieldset>
+      <span>Mensagens</span>
+      <ul id="allMessages"></ul>
+    </fieldset>
+    <div id="send-to" data-value="public"></div>
+    <input type="text" id="message-box" data-testid="message-box" />
+    <button type="submit" id="send-button" data-testid="send-button">Enviar</button><br>
+    <button type="button" id="public-chat-button" data-testid="public">Voltar para chat público</button>
+    <fieldset>
+      <span>Online</span>
+      <ul id="allUsers"></ul>
+    </fieldset>
+  </div>
   <script>
-    let randomName = chance.name();
-    const randomColor = chance.color();
-    let userId = '';
+    const socket = io('http://localhost:3000');
+    const textInput = document.getElementById('message-box');
+    const sendButton = document.getElementById('send-button');
+    const publicChatButton = document.getElementById('public-chat-button');
+    const nickname = document.getElementById('nickname');
+    const nicknameSaveBtn = document.getElementById('nickname-save');
+    const nicknameTextBox = document.getElementById('nickname-box');
 
-    const socket = io();
+    sendButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      const divValue = document.getElementById('send-to').getAttribute('data-value');
 
-    const userChatInfo = (name) => {
-      const spanName = document.getElementById('nameTitle');
-      spanName.innerHTML = " " + name;
-    };
-
-    window.onload = () => {
-      $(() => socket.emit('userConnected', { nickname: randomName }));
-      $(() => socket.on('createdUser', ({ id }) => { userId = id }));
-      userChatInfo(randomName);
-    };
-
-    const messageFormart = (message, userName, date = 'Agora mesmo') => {
-      const dateMsg = date || new Date();
-      if (date === 'Agora mesmo') {
-        setTimeout(() => {
-          const time = document.getElementById('time-id');
-          time.innerHTML = 'Há 1 minuto';
-        }, 60000);
-        setTimeout(() => {
-          const time = document.getElementById('time-id');
-          time.innerHTML = `Enviado às ${dateMsg.getHours()}:${dateMsg.getMinutes()} `;
-        }, 100000);
+      if (divValue === 'public') {
+        const messageObj = {
+          chatMessage: textInput.value,
+          nickname: nickname.textContent,
+        }
+        socket.emit('message', messageObj);
+      } else {
+        const messageObj = {
+          chatMessage: textInput.value,
+          nickname: nickname.textContent,
+          to: divValue,
+        };
+        socket.emit('private', messageObj);
       }
-      return `
-            <li class="collection-item avatar">
-              <div class="title-message">
-              </div>
-              <p data-testid="message" class="styled-message">
-                <span class="title">
-                  ${userName}
-                </span><br>
-                ${message}
-              </p>
-              <em><span id="time-id" class="real-time">${date}</span><em>
-              <a href="#!" class="secondary-content"><i class="material-icons">delete_sweep</i></a>
-            </li>`;
-    };
-
-    const onlineUsers = (user, id) =>
-      `<li class="collection-item" id="${id}" data-testid="online-user"">
-          ${user}
-      </li>`;
-
-    const changeNickname = () => {
-      const inputName = document.getElementById("nickname").value;
-      const USER_ID = userId; //userId definido no inicio do codigo
-      if (inputName !== '') {
-        socket.emit('userChangedNickName', { nickname: inputName, id: USER_ID });
-        const title = document.getElementById("nameTitle");
-        title.innerHTML = inputName;
-        randomName = inputName;
-      }
-    }
-
-    const formSubmited = async (event, socket) => {
-      event.preventDefault();
-      const data = {
-        nickname: randomName,
-        chatMessage: $('#send-message').val(),
-        userId,
-      };
-      socket.emit('message', data);
-      $('#send-message').val('');
-      return false;
-    };
-    $(() => {
-      $('form').submit((event) => formSubmited(event, socket));
-      socket.on('message', function (message) {
-        const { nickname, chatMessage } = message;
-        $('#messages').append(
-          $(messageFormart(chatMessage, nickname || randomName))
-        );
+      textInput.value = '';
+    });
+    
+    socket.on('history', (messages) => {
+      document.getElementById('allMessages').innerHTML = '';
+      return messages.forEach(({ nickname, chatMessage }) => {
+        const li = document.createElement('li');
+        li.textContent = chatMessage;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('allMessages').appendChild(li);
       });
     });
 
-    socket.on('history', (allMessages = []) => {
-      allMessages.forEach(({ chatMessage, nickname, date }) => {
-        $('#messages').append($(messageFormart(chatMessage, nickname, date)));
+    socket.on('message', (message) => {
+      const li = document.createElement('li');
+      li.textContent = message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('allMessages').appendChild(li)
+    });
+    
+    socket.on('nickname', () =>{
+      nickname.textContent  = `Guest ${ Math.floor(((Math.random() * 1000) + 1)) }`;
+      socket.emit('nickname', nickname.textContent);
+    });
+
+    nicknameSaveBtn.addEventListener('click', () => {
+      nickname.textContent = nicknameTextBox.value;
+      socket.emit('nickname', nickname.textContent);
+      nicknameTextBox.value = '';
+    });
+
+    socket.on('private', (data) => {
+      const li = document.createElement('li');
+      li.textContent = data.message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('allMessages').appendChild(li)
+    });
+
+    publicChatButton.addEventListener('click', () => {
+      socket.emit('history');
+      const divValue = document.getElementById('send-to');
+      divValue.setAttribute('data-value', 'public');
+    })
+
+    socket.on('private-history', (messages) => {
+      if (messages.length === 0) return;
+      return messages.forEach(({ nickname, chatMessage }) => {
+        const li = document.createElement('li');
+        li.textContent = chatMessage;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('allMessages').appendChild(li);
       });
-    });
+    })
 
-    socket.on('onlineUsers', (users = []) => {
-      users.forEach(({ nickname, _id: id }) => {
-        $('#online-users-list').append($(onlineUsers(nickname, id)));
-      });
-    });
+    socket.on('onlines', (data) => {
+      document.getElementById('allUsers').innerHTML = '';
+      return data.forEach(({ nickname, id }) => {
+        const li = document.createElement('li');
+        li.textContent = nickname;
+        li.setAttribute('data-testid', 'online-user');
+        li.setAttribute('value', id);
+        document.getElementById('allUsers').appendChild(li);
 
-    socket.on('joinedUser', ({ id, nickname }) => {
-      $('#online-users-list').append($(onlineUsers(nickname, id)));
-    });
-
-    socket.on('userLeft', ({ id }) => {
-      $(`#${id}`).remove();
-    });
-
-    socket.on('userChangedNickName', ({ id, nickname }) => {
-      document.getElementById(id).innerHTML = nickname;
+        if (socket.id !== id) {
+          const button = document.createElement('button');
+          button.textContent = `DM`;
+          button.setAttribute('data-testid', 'private');
+  
+  
+          button.addEventListener('click', () => {
+            document.getElementById('allMessages').innerHTML = '';
+            socket.emit('private-history', id);
+            const div = document.getElementById('send-to');
+            div.setAttribute('data-value', id);
+          });
+          document.getElementById('allUsers').appendChild(button);
+        }
+      })
     });
   </script>
-  </body>
+</body>
 </html>

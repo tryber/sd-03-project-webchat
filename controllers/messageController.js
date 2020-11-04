@@ -1,32 +1,63 @@
-const messageServices = require('../services/messageService');
+const messagesService = require('../services/messagesService');
 
-const formatData = (date) => {
-  const day = date.getDate().toString();
-  const dayFormat = day.length === 1 ? `0${day}` : day;
+const newMessage = (io) => async ({ nickname, chatMessage }) => {
+  const currentDate = new Date();
+  const formattedDate = `
+    ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
+    ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
+  `;
+  const message = `${nickname}: ${chatMessage} ${formattedDate}`;
+  io.emit('message', message);
 
-  const month = (date.getMonth() + 1).toString(); // +1 pois no getMonth Janeiro começa com zero.
-  const mouthFormat = month.length === 1 ? `0${month}` : month;
+  const chatRoom = await messagesService.getChatRoomByNumber(1);
 
-  const anoFormat = date.getFullYear();
+  if (!chatRoom) {
+    await messagesService.createChatRoomAndSaveMessage({ nickname, chatMessage: message }, 1);
+    return;
+  }
 
-  const hour = date.getHours().toString();
-  const hourFormat = hour.length === 1 ? `0${hour}` : hour;
-
-  const minute = date.getMinutes().toString();
-  const minuteFormat = minute.length === 1 ? `0${minute}` : minute;
-
-  const second = date.getSeconds().toString();
-  const secondFormat = second.length === 1 ? `0${second}` : second;
-
-  return `${dayFormat}-${mouthFormat}-${anoFormat} ${hourFormat}:${minuteFormat}:${secondFormat}`;
+  await messagesService.saveMessage({ nickname, chatMessage: message }, 1);
 };
 
-const sendMessage = async (io, data) => {
-  const { chatMessage, nickname } = data;
-  const { date } = await messageServices.addMessages(nickname, chatMessage);
-  io.emit('message', { nickname, chatMessage, date: formatData(date) });
+const getAllMessages = async () => {
+  const chatRoom = await messagesService.getChatRoomByNumber(1);
+
+  if (chatRoom === null) return [];
+
+  return chatRoom.messagesArray;
+};
+
+const getPrivateMessages = async (id1, id2) => {
+  const privateMessages = await messagesService.getPrivateMessages(id1, id2);
+
+  if (privateMessages === null) return [];
+
+  return privateMessages.messagesArray;
+};
+
+const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
+  const currentDate = new Date();
+  const formattedDate = `
+    ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
+    ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
+  `;
+  const message = `${nickname}: ${chatMessage} ${formattedDate}`;
+
+  const privateChatRoom = await messagesService.getPrivateMessages(id1, id2);
+
+  if (!privateChatRoom) {
+    await messagesService.createPrivateChatRoomAndSaveMessage(
+      id1, id2, { nickname, chatMessage: message },
+    );
+    return;
+  }
+
+  await messagesService.savePrivateMessage(id1, id2, { nickname, chatMessage: message });
 };
 
 module.exports = {
-  sendMessage,
+  newMessage,
+  getAllMessages,
+  getPrivateMessages,
+  savePrivateMessage,
 };
