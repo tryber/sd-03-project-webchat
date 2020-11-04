@@ -96,8 +96,19 @@
     });
 
     publicChatButton.addEventListener('click', () => {
+      socket.emit('history');
       const divValue = document.getElementById('send-to');
       divValue.setAttribute('data-value', 'public');
+    })
+
+    socket.on('private-history', (messages) => {
+      if (messages.length === 0) return;
+      return messages.forEach(({ nickname, chatMessage }) => {
+        const li = document.createElement('li');
+        li.textContent = chatMessage;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('allMessages').appendChild(li);
+      });
     })
 
     socket.on('onlines', (data) => {
@@ -116,6 +127,8 @@
   
   
           button.addEventListener('click', () => {
+            document.getElementById('allMessages').innerHTML = '';
+            socket.emit('private-history', id);
             const div = document.getElementById('send-to');
             div.setAttribute('data-value', id);
           });
