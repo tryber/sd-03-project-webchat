@@ -7,26 +7,30 @@ const getPrivate = (db) => (users) => db.collection('private').find({ users: { $
 const insertGeneral = (db) => ({ chatMessage, nickname }) => db.collection('general').insertOne({ chatMessage, nickname })
   .then((value) => value.ops[0]);
 
-const insertPrivate = (db) => ({ chatMessage, users }) => db.collection('private')
-  .updateOne(
-    { users: { $all: [
+const insertPrivate = (db) => async ({ chatMessage, users }) => {
+  const chat = await db.collection('private').findOne({ users: { $all: users,
+  } });
+
+  if (chat) {
+    return db.collection('private').updateOne({ users: { $all: [
       { $elemMatch: users[0] },
       { $elemMatch: users[1] },
     ],
-    } },
-    {
-      users,
-      $setOnInsert: {
-        $push: {
-          messages: chatMessage,
-        },
+    } }, {
+      $push: {
+        messages: chatMessage,
       },
-    },
-    { upsert: true },
-  )
+    });
+  }
+  return db.collection('private')
+    .insertOne(
+      {
+        users,
+        messages: [chatMessage],
+      },
 
-  .then((value) => value.ops[0]);
-
+    );
+};
 const factory = (connect) => ({
   getGeneral: getGeneral(connect),
   getPrivate: getPrivate(connect),
