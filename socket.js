@@ -11,7 +11,7 @@ const emitHistory = async (messageModel, socket) => {
   console.log(users);
 
   const history = messages.map(
-    ({ chatMessage, nickname, date }) => `(${date}) ${nickname}: ${chatMessage}`,
+    ({ chatMessage }) => chatMessage,
   );
 
   socket.emit('history', history);
@@ -76,8 +76,8 @@ module.exports = (io, messageModel) => {
     });
 
     socket.on('message', async ({ chatMessage, nickname }) => {
-      const { string, date } = messageWithDate(nickname, chatMessage);
-      await messageModel.insertGeneral({ chatMessage, nickname, date });
+      const { string } = messageWithDate(nickname, chatMessage);
+      await messageModel.insertGeneral({ chatMessage: string, nickname });
       io.emit('message', string);
     });
   });
