@@ -36,9 +36,9 @@ module.exports = (io, messageModel) => {
       const index1 = users.indexOf(user1);
       const user2 = users.find((u) => u.nickname === nickname);
       const index2 = users.indexOf(user2);
-      console.log('pv', nickname, message)
-      console.log('users', users)
-      const usersArray = [users[index1].id, users[index2].id];
+      console.log('pv', user2, message);
+      console.log('users', users);
+      const usersArray = [users[index1], users[index2]];
       const chatMessage = messageWithDate(nickname, message);
       await messageModel.insertPrivate({ chatMessage, users: usersArray });
       io.clients[user2.socket.id].emit('private', chatMessage);

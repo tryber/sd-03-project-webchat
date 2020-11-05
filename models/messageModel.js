@@ -9,7 +9,11 @@ const insertGeneral = (db) => ({ chatMessage, nickname }) => db.collection('gene
 
 const insertPrivate = (db) => ({ chatMessage, users }) => db.collection('private')
   .updateOne(
-    { users: { $all: users } },
+    { users: { $all: [
+      { $elemMatch: users[0] },
+      { $elemMatch: users[1] },
+    ],
+    } },
     {
       $setOnInsert: {
         users,
