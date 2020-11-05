@@ -5,9 +5,9 @@ const getAllMessages = () =>
     .collection('messages')
     .find().toArray());
 
-const insertMessages = ({ chatMessage, nickname, datastamps }) => {
+const insertMessages = ({ chatMessage, nickname, datastamps, clientSocketId, isClientOnline }) => {
   connection().then((db) => db
-    .collection('messages').insertOne({ chatMessage, nickname, datastamps }));
+    .collection('messages').insertOne({ chatMessage, nickname, datastamps, clientSocketId, isClientOnline }));
 };
 
 module.exports = {

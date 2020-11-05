@@ -22,8 +22,13 @@
         const nickameChange = document.getElementById('changeNickname');
         const buttonNicknameChange = document.getElementById('mudarApelido')
         const listContainer = document.getElementById('messageList');
+        
+
         const nickname = chance.name();
         const client = io();
+        window.onload = () => {
+          client.emit('userOnline', client.id);  
+        }
         buttonMessage.addEventListener('click',() => {
             if (messageInput.value === '') {
                 alert('mensagem não pode ser vazia');

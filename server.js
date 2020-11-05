@@ -12,12 +12,18 @@ app.use(bodyParser.json());
 app.use('/', express.static('/public', { extensions: ['html'] }));
 
 const PORT = 3000;
-const sockets = { nickname: '', chatMessage: {} };
+const sockets = { nickname: '', chatMessage: '', clientSocketId: '', isClientOnline: '' };
 
 app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
 io.on('connection', async (socket) => {
+  socket.on('userOnline', (clientSocketId) => {
+    console.log(clientSocketId);
+    sockets.clientSocketId = clientSocketId;
+    sockets.isClientOnline = true;
+    console.log(sockets.clientSocketId);
+  });
   const messagesRegisters = await getAllMessages();
   socket.emit('history', messagesRegisters);
   sockets.newNickname = '';
@@ -43,6 +49,8 @@ io.on('connection', async (socket) => {
       chatMessage,
       nickname: sockets.nickname,
       datastamps: `${date} ${time}`,
+      clientSocketId: sockets.clientSocketId,
+      isClientOnline: sockets.isClientOnline,
     });
     socket.broadcast.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
     socket.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
