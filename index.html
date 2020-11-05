@@ -122,9 +122,9 @@ sendButton.onclick = () => {
   socket.emit('userChangeName', nickname)
 };
 
-const general = document.getElementById('public-btn');
+const general = document.querySelector('form');
 
-general.addEventListener('click', (e) => {
+general.addEventListener('submit', (e) => {
   e.preventDefault();
   const message = {
     chatMessage: messageInput.value,
