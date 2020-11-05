@@ -8,7 +8,7 @@ const users = [];
 
 const emitHistory = async (messageModel, socket) => {
   const messages = await messageModel.getGeneral();
-  console.log(users)
+  console.log(users);
 
   const history = messages.map(
     ({ chatMessage, nickname, date }) => `(${date}) ${nickname}: ${chatMessage}`,
@@ -41,7 +41,7 @@ module.exports = (io, messageModel) => {
       const usersArray = [users[index1], users[index2]];
       const chatMessage = messageWithDate(nickname, message);
       await messageModel.insertPrivate({ chatMessage, users: usersArray });
-      console.log(users)
+      console.log(users);
       io.clients[user2.id].emit('private', chatMessage);
     });
 
