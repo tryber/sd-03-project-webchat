@@ -68,12 +68,18 @@
     <ul id="messages"></ul>
     <form action="">
       <input id="messageInput" autocomplete="off" data-testid="message-box" />
-      <button data-testid="send-button" data-testid="public">Send</button>
-      <button data-testid="send-button" data-testid="private"
+      <button
+       data-testid="send-button" data-testid="public"
+       id="public-btn"
+      >Send</button>
+      <button data-testid="send-button" 
+      data-testid="private"
+      id="private-btn"
+
       >Send</button>
     </form>
     <script>
-const form = document.querySelector('form');
+
 const messageInput = document.getElementById('messageInput');
 const messages = document.getElementById('messages');
 const sendButton = document.getElementById('sendButton');
@@ -98,7 +104,7 @@ const createChatMessage = (message) => {
   messages.appendChild(li);
 };
 
-const socket = io(); /* 'http://localhost:3000' */
+const socket = io(); 
 
 socket.on('history', (messages) => {
   messages.forEach((message) => createChatMessage(message));
@@ -108,17 +114,17 @@ let nickname = `Guest ${Math.random().toString().split('.')[1]}`
 // nicknameElement.value = '';
 
 socket.emit('userConn', nickname)
-// nicknameElement.addEventListener('change', (e) =>{ 
-//   console.log('certo ' + e.target.value)})
+
 
 sendButton.onclick = () => {
-  // console.log('first',nickname)
   nickname = nicknameElement.value;
-  // console.log('segundo',nickname)
+
   socket.emit('userChangeName', nickname)
 };
 
-form.addEventListener('submit', (e) => {
+const general = document.getElementById('public-btn');
+
+general.addEventListener('click', (e) => {
   e.preventDefault();
   const message = {
     chatMessage: messageInput.value,
@@ -128,24 +134,40 @@ form.addEventListener('submit', (e) => {
   messageInput.value = '';
 });
 
+const private = document.getElementById('private-btn');
 
+private.addEventListener('click', () => {
+  const message = {
+    message: messageInput.value,
+    nickname,
+  };
+  socket.emit('private', message);
+  messageInput.value = '';
+});
 
 socket.on('message', (message) => createChatMessage(message));
 
 socket.on('usersOnline', (users) => {
   const ul = document.createElement('ul');
   users.forEach(({ nickname }) => {
+
+    const p = document.createElement('li');
+    p.setAttribute('data-testid','online-user');
+    p.innerText = nickname;
+    
     const li = document.createElement('li');
-    li.setAttribute('data-testid','online-user');
-    li.innerText = nickname;
+
+    li.appendChild(p);
     const btn = document.createElement('button');
     btn.setAttribute('data-testid', 'private');
+    btn.innerText = 'Chat with me';
     btn.onclick = () => {
-      chattingWithElement.value = nickname;
+      chattingWithElement.innerText = nickname;
       // clear pub_history and create private history
       messages.innerHTML = '';
-
+      socket.emit('privateHistory', nickname)
     }
+    li.appendChild(btn)
     ul.appendChild(li) 
   })
   usersOnlineElement.innerHTML = '';
