@@ -72,12 +72,12 @@
        data-testid="send-button" data-testid="public"
        id="public-btn"
       >Send</button>
-      <button data-testid="send-button" 
-      data-testid="private"
-      id="private-btn"
-
-      >Send</button>
     </form>
+    <button data-testid="send-button" 
+    data-testid="private"
+    id="private-btn"
+
+    >Send</button>
     <script>
 
 const messageInput = document.getElementById('messageInput');
@@ -91,6 +91,7 @@ const publicChatButton = document.getElementById('public');
 
 publicChatButton.onclick = () =>{
   messages.innerHTML = '';
+  socket.emit('getHistory')
 }
 
 const createChatMessage = (message) => {
@@ -107,6 +108,7 @@ const createChatMessage = (message) => {
 const socket = io(); 
 
 socket.on('history', (messages) => {
+  console.log(messages)
   messages.forEach((message) => createChatMessage(message));
 });
 
@@ -173,6 +175,10 @@ socket.on('usersOnline', (users) => {
   })
   usersOnlineElement.innerHTML = '';
   usersOnlineElement.appendChild(ul);
+})
+
+socket.on('privateHistory', (history) =>{
+  history.forEach(message => createChatMessage(message))
 })
 /* socket.on('disconnect', () => nickname); */
     </script>

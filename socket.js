@@ -20,6 +20,9 @@ module.exports = (io, messageModel) => {
   io.on('connection', async (socket) => {
     await emitHistory(messageModel, socket);
 
+    socket.on('getHistory', async () =>
+      emitHistory(messageModel, socket));
+
     socket.on('privateHistory', async (nickname) => {
       const user1 = users.find((u) => u.id === socket.id);
       const index1 = users.indexOf(user1);
@@ -29,7 +32,9 @@ module.exports = (io, messageModel) => {
       const usersArray = [users[index1], users[index2]];
 
       const messages = await messageModel.getPrivate(usersArray);
-      socket.emit('sendPrivateHistory', messages);
+      console.log(messages)
+
+      socket.emit('history', messages);
     });
     socket.on('private', async ({ nickname, message }) => {
       const user1 = users.find((u) => u.id === socket.id);
