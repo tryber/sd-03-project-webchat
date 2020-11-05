@@ -15,10 +15,10 @@ const insertPrivate = (db) => ({ chatMessage, users }) => db.collection('private
     ],
     } },
     {
+      users,
       $setOnInsert: {
-        users,
         $push: {
-          messages: [chatMessage],
+          messages: chatMessage,
         },
       },
     },

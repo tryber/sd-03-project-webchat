@@ -4,9 +4,11 @@ const messageWithDate = (nickname, chatMessage) => {
 
   return { string: `(${date} ${newDate}) ${nickname}: ${chatMessage}`, date };
 };
+const users = [];
 
 const emitHistory = async (messageModel, socket) => {
   const messages = await messageModel.getGeneral();
+  console.log(users)
 
   const history = messages.map(
     ({ chatMessage, nickname, date }) => `(${date}) ${nickname}: ${chatMessage}`,
@@ -14,7 +16,6 @@ const emitHistory = async (messageModel, socket) => {
 
   socket.emit('history', history);
 };
-const users = [];
 module.exports = (io, messageModel) => {
   io.on('connection', async (socket) => {
     await emitHistory(messageModel, socket);
@@ -30,7 +31,6 @@ module.exports = (io, messageModel) => {
       const messages = await messageModel.getPrivate(usersArray);
       socket.emit('sendPrivateHistory', messages);
     });
-
     socket.on('private', async ({ nickname, message }) => {
       const user1 = users.find((u) => u.id === socket.id);
       const index1 = users.indexOf(user1);

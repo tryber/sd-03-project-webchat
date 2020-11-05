@@ -149,7 +149,7 @@ socket.on('message', (message) => createChatMessage(message));
 
 socket.on('usersOnline', (users) => {
   const ul = document.createElement('ul');
-  users.forEach(({ nickname }) => {
+  users.forEach(({ nickname, id }) => {
 
     const p = document.createElement('li');
     p.setAttribute('data-testid','online-user');
@@ -167,6 +167,7 @@ socket.on('usersOnline', (users) => {
       messages.innerHTML = '';
       socket.emit('privateHistory', nickname)
     }
+    btn.disabled = id !== socket.id
     li.appendChild(btn)
     ul.appendChild(li) 
   })
