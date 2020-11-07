@@ -12,13 +12,18 @@
   <form id="chat">
     <input type=text data-testid="nickname-box" name="usuario" placeholder="Digite seu nome" />
     <button type="button" data-testid="nickname-save">Salvar nome</button>
-    <input type="text" data-testid="message-box" id="idMessage" name="mensagens" placeholder="Digite sua mensagem" />
+    <input data-testid="message-box" id="idMessage" name="mensagens" placeholder="Digite sua mensagem" />
     <button type="submit" data-testid="send-button" id="send-buttons">Enviar</button>
-    <div id="message"></div>
+    <div id="message" ></div>
   </form>
 
   <script>
     let socket = io('http://localhost:3000');
+
+    function renderizarMensagem(nickname, mensagens) {
+      $('#message').append('<div data-testid="message" classe="message">'+nickname+': '+mensagens+'<div/>');
+    };
+
     $('#chat').submit(function (e) {
       e.preventDefault();
       let nickname = $('input[name=usuario]').val();
@@ -29,18 +34,13 @@
           nickname: nickname,
           mensagens: mensagens,
         };
+
+        renderizarMensagem(nickname,mensagens);
         socket.emit('SendMessage', ObjMessage);
-        const divMessage = document.getElementById('message');
-        const buttonEnviar = document.getElementById('send-buttons');
-        const tagP = document.createElement('p');
-        tagP.setAttribute('data-testid','message');
-        tagP.innerHTML = nickname + ': ' + mensagens;
-        divMessage.appendChild(tagP);
       };
       const mensagensId = document.getElementById('idMessage');
-      mensagensId.value='';
+      mensagensId.value = '';
     });
-
   </script>
 </body>
 
