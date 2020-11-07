@@ -24,6 +24,10 @@
       $('#message').append('<div data-testid="message" classe="message">'+nickname+': '+mensagens+'<div/>');
     };
 
+    socket.on('msgRecebida', function(ObjMessage){
+      renderizarMensagem(ObjMessage.nickname,ObjMessage.mensagens);
+    });
+
     $('#chat').submit(function (e) {
       e.preventDefault();
       let nickname = $('input[name=usuario]').val();
