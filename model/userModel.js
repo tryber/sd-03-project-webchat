@@ -1,4 +1,3 @@
-/* const { ObjectId } = require('mongodb'); */
 const connection = require('./connect');
 
 const saveUser = async (nickname) =>
@@ -7,9 +6,7 @@ const saveUser = async (nickname) =>
       .getTable('users')
       .insert(['nickname'])
       .values(nickname)
-      .execute(),
-  );
-
+      .execute());
 
 const editUser = async (nickname) =>
   connection().then((db) =>
@@ -17,8 +14,5 @@ const editUser = async (nickname) =>
       .getTable('users')
       .update()
       .set('nickname', nickname)
-      .execute(),
-  );
-
-
+      .execute());
 module.exports = { editUser, saveUser };

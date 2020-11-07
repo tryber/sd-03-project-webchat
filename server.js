@@ -14,21 +14,13 @@ const server = http.createServer(app);
 
 const io = socketIo(server);
 
-
-app.post('/message', (req, res) => {
-  const { chatMessage } = req.body;
-
-  io.emit('message',chatMessage);
-  res.status(200).json({ ok: true })
-});
-
 io.on('connection', (socket) => {
   console.log(`${socket.id} conectado`);
 
-  socket.on('SendMessage',data => {
+  socket.on('SendMessage', (data) => {
     console.log(data);
   });
-})
+});
 
 server.listen(PORT, () => {
   console.log(`Ouvindo na porta ${PORT}`);

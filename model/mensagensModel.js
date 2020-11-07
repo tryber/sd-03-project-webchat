@@ -7,8 +7,5 @@ const saveMessage = async (nickname, message) =>
       .getTable('message')
       .insert(['nickname', 'message'])
       .values(nickname, message)
-      .execute(),
-  );
-
-
+      .execute());
 module.exports = { saveMessage };
