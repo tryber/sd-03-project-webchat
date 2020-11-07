@@ -6,65 +6,6 @@
     <title>Zap Efron</title>
     <link rel="stylesheet" type="text/css" href="./style.css" media="screen" />
     <script src="/socket.io/socket.io.js"></script>
-    <script defer>
-      const socket = io('http://localhost:3000');
-
-      const sendButton = document.getElementById('send-button');
-      const messageBox = document.getElementById('message-box');
-      // const nicknameSave = document.getElementById('nickname-save');
-      // const nicknameBox = document.getElementById('nickname-box');
-      const userNickname = document.getElementById('nickname');
-
-      const joinedChat = ({ nickname }) => {
-        const li = document.createElement('li');
-
-        userNickname.textContent = nickname;
-
-        li.textContent = `${nickname} entrou no chat`;
-        li.classList = 'joined message';
-
-        document.getElementById('ul-messages').appendChild(li);
-      };
-
-      // const sendMessage = (event) => {
-      //   event.preventDefault();
-
-      //   const message = messageBox.value;
-      //   const nickname = userNickname.value;
-      //   const date = Date.now();
-
-      //   socket.emit('message', { message, nickname, date });
-      // };
-
-      const receivedMessage = ({ message }) => {
-        console.log('oii');
-        const li = document.createElement('li');
-
-        li.textContent = message;
-        li.setAttribute('data-testid', 'message');
-        li.classList = 'message';
-
-        document.getElementById('ul-messages').appendChild(li);
-      };
-
-      sendButton.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        const message = messageBox.value;
-        const nickname = userNickname.innerText;
-        const date = Date.now();
-
-        socket.emit('message', { message, nickname, date });
-      });
-
-      socket.on('connect', () => {
-        console.log('connect');
-      });
-
-      socket.on('joined', (data) => joinedChat(data));
-
-      socket.on('message', (data) => receivedMessage(data));
-    </script>
   </head>
   <body>
     <div id="app-content">
@@ -94,10 +35,101 @@
               placeholder="Digite uma mensagem..."
               data-testid="message-box"
             />
-            <button id="send-button" data-testid="send-button">Enviar</button>
+            <button type="submit" id="send-button" data-testid="send-button">
+              Enviar
+            </button>
           </form>
         </div>
       </div>
     </div>
   </body>
+  <script defer>
+    const socket = io('http://localhost:3000');
+
+    const formMessage = document.getElementById('form-message');
+    const messageBox = document.getElementById('message-box');
+    const formNickname = document.getElementById('form-nickname');
+    const nicknameBox = document.getElementById('nickname-box');
+    const userNickname = document.getElementById('nickname');
+
+    const selfJoin = ({ nickname }) => {
+      const li = document.createElement('li');
+
+      userNickname.textContent = nickname;
+
+      li.textContent = `Você entrou no chat`;
+      li.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(li);
+    };
+
+    const joinedChat = ({ nickname }) => {
+      const li = document.createElement('li');
+
+      li.textContent = `${nickname} entrou no chat`;
+      li.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(li);
+    };
+
+    const sendMessage = (event) => {
+      event.preventDefault();
+
+      const message = messageBox.value;
+      const nickname = userNickname.textContent;
+      const date = Date.now();
+
+      messageBox.value = '';
+
+      socket.emit('message', { message, nickname, date });
+    };
+
+    const receivedMessage = ({ message, nickname, date }) => {
+      const li = document.createElement('li');
+
+      li.textContent = `${nickname} - ${new Date(
+        date
+      ).toLocaleDateString()}: ${message}`;
+      li.setAttribute('data-testid', 'message');
+      li.classList = 'message';
+
+      document.getElementById('ul-messages').appendChild(li);
+    };
+
+    const sendNameUpdate = (event) => {
+      event.preventDefault();
+
+      const nickname = userNickname.textContent;
+      const newName = nicknameBox.value;
+
+      socket.emit('change-name', { nickname, newName });
+    };
+
+    const updateName = ({ newName }) => {
+      userNickname.textContent = newName;
+    };
+
+    const someoneUpdatedName = ({ nickname, newName }) => {
+      const li = document.createElement('li');
+
+      li.textContent = `${nickname} agora é ${newName}`;
+      li.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(li);
+    };
+
+    formMessage.addEventListener('submit', (e) => sendMessage(e));
+
+    formNickname.addEventListener('submit', (e) => sendNameUpdate(e));
+
+    socket.on('self-join', (data) => selfJoin(data));
+
+    socket.on('joined', (data) => joinedChat(data));
+
+    socket.on('message', (data) => receivedMessage(data));
+
+    socket.on('change-name', (data) => updateName(data));
+
+    socket.on('someone-change-name', (data) => someoneUpdatedName(data));
+  </script>
 </html>

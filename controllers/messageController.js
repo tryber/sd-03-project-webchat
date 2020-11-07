@@ -1,14 +1,22 @@
-const sendMessage = (io) => (req, res) => {
-  const { message, nickname, date } = req.body;
+const rescue = require('express-rescue');
 
-  if (!message) {
-    return res.status(422).json({ message: 'Missing message' });
-  }
+const sendMessage = (io) =>
+  rescue((req, res) => {
+    try {
+      const { message, nickname, date } = req;
 
-  io.emit('message', { message, nickname, date });
+      if (!message) {
+        return res.status(422).json({ message: 'Missing message' });
+      }
 
-  res.status(200).json({ message: 'Message sent' });
-};
+      io.emit('message', { message, nickname, date });
+
+      console.log(res);
+      return res.status(200).end();
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
 const getMessageController = (io) => ({
   sendMessage: sendMessage(io),
