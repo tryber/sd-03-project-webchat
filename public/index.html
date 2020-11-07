@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Web Chat</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src='http://localhost:3000/socket.io/socket.io.js'></script>
+  <script>
+    const socket = io('http://localhost:3000')
+    socket.on('message', (data) =>{
+      const li = document.createElement('li')
+      li.textContent = data
+      document.getElementById('message').appendChild(li);
+    });
+  </script>
+</head>
+
+<body>
+  <div>
+    <ul id="message"></ul>
+  </div>
+    <h4 data-testid="message-box"></h4>
+  <input data-testid="nickname-box" type="text" placeholder="Digite seu usuario:"></input>
+  <button data-testid="nickname-save" type='submit'>Salvar Nickname</button>
+  <input data-testid="message" type="text" placeholder="digite sua mensagem:"></input>
+  <button data-testid="send-button" type="submit">Enviar</button>
+</body>
+
+</html>
