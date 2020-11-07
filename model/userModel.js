@@ -1,6 +1,24 @@
-const { ObjectId } = require('mongodb');
+/* const { ObjectId } = require('mongodb'); */
 const connection = require('./connect');
 
-const getAllUsers = async () => connection().then((db) => db.collection('user').find({}).toArray());
+const saveUser = async (nickname) =>
+  connection().then((db) =>
+    db
+      .getTable('users')
+      .insert(['nickname'])
+      .values(nickname)
+      .execute(),
+  );
 
-module.exports = {getAllUsers};
+
+const editUser = async (nickname) =>
+  connection().then((db) =>
+    db
+      .getTable('users')
+      .update()
+      .set('nickname', nickname)
+      .execute(),
+  );
+
+
+module.exports = { editUser, saveUser };

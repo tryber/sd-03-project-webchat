@@ -6,25 +6,42 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src='http://localhost:3000/socket.io/socket.io.js'></script>
-  <script>
-    const socket = io('http://localhost:3000')
-    socket.on('message', (data) =>{
-      const li = document.createElement('li')
-      li.textContent = data
-      document.getElementById('message').appendChild(li);
-    });
-  </script>
 </head>
 
 <body>
-  <div>
-    <ul id="message"></ul>
-  </div>
-    <h4 data-testid="message-box"></h4>
-  <input data-testid="nickname-box" type="text" placeholder="Digite seu usuario:"></input>
-  <button data-testid="nickname-save" type='submit'>Salvar Nickname</button>
-  <input data-testid="message" type="text" placeholder="digite sua mensagem:"></input>
-  <button data-testid="send-button" type="submit">Enviar</button>
+  <form id="chat">
+    <input type=text data-testid="nickname-box" name="usuario" placeholder="Digite seu nome" />
+    <button type="button" data-testid="nickname-save">Salvar nome</button>
+    <input type="text" data-testid="message-box" id="idMessage" name="mensagens" placeholder="Digite sua mensagem" />
+    <button type="submit" data-testid="send-button" id="send-buttons">Enviar</button>
+    <div id="messageUser"></div>
+  </form>
+
+  <script>
+    let socket = io('http://localhost:3000');
+    $('#chat').submit(function (e) {
+      e.preventDefault();
+      let nickname = $('input[name=usuario]').val();
+      let mensagens = $('input[name=mensagens]').val();
+
+      if (nickname.length && mensagens.length) {
+        const ObjMessage = {
+          nickname: nickname,
+          mensagens: mensagens,
+        };
+        socket.emit('SendMessage', ObjMessage);
+        const divMessage = document.getElementById('messageUser');
+        const buttonEnviar = document.getElementById('send-buttons');
+        const tagP = document.createElement('p');
+        tagP.setAttribute('data-testid','message');
+        tagP.innerHTML = nickname + ': ' + mensagens;
+        divMessage.appendChild(tagP);
+      };
+      const mensagensId = document.getElementById('idMessage');
+      mensagensId.value='';
+    });
+
+  </script>
 </body>
 
 </html>

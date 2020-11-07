@@ -1,13 +1,24 @@
-const nameClient = document.getElementById('nickname-box');
-const messageClient = document.getElementById('message');
-const saveName = document.getElementById('nickname-save');
-const sendMessage = document.getElementById('send-button');
-const boxMessage = document.getElementById('message-box');
+const socket = io('http://localhost:3000');
+const enviar = document.getElementById('enviar');
+const caixaDeMensagens = document.getElementById('caixa-mensagens');
+const inputMsg = document.getElementById('mensagens');
 
-/* sendMessage.addEventListener('click', (el) => {
-  el.preventDefault();
-  const message = messageClient.Value;
-  boxMessage.innerHTML(message);
 
-  socket.emit('message', { boxMessage })
-}) */
+/* socket.on('message', (data) => {
+  const li = document.createElement('li')
+  li.textContent = data
+  document.getElementById('message').appendChild(li);
+}); */
+
+enviar.addEventListener('click', (e) => {
+  e.preventDefault();
+      const chatMessage = inputMsg.value;
+  socket.emit('sendMessage', chatMessage)
+});
+
+/* id:="caixa-mensagens"
+id="nome"
+id ="salvarNome"
+id="mensagens"
+id="enviar"
+ */
