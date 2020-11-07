@@ -1,18 +1,15 @@
 const rescue = require('express-rescue');
 
 const sendMessage = (io) =>
-  rescue((req, res) => {
+  rescue((req) => {
     try {
-      const { message, nickname, date } = req;
+      const { chatMessage, nickname } = req;
 
-      if (!message) {
-        return res.status(422).json({ message: 'Missing message' });
+      if (!chatMessage) {
+        throw new Error('Missing message');
       }
 
-      io.emit('message', { message, nickname, date });
-
-      console.log(res);
-      return res.status(200).end();
+      io.emit('message', { chatMessage, nickname });
     } catch (err) {
       console.error(err);
     }

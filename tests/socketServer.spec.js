@@ -45,6 +45,7 @@ describe('Crie um backend back-end que permite que várias pessoas se conectem s
     client1.emit('message', { chatMessage, nickname });
 
     client1.on('message', (message) => {
+      console.log(message);
       expect(message.includes(chatMessage)).toBeTruthy();
     });
     client2.on('message', (message) => {
