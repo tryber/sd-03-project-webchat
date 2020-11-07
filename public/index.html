@@ -14,7 +14,7 @@
     <button type="button" data-testid="nickname-save">Salvar nome</button>
     <input type="text" data-testid="message-box" id="idMessage" name="mensagens" placeholder="Digite sua mensagem" />
     <button type="submit" data-testid="send-button" id="send-buttons">Enviar</button>
-    <div id="messageUser"></div>
+    <div id="message"></div>
   </form>
 
   <script>
@@ -30,7 +30,7 @@
           mensagens: mensagens,
         };
         socket.emit('SendMessage', ObjMessage);
-        const divMessage = document.getElementById('messageUser');
+        const divMessage = document.getElementById('message');
         const buttonEnviar = document.getElementById('send-buttons');
         const tagP = document.createElement('p');
         tagP.setAttribute('data-testid','message');
