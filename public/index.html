@@ -41,6 +41,10 @@
           </form>
         </div>
       </div>
+      <div id="online-content">
+        <p>Usuários online:</p>
+        <ul id="ul-online"></ul>
+      </div>
     </div>
   </body>
   <script defer>
@@ -51,25 +55,28 @@
     const formNickname = document.getElementById('form-nickname');
     const nicknameBox = document.getElementById('nickname-box');
     const userNickname = document.getElementById('nickname');
+    const ulOnlineUser = document.getElementById('ul-online');
 
     const selfJoin = ({ nickname }) => {
-      const li = document.createElement('li');
+      const liMsg = document.createElement('li');
 
       userNickname.textContent = nickname;
 
-      li.textContent = `Você entrou no chat`;
-      li.classList = 'joined message';
+      liMsg.textContent = `Você entrou no chat`;
+      liMsg.classList = 'joined message';
 
-      document.getElementById('ul-messages').appendChild(li);
+      document.getElementById('ul-messages').appendChild(liMsg);
     };
 
     const joinedChat = ({ nickname }) => {
-      const li = document.createElement('li');
+      const liMsg = document.createElement('li');
 
-      li.textContent = `${nickname} entrou no chat`;
-      li.classList = 'joined message';
+      liMsg.textContent = `${nickname} entrou no chat`;
+      liMsg.classList = 'joined message';
 
-      document.getElementById('ul-messages').appendChild(li);
+      document.getElementById('ul-messages').appendChild(liMsg);
+
+      // socket.emit('connect');
     };
 
     const sendMessage = (event) => {
@@ -84,13 +91,13 @@
     };
 
     const receivedMessage = (message) => {
-      const li = document.createElement('li');
+      const liMsg = document.createElement('li');
 
-      li.textContent = message;
-      li.setAttribute('data-testid', 'message');
-      li.classList = 'message';
+      liMsg.textContent = message;
+      liMsg.setAttribute('data-testid', 'message');
+      liMsg.classList = 'message';
 
-      document.getElementById('ul-messages').appendChild(li);
+      document.getElementById('ul-messages').appendChild(liMsg);
     };
 
     const sendNameUpdate = (event) => {
@@ -109,24 +116,57 @@
     };
 
     const someoneUpdatedName = ({ nickname, newName }) => {
-      const li = document.createElement('li');
+      const liMsg = document.createElement('li');
 
-      li.textContent = `${nickname} agora é ${newName}`;
-      li.classList = 'joined message';
+      liMsg.textContent = `${nickname} agora é ${newName}`;
+      liMsg.classList = 'joined message';
 
-      document.getElementById('ul-messages').appendChild(li);
+      document.getElementById('ul-messages').appendChild(liMsg);
     };
 
     const setHistory = (history) => {
-      console.log('history');
       history ? history.map(receivedMessage) : null;
-    }
+    };
+
+    const setOnlineUsers = (data) => {
+      const { onlineUsers } = data ? data : [];
+
+      if (onlineUsers) {
+        ulOnlineUser.innerHTML = '';
+
+        const filteredUser = onlineUsers.filter(
+          ({ user }) => user !== userNickname.textContent
+        );
+
+        filteredUser.map(({ user }) => {
+          const liOnline = document.createElement('li');
+
+          liOnline.textContent = user;
+          liOnline.classList = 'online-user';
+          liOnline.setAttribute('data-testid', 'online-user');
+
+          ulOnlineUser.appendChild(liOnline);
+        });
+      }
+    };
 
     formMessage.addEventListener('submit', (e) => sendMessage(e));
 
     formNickname.addEventListener('submit', (e) => sendNameUpdate(e));
 
-    socket.on('connect', () => socket.emit('history'));
+    const getRandomicNickname = () =>
+      Math.random().toString(36).substring(2, 10);
+
+    socket.on('connect', () => {
+      const nickname = getRandomicNickname();
+
+      socket.emit('history');
+      socket.emit('online');
+      socket.emit('self-join', { nickname });
+      socket.on('disconnect', () => {
+        socket.emit('disconnected', { nickname: userNickname });
+      });
+    });
 
     socket.on('self-join', (data) => selfJoin(data));
 
@@ -139,5 +179,7 @@
     socket.on('someone-change-name', (data) => someoneUpdatedName(data));
 
     socket.on('history', (data) => setHistory(data));
+
+    socket.on('online', (data) => setOnlineUsers(data));
   </script>
 </html>

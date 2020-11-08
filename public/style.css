@@ -3,12 +3,12 @@
   border-radius: 0.8rem;
   display: grid;
   gap: 2rem;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   padding: 0.8rem;
 }
 
 #header {
-  grid-column: 1 / 4;
+  grid-column: 1 / 5;
   justify-self: center;
 }
 
@@ -49,6 +49,10 @@
   grid-column: 2 / 4;
 }
 
+#ul-messages {
+  padding: 0;
+}
+
 #message-box {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -74,4 +78,17 @@
 
 .joined {
   text-align: center;
+}
+
+#online-content {
+  grid-column: 4 / 5;
+  text-align: center;
+}
+
+#ul-online {
+  padding: 0;
+}
+
+.online-user {
+  list-style-type: none;
 }
