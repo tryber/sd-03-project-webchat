@@ -37,6 +37,16 @@
       document.getElementById('messagens-history').appendChild(p);
     });
 
+    socket.on('history', (data) => {
+      data.forEach(({msgDate, msgTime, nickname, chatMessage}) => {
+        const message = `${msgDate} ${msgTime} - ${nickname}: ${chatMessage}`
+        const p = document.createElement('p');
+        p.setAttribute("data-testid", "message");
+        p.textContent = message;
+        document.getElementById('messagens-history').appendChild(p);
+      })
+    });
+
     sendMessage.addEventListener('click',function() {
       const message = document.getElementById('message-box');
       socket.emit("message", { chatMessage: message.value , nickname: username });      
