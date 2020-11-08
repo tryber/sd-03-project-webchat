@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 require('dotenv/config');
 
 const app = express();
-app.use(bodyParser);
 const server = http.createServer(app);
+app.use(bodyParser.json());
 const io = socketIo(server);
 
 io.on('connection', (socket) => {
@@ -15,9 +15,12 @@ io.on('connection', (socket) => {
   socket.emit('message', 'HelO!');
 });
 
-// app.get('/', (req, res) => {
-//   res.sendFile(__dirname, '/index.html');
-// });
+app.post('/', (req, res) => {
+  const { title, message } = req.body;
+  console.log(req.body);
+  io.emit('notification', { title, message });
+  res.status(200).json({ ok: true })
+});
 
 const { PORT = 3000 } = process.env.PORT;
 
