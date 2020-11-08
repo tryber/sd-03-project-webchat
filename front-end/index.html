@@ -19,43 +19,41 @@
   <script>
     const socket = io();
 
+    const changeNick = document.getElementById('changeNick')
+    const saveName = document.getElementById('nickButton');
+    const inputMessage = document.getElementById('inputMsg');
+    const sendButton = document.getElementById('messageButton');
+    const chat = document.getElementById('chatBox');
+
     const renderChat = (objectMsg) => {
-      const chat = document.getElementById('chatBox');
-      const inputMessage = document.getElementById('inputMsg');
       const newMessage = document.createElement('p');
 
       newMessage.setAttribute('data-testid', 'message');
-      newMessage.innerHTML = objectMsg.nickname + ' > ' + objectMsg.message;
+      newMessage.innerHTML = objectMsg.nickname + ' > ' + objectMsg.chatMessage;
       chat.appendChild(newMessage);
       inputMessage.value = '';
     }
-    const changeNick = document.getElementById('changeNick')
-    const saveName = document.getElementById('nickButton');
+
+    socket.on('chatHistory', (fullChat) =>
+      fullChat.foreach((message) => renderChat(message)),
+    );
 
     saveName.addEventListener('click', () => {
       const newNick = changeNick.value
       socket.emit('nickname', newNick);
     });
 
-    socket.on('actualyChat', (objectMsg) => {
-      renderChat(objectMsg);
+    sendButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      const objectMsg = {
+        nickname: changeNick.value,
+        chatMessage: inputMessage.value,
+      };
+      socket.emit('message', objectMsg);
     });
 
-    $('#formChat').submit(function (e) {
-      e.preventDefault();
-
-      let nickname = $('input[name=inputName]').val();
-      let message = $('input[name=inputMessage]').val();
-
-      if (nickname.length && message.length) {
-        const objectMsg = {
-          nickname: nickname,
-          chatMessage: message,
-        };
-
-        socket.emit('message', objectMsg);
-        renderChat(objectMsg);
-      }
+    socket.on('message', (objectMsg) => {
+      renderChat(objectMsg);
     });
   </script>
 </body>
