@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
   socket.on('message', messageController.sendMessage);
   socket.on('change-name', userController.updateName);
   socket.on('self-join', userController.saveUser);
-  socket.on('disconnect', userController.removeUser);
+  socket.on('disconnected', userController.removeUser);
 });
 
 server.listen(PORT, () => {

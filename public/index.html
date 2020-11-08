@@ -134,11 +134,7 @@
       if (onlineUsers) {
         ulOnlineUser.innerHTML = '';
 
-        const filteredUser = onlineUsers.filter(
-          ({ user }) => user !== userNickname.textContent
-        );
-
-        filteredUser.map(({ user }) => {
+        onlineUsers.map(({ user }) => {
           const liOnline = document.createElement('li');
 
           liOnline.textContent = user;
@@ -150,9 +146,16 @@
       }
     };
 
+    const disconnectUser = () => {
+      console.log('close');
+      socket.emit('disconnected', { nickname: userNickname.textContent });
+    }
+
     formMessage.addEventListener('submit', (e) => sendMessage(e));
 
     formNickname.addEventListener('submit', (e) => sendNameUpdate(e));
+
+    window.addEventListener('beforeunload', () => disconnectUser());
 
     const getRandomicNickname = () =>
       Math.random().toString(36).substring(2, 10);
@@ -163,9 +166,7 @@
       socket.emit('history');
       socket.emit('online');
       socket.emit('self-join', { nickname });
-      socket.on('disconnect', () => {
-        socket.emit('disconnected', { nickname: userNickname });
-      });
+      socket.on('disconnect', disconnectUser);
     });
 
     socket.on('self-join', (data) => selfJoin(data));
