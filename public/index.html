@@ -41,12 +41,12 @@
       e.preventDefault();
       let nickname = $('input[name=usuario]').val();
       let chatMessage = $('input[name=mensagens]').val();
-      const date = new Date();
-      const newDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()} `;
-      const newHor = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-      const novaData= `${newDate} ${newHor}`;
-
+      
       if (nickname.length && chatMessage.length) {
+        const date = new Date();
+        const newDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+        const newHor = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        const novaData = `${newDate} ${newHor}`;
 
         const ObjMessage = {
           nickname: nickname,
