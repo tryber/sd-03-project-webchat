@@ -5,7 +5,7 @@ const saveMessage = async (nickname, chatMessage) => connection()
   .then(({ insertedId }) => ({ _id: insertedId, nickname, chatMessage }));
 
 const allMessage = async () => {
-  connection().then((db) => db.collection('message').find({}).toArray());
+  connection().then((db) => db.collection('olaa').find({}));
 };
 
 module.exports = { saveMessage, allMessage };

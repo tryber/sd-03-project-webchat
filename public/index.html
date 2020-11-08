@@ -32,16 +32,11 @@
       e.preventDefault();
       let nickname = $('input[name=usuario]').val();
       let chatMessage = $('input[name=mensagens]').val();
-/*       const date = new Date();
-      const dateMonth = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-      const datehours = `${date.getHours()}:${date.getMinutes()}`; */
 
       if (nickname.length && chatMessage.length) {
-        /* const dataActualy = `${dateMonth} ${datehours}`; */
         const ObjMessage = {
           nickname: nickname,
           chatMessage: chatMessage,
-          /* dataActualy: dataActualy, */
         };
 
         renderizarMensagem(nickname, chatMessage);
