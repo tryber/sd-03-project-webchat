@@ -28,9 +28,33 @@ const handleUsersDisconnection = (socketId, io) => () => {
 
 const handleNickName = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
 
+const handlePrivateMessage = (io, socket) => async (data) => {
+  const currentDate = new Date();
+  const formattedDate = `
+    ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
+    ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
+  `;
+
+  const { nickname } = onlines.find((user) => user.id === data.to);
+
+  const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
+
+  await controllers.messageController.savePrivateMessage(
+    socket.id, data.to, { nickname, chatMessage: message },
+  );
+
+  io.in('room1').emit('private', { from: data.nickname, to: nickname, message });
+};
+
 const getAllMessages = (socket) => async () => {
   const allMessages = await controllers.messageController.getAllMessages();
   socket.emit('history', allMessages);
+};
+
+const getPrivateMessages = (socket) => async (id) => {
+  const privateMessages = await controllers.messageController.getPrivateMessages(id, socket.id);
+  socket.join('room1');
+  socket.emit('private-history', privateMessages);
 };
 
 const app = express();
@@ -52,6 +76,8 @@ io.on('connection', async (socket) => {
   socket.on('message', controllers.messageController.newMessage(io));
   socket.on('nickname', handleUsersOnlines(socket.id, io));
   socket.on('disconnect', handleUsersDisconnection(socket.id, io));
+  socket.on('private', handlePrivateMessage(io, socket));
+  socket.on('private-history', getPrivateMessages(socket));
 });
 
 httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));

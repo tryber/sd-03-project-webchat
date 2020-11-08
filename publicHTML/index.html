@@ -24,6 +24,7 @@
     <div id="send-to" data-value="public"></div>
     <input type="text" id="message-box" data-testid="message-box" />
     <button type="submit" id="send-button" data-testid="send-button">Enviar</button><br>
+    <button type="button" id="public-chat-button" data-testid="public">Voltar para chat público</button>
     <fieldset>
       <span>Online</span>
       <ul id="allUsers"></ul>
@@ -33,6 +34,7 @@
     const socket = io('http://localhost:3000');
     const textInput = document.getElementById('message-box');
     const sendButton = document.getElementById('send-button');
+    const publicChatButton = document.getElementById('public-chat-button');
     const nickname = document.getElementById('nickname');
     const nicknameSaveBtn = document.getElementById('nickname-save');
     const nicknameTextBox = document.getElementById('nickname-box');
@@ -86,6 +88,29 @@
       nicknameTextBox.value = '';
     });
 
+    socket.on('private', (data) => {
+      const li = document.createElement('li');
+      li.textContent = data.message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('allMessages').appendChild(li)
+    });
+
+    publicChatButton.addEventListener('click', () => {
+      socket.emit('history');
+      const divValue = document.getElementById('send-to');
+      divValue.setAttribute('data-value', 'public');
+    })
+
+    socket.on('private-history', (messages) => {
+      if (messages.length === 0) return;
+      return messages.forEach(({ nickname, chatMessage }) => {
+        const li = document.createElement('li');
+        li.textContent = chatMessage;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('allMessages').appendChild(li);
+      });
+    })
+
     socket.on('onlines', (data) => {
       document.getElementById('allUsers').innerHTML = '';
       return data.forEach(({ nickname, id }) => {
@@ -94,6 +119,21 @@
         li.setAttribute('data-testid', 'online-user');
         li.setAttribute('value', id);
         document.getElementById('allUsers').appendChild(li);
+
+        if (socket.id !== id) {
+          const button = document.createElement('button');
+          button.textContent = `DM`;
+          button.setAttribute('data-testid', 'private');
+  
+  
+          button.addEventListener('click', () => {
+            document.getElementById('allMessages').innerHTML = '';
+            socket.emit('private-history', id);
+            const div = document.getElementById('send-to');
+            div.setAttribute('data-value', id);
+          });
+          document.getElementById('allUsers').appendChild(button);
+        }
       })
     });
   </script>
