@@ -20,7 +20,7 @@
   <script>
     let socket = io('http://localhost:3000');
 
-    function renderizarMensagem(nickname, chatMessage,dataActualy) {
+    function renderizarMensagem(nickname, chatMessage,datenow) {
       $('#message').append('<div data-testid="message" classe="message">' + nickname + ': ' + chatMessage +'<div/>');
     };
 

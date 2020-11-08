@@ -1,11 +1,11 @@
 const connection = require('./connect');
 
-const saveMessage = async (nickname, chatMessage) => connection()
-  .then((db) => db.collection('olaa').insertOne({ nickname, chatMessage }))
-  .then(({ insertedId }) => ({ _id: insertedId, nickname, chatMessage }));
+const saveMessage = async (nickname, chatMessage, datenow) => connection()
+  .then((db) => db.collection('mensagens').insertOne({ nickname, chatMessage, datenow }))
+  .then(({ insertedId }) => ({ _id: insertedId, nickname, chatMessage, datenow }));
 
 const allMessage = async () => {
-  connection().then((db) => db.collection('olaa').find({}));
+  connection().then((db) => db.collection('mensagens').find({}));
 };
 
 module.exports = { saveMessage, allMessage };
