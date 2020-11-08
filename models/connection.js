@@ -1,7 +1,10 @@
 const { MongoClient } = require('mongodb');
 require('dotenv/config');
 
-const { DB_URL, DB_NAME } = process.env;
+const {
+  DB_URL = 'mongodb://localhost:27017',
+  DB_NAME = 'webchat',
+} = process.env;
 
 module.exports = () => MongoClient.connect(DB_URL, {
   useNewUrlParser: true,
