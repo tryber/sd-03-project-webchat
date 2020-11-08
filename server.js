@@ -23,8 +23,8 @@ io.on('connection', (socket) => {
   socket.on('message', async (data) => {
     console.log(data);
     socket.broadcast.emit('msgRecebida', data);
-    const { nickname, chatMessage, dataActualy } = data;
-    await saveMessage(nickname, chatMessage, dataActualy);
+    const { nickname, chatMessage } = data;
+    await saveMessage(nickname, chatMessage);
   });
 });
 
