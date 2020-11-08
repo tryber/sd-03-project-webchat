@@ -117,9 +117,16 @@
       document.getElementById('ul-messages').appendChild(li);
     };
 
+    const setHistory = (history) => {
+      console.log('history');
+      history ? history.map(receivedMessage) : null;
+    }
+
     formMessage.addEventListener('submit', (e) => sendMessage(e));
 
     formNickname.addEventListener('submit', (e) => sendNameUpdate(e));
+
+    socket.on('connect', () => socket.emit('history'));
 
     socket.on('self-join', (data) => selfJoin(data));
 
@@ -130,5 +137,7 @@
     socket.on('change-name', (data) => updateName(data));
 
     socket.on('someone-change-name', (data) => someoneUpdatedName(data));
+
+    socket.on('history', (data) => setHistory(data));
   </script>
 </html>

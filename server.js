@@ -16,12 +16,14 @@ app.use(bodyParser.json());
 app.use('/', express.static('./public', { extensions: ['html'] }));
 
 io.on('connection', (socket) => {
-  const messageController = getMessageController(io);
+  const messageController = getMessageController(io, socket);
   const userController = getUserController(socket);
   const nickname = getRandomicNickname();
 
   socket.emit('self-join', { nickname });
   socket.broadcast.emit('joined', { nickname });
+
+  socket.on('history', messageController.getHistory);
   socket.on('message', messageController.sendMessage);
   socket.on('change-name', userController.updateName);
 });
