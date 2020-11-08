@@ -1,8 +1,11 @@
 const messageWithDate = (nickname, chatMessage) => {
-  const newDate = `${new Date().getUTCDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
-  const date = new Date().toLocaleTimeString('pt-BR');
+  const date = new Date();
+  const newDate = `${date.getUTCDate()}-${date.getMonth()}-${date.getFullYear()}`;
 
-  return { string: `(${date} ${newDate}) ${nickname}: ${chatMessage}`, date };
+  return {
+    string: `(${date.toLocaleTimeString('pt-BR')} ${newDate}) ${nickname}: ${chatMessage}`,
+    date,
+  };
 };
 const users = [];
 
@@ -10,9 +13,7 @@ const emitHistory = async (messageModel, socket) => {
   const messages = await messageModel.getGeneral();
   console.log(users);
 
-  const history = messages.map(
-    ({ chatMessage }) => chatMessage,
-  );
+  const history = messages.map(({ chatMessage }) => chatMessage);
 
   socket.emit('history', history);
 };
@@ -20,8 +21,7 @@ module.exports = (io, messageModel) => {
   io.on('connection', async (socket) => {
     await emitHistory(messageModel, socket);
 
-    socket.on('getHistory', async () =>
-      emitHistory(messageModel, socket));
+    socket.on('getHistory', async () => emitHistory(messageModel, socket));
 
     socket.on('privateHistory', async (nickname) => {
       const user1 = users.find((u) => u.id === socket.id);
@@ -32,8 +32,7 @@ module.exports = (io, messageModel) => {
       const usersArray = [users[index1], users[index2]];
 
       const messages = await messageModel.getPrivate(usersArray);
-      console.log(messages)
-
+      console.log(messages);
       socket.emit('history', messages);
     });
     socket.on('private', async ({ nickname, message }) => {
@@ -81,8 +80,9 @@ module.exports = (io, messageModel) => {
     });
 
     socket.on('message', async ({ chatMessage, nickname }) => {
-      const { string } = messageWithDate(nickname, chatMessage);
-      await messageModel.insertGeneral({ chatMessage: string, nickname });
+      const { string, date } = messageWithDate(nickname, chatMessage);
+      console.log('chatMessage:', chatMessage);
+      await messageModel.insertGeneral({ chatMessage: string, nickname, date });
       io.emit('message', string);
     });
   });
