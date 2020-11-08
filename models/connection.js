@@ -6,12 +6,17 @@ const {
   DB_NAME = 'webchat',
 } = process.env;
 
-module.exports = () => MongoClient.connect(DB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then((connection) => connection.db(DB_NAME))
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+let schema;
+
+module.exports = () => {
+  if (schema) return Promise.resolve(schema);
+  return MongoClient.connect(process.env.DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+    .then((connection) => connection.db(process.env.DB_NAME))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+};

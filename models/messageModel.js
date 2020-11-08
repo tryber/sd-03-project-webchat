@@ -1,4 +1,4 @@
-const getGeneral = (db) => () => db.collection('general').find().sort({ date: 1 }).toArray();
+const getGeneral = (db) => () => db.collection('general').find().sort({ date: -1 }).toArray();
 
 const getPrivate = (db) => (users) => db.collection('private').find({ users: { $all: users } }).sort({ date: 1 }).toArray();
 
