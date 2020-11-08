@@ -1,10 +1,10 @@
 const { MongoClient } = require('mongodb');
 require('dotenv/config');
 
-const {
+/* const {
   DB_URL = 'mongodb://localhost:27017',
   DB_NAME = 'webchat',
-} = process.env;
+} = process.env; */
 
 let schema;
 
