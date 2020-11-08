@@ -6,6 +6,15 @@ const { MongoClient } = require('mongodb');
 
 const BASE_URL = 'http://localhost:3000/';
 
+function wait(time) {
+  const start = Date.now();
+  while (true) {
+    if (Date.now() - start >= time) {
+      return true;
+    }
+  }
+}
+
 describe('Elabore o histórico do chat para que as mensagens persistão', () => {
   const client1 = io(BASE_URL);
   const client2 = io(BASE_URL);
@@ -14,23 +23,30 @@ describe('Elabore o histórico do chat para que as mensagens persistão', () => 
   let connection;
   let db;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     connection = await MongoClient.connect(process.env.DB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     db = connection.db(process.env.DB_NAME);
-    browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1920,1080'], headless: true });
+    browser = await puppeteer.launch({ args: ['--no-sandbox', '--window-size=1920,1080'], headless: true });
+  });
+
+  beforeEach(async () => {
     await db.collection('messages').deleteMany({});
     page = await browser.newPage();
   });
 
-  afterEach(async () => {
-    browser.close();
+  afterEach(() => {
+    page.close();
     client1.disconnect();
     client2.disconnect();
+  });
+
+  afterAll(async () => {
     await db.collection('messages').deleteMany({});
     await connection.close();
+    browser.close();
   });
 
   it('Será validado que todo o histórico de mensagens irá aparecer quando o cliente se conectar', async () => {

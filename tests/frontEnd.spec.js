@@ -16,22 +16,28 @@ describe('Crie um frontend para que as pessoas interajam com o chat', () => {
   let connection;
   let db;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     connection = await MongoClient.connect(process.env.DB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     db = connection.db(process.env.DB_NAME);
-    browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--window-size=1920,1080'], headless: true });
+    browser = await puppeteer.launch({ args: ['--no-sandbox', '--window-size=1920,1080'], headless: true });
+  });
+
+  beforeEach(async () => {
     await db.collection('messages').deleteMany({});
     page = await browser.newPage();
     await page.goto(BASE_URL);
   });
 
   afterEach(async () => {
-    browser.close();
-    await db.collection('messages').deleteMany({});
+    page.close();
+  });
+
+  afterAll(async () => {
     await connection.close();
+    browser.close();
   });
 
   it('Será validado que o frontend tem uma caixa pra enviar mensagens', async () => {
