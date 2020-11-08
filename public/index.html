@@ -75,9 +75,7 @@
     const sendMessage = (event) => {
       event.preventDefault();
 
-      const date = new Date(Date.now()).toLocaleString();
-
-      const chatMessage = `${date}: ${messageBox.value}`;
+      const chatMessage = messageBox.value;
       const nickname = userNickname.textContent;
 
       messageBox.value = '';
@@ -85,10 +83,10 @@
       socket.emit('message', { chatMessage, nickname });
     };
 
-    const receivedMessage = ({ chatMessage, nickname }) => {
+    const receivedMessage = (message) => {
       const li = document.createElement('li');
 
-      li.textContent = `${nickname} - ${chatMessage}`;
+      li.textContent = message;
       li.setAttribute('data-testid', 'message');
       li.classList = 'message';
 
