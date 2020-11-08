@@ -14,33 +14,38 @@
     <button type="button" data-testid="nickname-save">Salvar nome</button>
     <input data-testid="message-box" id="idMessage" name="mensagens" placeholder="Digite sua mensagem" />
     <button type="submit" data-testid="send-button" id="send-buttons">Enviar</button>
-    <div id="message" ></div>
+    <div id="message"></div>
   </form>
 
   <script>
     let socket = io('http://localhost:3000');
 
-    function renderizarMensagem(nickname, mensagens) {
-      $('#message').append('<div data-testid="message" classe="message">'+nickname+': '+mensagens+'<div/>');
+    function renderizarMensagem(nickname, chatMessage,dataActualy) {
+      $('#message').append('<div data-testid="message" classe="message">' + nickname + ': ' + chatMessage +' '+dataActualy + '<div/>');
     };
 
-    socket.on('msgRecebida', function(ObjMessage){
-      renderizarMensagem(ObjMessage.nickname,ObjMessage.mensagens);
+    socket.on('msgRecebida', function (ObjMessage) {
+      renderizarMensagem(ObjMessage.nickname, ObjMessage.chatMessage, ObjMessage.dataActualy);
     });
 
     $('#chat').submit(function (e) {
       e.preventDefault();
       let nickname = $('input[name=usuario]').val();
-      let mensagens = $('input[name=mensagens]').val();
+      let chatMessage = $('input[name=mensagens]').val();
+      const date = new Date();
+      const dateMonth = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      const datehours = `${date.getHours()}:${date.getMinutes()}`;
 
-      if (nickname.length && mensagens.length) {
+      if (nickname.length && chatMessage.length) {
+        const dataActualy = `${dateMonth} ${datehours}`;
         const ObjMessage = {
           nickname: nickname,
-          mensagens: mensagens,
+          chatMessage: chatMessage,
+          dataActualy: dataActualy,
         };
 
-        renderizarMensagem(nickname,mensagens);
-        socket.emit('SendMessage', ObjMessage);
+        renderizarMensagem(nickname, chatMessage,dataActualy);
+        socket.emit('message', ObjMessage);
       };
       const mensagensId = document.getElementById('idMessage');
       mensagensId.value = '';

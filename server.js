@@ -2,6 +2,7 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const express = require('express');
 const socketIo = require('socket.io');
+const { saveMessage } = require('./model');
 
 const app = express();
 app.use(bodyParser.json());
@@ -12,12 +13,18 @@ const { PORT = 3000 } = process.env;
 const server = http.createServer(app);
 const io = socketIo(server);
 
+app.get('/ping', async (_req, res) => {
+  const msg = await saveMessage('nickname', 'chatMessage');
+  return res.status(200).json(msg);
+});
+
 io.on('connection', (socket) => {
   console.log(`${socket.id} conectado`);
-
-  socket.on('SendMessage', (data) => {
+  socket.on('message', async (data) => {
     console.log(data);
     socket.broadcast.emit('msgRecebida', data);
+    const { nickname, chatMessage, dataActualy } = data;
+    await saveMessage(nickname, chatMessage, dataActualy);
   });
 });
 

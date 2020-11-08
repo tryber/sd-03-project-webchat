@@ -1,4 +1,4 @@
-const connection = require('./connect');
+/* const connection = require('./connect');
 
 const saveUser = async (nickname) =>
   connection().then((db) =>
@@ -16,3 +16,4 @@ const editUser = async (nickname) =>
       .set('nickname', nickname)
       .execute());
 module.exports = { editUser, saveUser };
+ */
