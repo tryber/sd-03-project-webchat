@@ -20,26 +20,41 @@
   <script>
     let socket = io('http://localhost:3000');
 
-    function renderizarMensagem(nickname, chatMessage,datenow) {
-      $('#message').append('<div data-testid="message" classe="message">' + nickname + ': ' + chatMessage +'<div/>');
+    function renderizarMensagem(nickname, chatMessage, novaData) {
+      $('#message').append('<div data-testid="message" classe="message">'
+        + nickname + ': '
+        + chatMessage + ' '
+        + novaData +
+        '<div/>');
     };
 
     socket.on('msgRecebida', function (ObjMessage) {
-      renderizarMensagem(ObjMessage.nickname, ObjMessage.chatMessage);
+      renderizarMensagem(ObjMessage.nickname, ObjMessage.chatMessage, ObjMessage.novaData);
+    });
+
+    socket.on('historico', function (msgDoBanco) {
+      const { nickname, chatMessage, novaData } = msgDoBanco;
+      renderizarMensagem(nickname, chatMessage, novaData);
     });
 
     $('#chat').submit(function (e) {
       e.preventDefault();
       let nickname = $('input[name=usuario]').val();
       let chatMessage = $('input[name=mensagens]').val();
+      const date = new Date();
+      const newDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()} `;
+      const newHor = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+      const novaData= `${newDate} ${newHor}`;
 
       if (nickname.length && chatMessage.length) {
+
         const ObjMessage = {
           nickname: nickname,
           chatMessage: chatMessage,
+          novaData: novaData,
         };
 
-        renderizarMensagem(nickname, chatMessage);
+        renderizarMensagem(nickname, chatMessage, novaData);
         socket.emit('message', ObjMessage);
       };
       const mensagensId = document.getElementById('idMessage');

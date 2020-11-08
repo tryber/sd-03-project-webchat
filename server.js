@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const socketIo = require('socket.io');
 const moment = require('moment');
-const { saveMessage } = require('./model');
+const { saveMessage, allMessage } = require('./model');
 
 const app = express();
 app.use(bodyParser.json());
@@ -18,16 +18,21 @@ const io = socketIo(server);
   const msg = await allMessage({});
   return res.status(200).json({msg});
 }); */
-const date = new Date();
-const datenow = moment(date).format('DD-MM-yyyy hh:mm:ss');
 
-io.on('connection', (socket) => {
+const date = new Date();
+const newDate = moment(date).format('DD-MM-yyyy HH:mm:SS');
+
+io.on('connection', async (socket) => {
+  const msgDoBanco = await allMessage();
+  msgDoBanco.forEach(({ nickname, chatMessage, novaData }) => {
+    socket.emit('historico', { nickname, chatMessage, novaData });
+  });
+
   console.log(`${socket.id} conectado`);
   socket.on('message', async (data) => {
-    console.log(data);
-    socket.broadcast.emit('msgRecebida', data, datenow);
+    socket.broadcast.emit('msgRecebida', data);
     const { nickname, chatMessage } = data;
-    await saveMessage(nickname, chatMessage, datenow);
+    await saveMessage(nickname, chatMessage, newDate);
   });
 });
 
