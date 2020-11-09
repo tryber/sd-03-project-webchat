@@ -2,8 +2,7 @@ const mongoClient = require('mongodb').MongoClient;
 require('dotenv').config();
 
 let schema = null;
-
-const connection = async () => {
+async function connection() {
   if (schema) return Promise.resolve(schema);
   return mongoClient
     .connect(process.env.DB_URL, {
@@ -19,6 +18,5 @@ const connection = async () => {
       console.error(err);
       process.exit(1);
     });
-};
-
+}
 module.exports = connection;
