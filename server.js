@@ -15,22 +15,21 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 io.on('connection', async (socket) => {
-  const msgDoBanco = await allMessage();
-  msgDoBanco.forEach(({ nickname, chatMessage, novaData }) => {
-    socket.emit('historico', { nickname, chatMessage, novaData });
-  });
-
   const conect = socket.id;
   socket.broadcast.emit('conectado', conect);
 
   console.log(`${socket.id} conectado`);
-  socket.on('message', async (data) => {
+  socket.on('message', async (message) => {
     const date = new Date();
-    const newDate = moment(date).format('dd-mm-yyyy hh:mm:ss');
+    const newDate = moment(date).format('DD-MM-yyyy HH:mm:ss');
+    const { nickname, chatMessage } = message;
+    io.emit('message', `${newDate} ${nickname} ${chatMessage}`);
+    await saveMessage(newDate, nickname, chatMessage);
+  });
 
-    io.emit('msgRecebida', { ...data, newDate });
-    const { nickname, chatMessage } = data;
-    await saveMessage(nickname, chatMessage, newDate);
+  const msgDoBanco = await allMessage();
+  msgDoBanco.forEach(({ nickname, chatMessage, novaData }) => {
+    socket.emit('historico', ` ${novaData} ${nickname} ${chatMessage}`);
   });
 });
 

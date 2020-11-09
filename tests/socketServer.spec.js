@@ -43,7 +43,7 @@ describe('Crie um backend back-end que permite que várias pessoas se conectem s
 
   it('Será validado que cada cliente conectado ao chat recebe todas as mensagens que já foram enviadas', (done) => {
     client1.emit('message', { chatMessage, nickname });
-
+    
     client1.on('message', (message) => {
       expect(message.includes(chatMessage)).toBeTruthy();
     });

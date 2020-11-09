@@ -24,46 +24,29 @@
     function renderConect(conect) {
       $('#conectado').append('<div data-testid="online-user">'
         + conect +
-        '</div>')
-    }
+        '</div>');
+    };
+
     socket.on('conectado', function (conect) {
-      if(conect !== conect){
-        return renderConect('');
-      }
       renderConect(conect);
     });
 
-    function renderizarMensagem(nickname, chatMessage, newDate) {
+    function renderizarMensagem(message) {
       $('#message').append('<div data-testid="message" classe="message">'
-        + nickname + ': '
-        + chatMessage + ' '
-        + newDate +
+        + message +
         '<div/>');
     };
 
-    socket.on('msgRecebida', function (data) {
-      const { nickname, chatMessage, newDate } = data;
-      console.log(data);
-      renderizarMensagem(nickname, chatMessage, newDate);
-    });
-
-    socket.on('historico', function (msgDoBanco) {
-      const { nickname, chatMessage, novaData } = msgDoBanco;
-      renderizarMensagem(nickname, chatMessage, novaData);
-    });
+    socket.on('message', renderizarMensagem);
+    socket.on('historico', renderizarMensagem);
 
     $('#chat').submit(function (e) {
       e.preventDefault();
       let nickname = $('input[name=usuario]').val();
       let chatMessage = $('input[name=mensagens]').val();
 
-      if (nickname.length && chatMessage.length) {
-        const ObjMessage = {
-          nickname: nickname,
-          chatMessage: chatMessage,
-        };
-        socket.emit('message', { chatMessage, nickname });
-      };
+      socket.emit('message', { chatMessage, nickname });
+
       const mensagensId = document.getElementById('idMessage');
       mensagensId.value = '';
     });
