@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use('/', express.static('./front-end', { extensions: ['html'] }));
 
-const { PORT = 3000 } = process.env;
+const PORT = 3000;
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -17,33 +17,37 @@ const aboutUser = {
   chatMessage: [],
   nickname: '',
 };
-const dateStamp = new Date();
 
-io.on('connection', (socket) => {
+app.get('/test', async (_req, res) => {
+  await chatModel.readChat();
+  res.status(200).json();
+});
+
+io.on('connection', async (socket) => {
   console.log(`client ${socket.id} connected`);
 
-  socket.on('chatHistory', async () => {
-    const chatHistory = await chatModel.readChat();
-    socket.emit('chatHistory', chatHistory);
+  const chatHistory = await chatModel.readChat();
+
+  chatHistory.forEach(({ nickname, chatMessage, date }) => {
+    socket.emit('history', { nickname, chatMessage, date });
   });
 
   socket.on('nickname', (newNickname) => {
-    aboutUser.nickname = newNickname;
-    console.log(`Client ${socket.id} change nickname for ${aboutUser.nickname}`);
+    let { nickname } = aboutUser;
+    nickname = newNickname;
+    console.log(`Client ${socket.id} change nickname for ${nickname}`);
+    socket.broadcast.emit('nickname', nickname);
   });
 
   socket.on('message', async (data) => {
-    const date = `${dateStamp.getDate()}/${dateStamp.getMonth() + 1}/${dateStamp.getFullYear()}`;
-    const hour = `${dateStamp.getHours()}:${dateStamp.getMinutes()}`;
-    const dateNow = `${date} ${hour}`;
-    const { nickname, chatMessage } = data;
+    const { nickname, chatMessage, date } = data;
     aboutUser.nickname = nickname;
     aboutUser.chatMessage = chatMessage;
 
     await chatModel.createChat(
       nickname,
       chatMessage,
-      dateNow,
+      date,
     );
     socket.broadcast.emit('message', data);
     socket.emit('message', data);

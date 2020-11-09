@@ -25,35 +25,49 @@
     const sendButton = document.getElementById('messageButton');
     const chat = document.getElementById('chatBox');
 
-    const renderChat = (objectMsg) => {
+    const renderChat = (nickname, chatMessage, date) => {
       const newMessage = document.createElement('p');
 
       newMessage.setAttribute('data-testid', 'message');
-      newMessage.innerHTML = objectMsg.nickname + ' > ' + objectMsg.chatMessage;
+      newMessage.innerHTML = `(${nickname}) > ${chatMessage} ${date}`;
       chat.appendChild(newMessage);
       inputMessage.value = '';
     }
 
-    socket.on('chatHistory', (fullChat) =>
-      fullChat.foreach((message) => renderChat(message)),
-    );
-
     saveName.addEventListener('click', () => {
       const newNick = changeNick.value
+
       socket.emit('nickname', newNick);
+
+      socket.on('nickname', (user) => {
+        const userOn = document.createElement('p');
+          userOn.innerHTML = user;
+          chat.appendChild(userOn);
+      });
     });
 
     sendButton.addEventListener('click', (e) => {
       e.preventDefault();
+      const date = new Date();
+      const dateFormat = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+      const hourFormat = `${date.getHours()}:${date.getMinutes()}`
       const objectMsg = {
         nickname: changeNick.value,
         chatMessage: inputMessage.value,
+        date: `${dateFormat} ${hourFormat}`,
       };
+
       socket.emit('message', objectMsg);
     });
 
+    socket.on('history', (historyMsg) => {
+      const { nickname, chatMessage, date } = historyMsg;
+      renderChat(nickname, chatMessage, date);
+    })
+
     socket.on('message', (objectMsg) => {
-      renderChat(objectMsg);
+      const { nickname, chatMessage, date } = objectMsg;
+      renderChat(nickname, chatMessage, date);
     });
   </script>
 </body>

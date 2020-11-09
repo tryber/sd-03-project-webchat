@@ -5,7 +5,7 @@ const createChat = async (nickname, chatMessage, date) =>
     db.collection('message')
       .insertOne({ nickname, chatMessage, date }));
 
-const readChat = async () => connection().then((db) => db.collection('message').find({}).toArray());
+const readChat = async () => connection().then((db) => db.collection('message').find().toArray());
 
 module.exports = {
   createChat,
