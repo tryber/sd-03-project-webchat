@@ -20,6 +20,10 @@
     <input data-testid="message-box" type="text" name="message" id="message-input" />
     <button data-testid="send-button" type="submit" id="send-button">Enviar Mensagem</button>
   </form>
+  <div id="online-users">
+    <p>Usuários online:</p>
+    <ul id="online-list"></ul>
+  </div>
   <script>
     window.onload = () => {
       const socket = io();
@@ -41,7 +45,7 @@
       changeNickname.addEventListener('click', (e) => {
         e.preventDefault();
         if (nicknameElement !== '') chosenName = nicknameElement.value;
-      })
+      });
 
       const addMessageToChat = (message) => {
         const p = document.createElement('p');
