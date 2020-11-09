@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const { PORT = 3000 } = process.env;
+const PORT = 3000;
 
 app.use(bodyParser.json());
 
