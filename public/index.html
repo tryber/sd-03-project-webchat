@@ -1,53 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Chat</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebChat</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <div>
+      <span>Usuários online</span><br />
+      <div id="users">
+        <ul id="online-user"></ul>
+      </div>
+    </div>
+    <div>
+      <ul id="mensagem"></ul>
+    </div>
+    <div>
+      <div>
+        <label for="nickname">Apelido</label><br />
+        <input
+          data-testid="nickname-box"
+          type="text"
+          id="input-nickname"
+          name="nickname"
+        />
+        <button data-testid="nickname-save" type="submit" id="submit-nickname">
+          Salvar
+        </button>
+      </div>
+      <div>
+        <label for="message-input">Mensagem</label><br />
+        <input
+          data-testid="message-box"
+          type="text"
+          id="input"
+          name="message-input"
+        />
+        <button data-testid="send-button" type="submit" id="submit">
+          Enviar
+        </button>
+      </div>
+    </div>
+    <!-- Configura interação com o servidor -->
+    <script>
+      window.onload = () => {
+        const input = document.getElementById("input");
+        const submit = document.getElementById("submit");
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-  <script src="http://chancejs.com/chance.min.js"></script>
+        const inputNickname = document.getElementById("input-nickname");
+        const submitNickname = document.getElementById("submit-nickname");
+        const socket = io();
+        let onlineUsers = [];
 
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <form id="chat">
-    <input data-testid="nickname-box" type="text" name="username" placeholder="Digite seu usuário" />
-    <button data-testid="nickname-save" type="submit">Alterar Nome</button>
-    <div class="messages"></div>
-    <input data-testid="message-box" type="text" name="message" placeholder="Digite sua menssagem" />
-    <button data-testid="send-button" type="submit">Enviar</button>
-  </form>
+        submit.addEventListener("click", (e) => {
+          e.preventDefault();
+          socket.emit("message", { nickname, chatMessage: input.value });
+          input.value = "";
+        });
 
-  <script type="text/javascript">
-    const name = chance.name();
-    const socket = io('http://localhost:3000');
+        submitNickname.addEventListener("click", (e) => {
+          e.preventDefault();
+          socket.emit("changeName", {
+            newNickname: inputNickname.value,
+            socketID: socket.id,
+          });
+          nickname = inputNickname.value;
+          onlineUsers.push(inputNickname.value);
+          inputNickname.value = "";
+        });
 
-    function renderMessage(message) {
-      $('.messages').append('<div class="message" data-testid="message">'+ message +'</div>');
-    };
+        socket.on("changeName", (data) => {
+          const previusList = document.querySelectorAll("#list-of-users");
+          if (previusList.length) {
+            for (let i = previusList.length; i > 0; i -= 1) {
+              const list = document.getElementById("online-user");
+              list.removeChild(list.lastElementChild);
+            }
+          }
+          const onlyUsers = data.newNickname;
+          onlyUsers.map((e) => {
+            const li = document.createElement("li");
+            li.id = "list-of-users";
+            li.setAttribute("data-testid", "online-user");
+            li.textContent = e;
+            document.getElementById("online-user").appendChild(li);
+          });
+        });
 
-    socket.on('history', (message) => {
-      renderMessage(message)
-    });
+        socket.on("message", (data) => {
+          const li = document.createElement("li");
+          li.id = "list-of-messages";
+          li.setAttribute("data-testid", "message");
+          li.textContent = `${data}`;
+          document.getElementById("mensagem").appendChild(li);
+        });
 
-    socket.on('message', function(message) {
-      renderMessage(message);
-    });
-
-    $('#chat').submit(function(event) {
-      event.preventDefault();
-
-      const chatMessage = $('input[name=message').val();
-      const newNickName =$('input[name=username').val();
-      let nickname = newNickName.length ? newNickName : name;
-      if (chatMessage.length) {
-        socket.emit('message', { chatMessage, nickname });
-      }
-      $('input[name=message').val('');
-    });
-
-  </script>
-</body>
+        socket.on("history", (messages) => {
+          const previusList = document.querySelectorAll("#list-of-messages");
+          if (previusList.length) {
+            for (let i = previusList.length; i > 0; i -= 1) {
+              const list = document.getElementById("mensagem");
+              list.removeChild(list.lastElementChild);
+            }
+          }
+          messages.forEach((data) => {
+            const li = document.createElement("li");
+            li.id = "list-of-messages";
+            li.setAttribute("data-testid", "message");
+            li.textContent = `${data}`;
+            document.getElementById("mensagem").appendChild(li);
+          });
+        });
+      };
+    </script>
+  </body>
 </html>
+<!-- Alteração do todo o código com ajuda do Wilian por motivo de não conseguir passar no requisito 4. -->
