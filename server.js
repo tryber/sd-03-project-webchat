@@ -37,10 +37,6 @@ io.on('connection', async (socket) => {
 
     return saveMessage(chatMessage, nickname, timeEdited);
   });
-
-  socket.on('name-change', async({ name }) => {
-
-  });
 });
 
 httpServer.listen(PORT, () => {

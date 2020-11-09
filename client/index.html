@@ -64,6 +64,24 @@
       socket.on('message', (message) => {
         addMessageToChat(message);
       });
+
+      socket.on('name-change', (data) => {
+        const oldList = document.querySelectorAll("#online-list");
+        if (oldList.length) {
+          oldList.forEach((user) => {
+            const list = document.getElementById("online-user");
+            list.removeChild(list.lastElementChild);
+          });
+        }
+        const onlyUsers = data.chosenName;
+        onlyUsers.map((e) => {
+          const li = document.createElement("li");
+          li.id = "list-of-users";
+          li.setAttribute("data-testid", "online-user");
+          li.textContent = e;
+          document.getElementById("online-user").appendChild(li);
+        });
+      });
     };
   </script>
 </body>
