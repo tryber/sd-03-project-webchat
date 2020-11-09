@@ -62,4 +62,5 @@ io.on('connection', async (socket) => {
 });
 
 http.listen(3000, () => console.log('Servidor ouvindo na porta 3000'));
+
 // Alteração do todo o código com ajuda do Wilian por motivo de não conseguir passar no requisito 4.
