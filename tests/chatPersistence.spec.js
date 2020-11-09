@@ -43,7 +43,7 @@ describe('Elabore o histórico do chat para que as mensagens persistão', () => 
     await page.waitForTimeout(1000);
     const messages = await page.$$eval('[data-testid=message]', (nodes) => nodes.map((n) => n.innerText));
     expect(messages.length).toBeGreaterThanOrEqual(1);
-
+    console.log(messages)
     const lastMessage = messages.pop();
     expect(lastMessage).toMatch(RegExp(firstMessageToSend.chatMessage));
   });

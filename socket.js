@@ -11,9 +11,9 @@ const users = [];
 
 const emitHistory = async (messageModel, socket) => {
   const messages = await messageModel.getGeneral();
-  console.log(users);
+  console.log(messages);
 
-  const history = messages.map(({ chatMessage }) => chatMessage);
+  const history = await messages.map(({ chatMessage }) => chatMessage);
 
   socket.emit('history', history);
 };
