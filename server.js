@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 
 app.use('/', express.static('./public', { extensions: ['html'] }));
 
-const { PORT = 3000 } = process.env;
+const PORT = 3000;
 const server = http.createServer(app);
 const io = socketIo(server);
 
