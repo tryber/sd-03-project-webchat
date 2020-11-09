@@ -14,11 +14,6 @@ const { PORT = 3000 } = process.env;
 const server = http.createServer(app);
 const io = socketIo(server);
 
-/* app.get('/ping', async (_req, res) => {
-  const msg = await allMessage({});
-  return res.status(200).json({msg});
-}); */
-
 io.on('connection', async (socket) => {
   const msgDoBanco = await allMessage();
   msgDoBanco.forEach(({ nickname, chatMessage, novaData }) => {

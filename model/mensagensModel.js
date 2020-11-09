@@ -5,6 +5,6 @@ const saveMessage = async (nickname, chatMessage, novaData) => connection()
   .then(({ insertedId }) => ({ _id: insertedId, nickname, chatMessage, novaData }));
 
 const allMessage = async () => (
-  connection().then((db) => db.collection('messages').find().toArray()));
+  connection().then((db) => db.collection('messages').find().sort({ novaData: -1 }).toArray()));
 
 module.exports = { saveMessage, allMessage };
