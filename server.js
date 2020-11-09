@@ -26,7 +26,7 @@ io.on('connection', async (socket) => {
   console.log(`${socket.id} conectado`);
   socket.on('message', async (data) => {
     const date = new Date();
-    const newDate = moment(date).format('DD-MM-yyyy HH:mm:ss');
+    const newDate = moment(date).format('dd-mm-yyyy hh:mm:ss');
 
     io.emit('msgRecebida', { ...data, newDate });
     const { nickname, chatMessage } = data;
