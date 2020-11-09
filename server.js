@@ -19,18 +19,21 @@ const io = socketIo(server);
   return res.status(200).json({msg});
 }); */
 
-const date = new Date();
-const newDate = moment(date).format('DD-MM-yyyy HH:mm:SS');
-
 io.on('connection', async (socket) => {
   const msgDoBanco = await allMessage();
   msgDoBanco.forEach(({ nickname, chatMessage, novaData }) => {
     socket.emit('historico', { nickname, chatMessage, novaData });
   });
 
+  const conect = socket.id;
+  socket.broadcast.emit('conectado', conect);
+
   console.log(`${socket.id} conectado`);
   socket.on('message', async (data) => {
-    socket.broadcast.emit('msgRecebida', data);
+    const date = new Date();
+    const newDate = moment(date).format('DD-MM-yyyy HH:mm:ss');
+
+    io.emit('msgRecebida', { ...data, newDate });
     const { nickname, chatMessage } = data;
     await saveMessage(nickname, chatMessage, newDate);
   });
