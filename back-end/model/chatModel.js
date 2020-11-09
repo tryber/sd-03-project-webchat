@@ -1,4 +1,3 @@
-const { Timestamp } = require('mongodb');
 const connection = require('./connect');
 
 const createChat = async (nickname, chatMessage, date) =>
