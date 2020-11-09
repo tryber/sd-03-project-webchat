@@ -27,7 +27,6 @@
 
     const renderChat = (nickname, chatMessage, date) => {
       const newMessage = document.createElement('p');
-
       newMessage.setAttribute('data-testid', 'message');
       newMessage.innerHTML = `(${nickname}) > ${chatMessage} ${date}`;
       chat.appendChild(newMessage);
