@@ -1,4 +1,4 @@
-const connection = require('./connect');
+const connection = require('../../tests/helpers/db');
 
 const createChat = async (nickname, chatMessage, date) =>
   connection().then((db) =>
