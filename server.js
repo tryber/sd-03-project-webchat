@@ -2,6 +2,7 @@ const http = require('http');
 const express = require('express');
 const socketIo = require('socket.io');
 const bodyParser = require('body-parser');
+const moment = require('moment');
 const chatModel = require('./back-end/model/chatModel');
 
 const app = express();
@@ -18,11 +19,6 @@ const aboutUser = {
   nickname: '',
 };
 
-app.get('/test', async (_req, res) => {
-  await chatModel.readChat();
-  res.status(200).json();
-});
-
 io.on('connection', async (socket) => {
   console.log(`client ${socket.id} connected`);
 
@@ -36,21 +32,22 @@ io.on('connection', async (socket) => {
     let { nickname } = aboutUser;
     nickname = newNickname;
     console.log(`Client ${socket.id} change nickname for ${nickname}`);
-    socket.broadcast.emit('nickname', nickname);
   });
 
   socket.on('message', async (data) => {
-    const { nickname, chatMessage, date } = data;
+    const { nickname, chatMessage } = data;
     aboutUser.nickname = nickname;
     aboutUser.chatMessage = chatMessage;
+    const date = new Date();
+    const now = moment(date).format('DD-MM-yyyy HH:mm:ss');
 
     await chatModel.createChat(
       nickname,
       chatMessage,
-      date,
+      now,
     );
-    socket.broadcast.emit('message', data);
-    socket.emit('message', data);
+
+    io.emit('message', { ...data, now });
   });
 });
 

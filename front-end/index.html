@@ -34,40 +34,38 @@
       inputMessage.value = '';
     }
 
+    let newNick;
+    let message;
+
     saveName.addEventListener('click', () => {
-      const newNick = changeNick.value
+      newNick = changeNick.value
 
       socket.emit('nickname', newNick);
-
-      socket.on('nickname', (user) => {
-        const userOn = document.createElement('p');
-          userOn.innerHTML = user;
-          chat.appendChild(userOn);
-      });
     });
 
     sendButton.addEventListener('click', (e) => {
       e.preventDefault();
-      const date = new Date();
-      const dateFormat = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-      const hourFormat = `${date.getHours()}:${date.getMinutes()}`
-      const objectMsg = {
-        nickname: changeNick.value,
-        chatMessage: inputMessage.value,
-        date: `${dateFormat} ${hourFormat}`,
-      };
+      message = inputMessage.value;
 
-      socket.emit('message', objectMsg);
+      if (newNick.length && message.length) {
+        const objectMsg = {
+          nickname: changeNick.value,
+          chatMessage: inputMessage.value,
+        };
+
+        socket.emit('message', objectMsg);
+        console.log(objectMsg);
+      }
     });
 
     socket.on('history', (historyMsg) => {
       const { nickname, chatMessage, date } = historyMsg;
       renderChat(nickname, chatMessage, date);
-    })
+    });
 
     socket.on('message', (objectMsg) => {
-      const { nickname, chatMessage, date } = objectMsg;
-      renderChat(nickname, chatMessage, date);
+      const { nickname, chatMessage, now } = objectMsg;
+      renderChat(nickname, chatMessage, now);
     });
   </script>
 </body>
