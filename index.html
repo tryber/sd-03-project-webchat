@@ -17,6 +17,7 @@
       <input type="text" id="message-box" data-testid="message-box"/>
       <button id="send-button" data-testid="send-button" type="button">SEND</button>
     </form>
+    <ul data-testid="online-container" id="online-container"></ul>
   </body>
   <script>
     const socket = io('http://localhost:3000')
@@ -25,21 +26,36 @@
 
     const randomUserName = () => {
       const randomNumber = parseInt(Math.random() * 100000 );
-      return `User${randomNumber}`;
+      const newUserNick = `User${randomNumber}`;
+      socket.emit("newUser", newUserNick);
+      return newUserNick;
     };
     
     let username = randomUserName();
 
-    socket.on('message', (data) => {
+    socket.on('onlineList', (arrUsers) => {
+      const parent = document.getElementById('online-container')
+      while (parent.firstChild) {
+        parent.firstChild.remove()
+      }
+      arrUsers.forEach((elem) => {
+        const li = document.createElement('li');
+        li.setAttribute("data-testid", "online-user");
+        li.textContent = elem.nickname;
+        document.getElementById('online-container').appendChild(li);
+      })
+    });
+
+    socket.on('message', (newMessage) => {
       const p = document.createElement('p');
-      p.setAttribute("data-testid", "message")
-      p.textContent = data;
+      p.setAttribute("data-testid", "message");
+      p.textContent = newMessage;
       document.getElementById('messagens-history').appendChild(p);
     });
 
-    socket.on('history', (data) => {
-      data.forEach(({msgDate, msgTime, nickname, chatMessage}) => {
-        const message = `${msgDate} ${msgTime} - ${nickname}: ${chatMessage}`
+    socket.on('history', (arrMessage) => {
+      arrMessage.forEach(({msgDate, msgTime, nickname, chatMessage}) => {
+        const message = `${msgDate} ${msgTime} - ${nickname}: ${chatMessage}`;
         const p = document.createElement('p');
         p.setAttribute("data-testid", "message");
         p.textContent = message;
@@ -49,13 +65,14 @@
 
     sendMessage.addEventListener('click',function() {
       const message = document.getElementById('message-box');
-      socket.emit("message", { chatMessage: message.value , nickname: username });      
+      socket.emit("message", { chatMessage: message.value , nickname: username });
       message.value = '';
     });
 
     changeNick.addEventListener('click',function() {
       let newNick = document.getElementById("nickname-box");
       username = newNick.value;
+      socket.emit("changeNick", username);
       newNick.value = '';
     });
    </script>
