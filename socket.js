@@ -57,10 +57,8 @@ module.exports = (io, messageModel) => {
     });
 
     socket.on('userConn', (nickname) => {
-      // console.log('users before', users);
-
       users.push({ nickname, id: socket.id });
-      // console.log('users on conn:', users);
+
       io.emit('usersOnline', users);
     });
 
@@ -83,8 +81,6 @@ module.exports = (io, messageModel) => {
       // console.log('users on disc', users);
       io.emit('usersOnline', users);
     });
-
-
   });
 
   return {
