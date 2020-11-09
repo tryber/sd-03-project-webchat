@@ -7,7 +7,7 @@ async function connection() {
   if (schema) return Promise.resolve(schema);
 
   return MongoClient
-    .connect(process.env.DB_URL || 'mongodb://localhost:27017/webchat', {
+    .connect(process.env.DB_URL || 'mongodb://localhost:27017', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
