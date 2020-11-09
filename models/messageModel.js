@@ -1,8 +1,8 @@
-const getGeneral = (db) => () => db.collection('general').find().sort({ date: 1 }).toArray();
+const getGeneral = (db) => () => db.collection('messages').find().sort({ date: 1 }).toArray();
 
 const getPrivate = (db) => (users) => db.collection('private').find({ users: { $all: users } }).sort({ date: 1 }).toArray();
 
-const insertGeneral = (db) => ({ chatMessage, nickname }) => db.collection('general').insertOne({ chatMessage, nickname, date: new Date() })
+const insertGeneral = (db) => ({ chatMessage, nickname }) => db.collection('messages').insertOne({ chatMessage, nickname, date: new Date() })
   .then((value) => value.ops[0]);
 
 const insertPrivate = (db) => async ({ chatMessage, users }) => {

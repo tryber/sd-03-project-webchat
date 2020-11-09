@@ -21,7 +21,14 @@ module.exports = (io, messageModel) => {
   io.on('connection', async (socket) => {
     await emitHistory(messageModel, socket);
 
-    socket.on('getHistory', async () => emitHistory(messageModel, socket));
+    socket.on('getHistory', () => emitHistory(messageModel, socket));
+
+    socket.on('message', async ({ chatMessage, nickname }) => {
+      const { string, date } = messageWithDate(nickname, chatMessage);
+      console.log('chatMessage:', chatMessage);
+      await messageModel.insertGeneral({ chatMessage: string, nickname, date });
+      io.emit('message', string);
+    });
 
     socket.on('privateHistory', async (nickname) => {
       const user1 = users.find((u) => u.id === socket.id);
@@ -70,8 +77,6 @@ module.exports = (io, messageModel) => {
       // console.log('users on disconnecting:', users);
 
       const user = users.find((u) => u.id === socket.id);
-      // console.log('disconnecting user:', user);
-      // io.emit('menssage', `${socket.id} saiu`);
 
       const index = users.indexOf(user);
       users.splice(index, 1);
@@ -79,12 +84,7 @@ module.exports = (io, messageModel) => {
       io.emit('usersOnline', users);
     });
 
-    socket.on('message', async ({ chatMessage, nickname }) => {
-      const { string, date } = messageWithDate(nickname, chatMessage);
-      console.log('chatMessage:', chatMessage);
-      await messageModel.insertGeneral({ chatMessage: string, nickname, date });
-      io.emit('message', string);
-    });
+
   });
 
   return {
