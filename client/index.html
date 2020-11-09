@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="style.css" />
 
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="http://chancejs.com/chance.min.js"></script>
 </head>
 
 <body>
@@ -27,12 +28,20 @@
       const messages = document.getElementById('messages-div');
       const sendButton = document.getElementById('send-button');
       const nicknameElement = document.getElementById('nickname');
+      const changeNickname = document.getElementById('change-nick-button');
+
+      let chosenName = chance.name();
 
       sendButton.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log(nicknameElement.value);
-        socket.emit('message', { nickname: nicknameElement.value, chatMessage: messageInput.value });
+        socket.emit('message', { nickname: chosenName, chatMessage: messageInput.value });
+        messageInput.value = '';
       });
+
+      changeNickname.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (nicknameElement !== '') chosenName = nicknameElement.value;
+      })
 
       const addMessageToChat = (message) => {
         const p = document.createElement('p');
