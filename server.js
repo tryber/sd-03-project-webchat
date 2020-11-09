@@ -1,22 +1,19 @@
-const { pathToFileURL } = require('url');
-
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
-const path = require('path')
-const { getAllmessages, saveMessage } = require('./models/messageModels')
+const path = require('path');
+const { getAllmessages, saveMessage } = require('./models/messageModels');
 
 let arrUsers = [];
 
 app.get('/', (_req, res) => {
-  res.sendFile(path.join(__dirname + '/index.html'));
+  res.sendFile(path.join(__dirname, '/index.html'));
 });
 
 io.on('connection', async (socket) => {
   const savedMessages = await getAllmessages();
   socket.emit('history', savedMessages);
   const id = arrUsers.length + 1;
-
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const date = new Date();
@@ -27,9 +24,8 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('newUser', (nickname) => {
-    arrUsers.push({id, nickname});
+    arrUsers.push({ id, nickname });
     io.emit('onlineList', arrUsers);
-    console.log(arrUsers);
   });
 
   socket.on('changeNick', async (newNick) => {
@@ -48,7 +44,6 @@ io.on('connection', async (socket) => {
     arrUsers = arrUsers.filter((elem) => elem.id !== id);
     io.emit('onlineList', arrUsers);
   });
-
 });
 
 http.listen(3000, () => {
