@@ -31,7 +31,7 @@
       sendButton.addEventListener('click', (e) => {
         e.preventDefault();
         console.log(nicknameElement.value);
-        socket.emit('message', { nickname: nicknameElement.value, message: messageInput.value });
+        socket.emit('message', { nickname: nicknameElement.value, chatMessage: messageInput.value });
       });
 
       const addMessageToChat = (message) => {

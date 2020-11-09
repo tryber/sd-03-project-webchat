@@ -1,12 +1,12 @@
 const connect = require('./connection');
 
-const saveMessage = async (message, nickname, timestamp) =>
+const saveMessage = async (chatMessage, nickname, timestamp) =>
   connect()
     .then((db) =>
-      db.collection('messages').insertOne({ message, nickname, timestamp }))
+      db.collection('messages').insertOne({ chatMessage, nickname, timestamp }))
     .then(({ insertedId }) => ({
       _id: insertedId,
-      message,
+      chatMessage,
       nickname,
       timestamp,
     }))

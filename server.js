@@ -21,21 +21,21 @@ app.use('/', (_req, res) => {
 io.on('connection', async (socket) => {
   const previousMessage = await getAllMessage();
 
-  previousMessage.forEach(({ message, timestamp, nickname }) => {
-    const messageToSend = `${nickname} ${timestamp} ${message}`;
+  previousMessage.forEach(({ chatMessage, timestamp, nickname }) => {
+    const messageToSend = `${nickname} ${timestamp} ${chatMessage}`;
     socket.emit('history', messageToSend);
   });
 
-  socket.on('message', async ({ nickname, message }) => {
+  socket.on('message', async ({ nickname, chatMessage }) => {
     console.log(nickname);
     const time = new Date();
     const timeEdited = moment(time).format('D-M-yyyy hh:mm:ss');
-    const renderMessages = `${nickname} ${timeEdited} ${message}`;
+    const renderMessages = `${nickname} ${timeEdited} ${chatMessage}`;
 
-    socket.emit('message', renderMessages);
-    socket.broadcast.emit('message', renderMessages);
+    io.emit('message', renderMessages);
+    // socket.broadcast.emit('message', renderMessages);
 
-    return saveMessage(message, nickname, timeEdited);
+    return saveMessage(chatMessage, nickname, timeEdited);
   });
 });
 
