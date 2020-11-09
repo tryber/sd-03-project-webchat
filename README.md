@@ -174,7 +174,7 @@ e na linha 14:
 
 - Será validado que é possível enviar mensagem após alterar o nickname;
 
-### 3 - Elabore o histórico do chat para que as mensagens persistão.
+### 3 - Elabore o histórico do chat para que as mensagens persistam.
 
 - Você deve configurar um banco de dados MongoDB, onde cada linha contém uma mensagem enviada;
 
