@@ -75,8 +75,6 @@
       liMsg.classList = 'joined message';
 
       document.getElementById('ul-messages').appendChild(liMsg);
-
-      // socket.emit('connect');
     };
 
     const sendMessage = (event) => {
@@ -147,9 +145,11 @@
     };
 
     const disconnectUser = () => {
-      console.log('close');
       socket.emit('disconnected', { nickname: userNickname.textContent });
     }
+
+    const getRandomicNickname = () =>
+      Math.random().toString(36).substring(2, 10);
 
     formMessage.addEventListener('submit', (e) => sendMessage(e));
 
@@ -157,8 +157,7 @@
 
     window.addEventListener('beforeunload', () => disconnectUser());
 
-    const getRandomicNickname = () =>
-      Math.random().toString(36).substring(2, 10);
+    window.addEventListener('close', () => disconnectUser());
 
     socket.on('connect', () => {
       const nickname = getRandomicNickname();
@@ -166,7 +165,6 @@
       socket.emit('history');
       socket.emit('online');
       socket.emit('self-join', { nickname });
-      socket.on('disconnect', disconnectUser);
     });
 
     socket.on('self-join', (data) => selfJoin(data));
@@ -182,5 +180,7 @@
     socket.on('history', (data) => setHistory(data));
 
     socket.on('online', (data) => setOnlineUsers(data));
+
+    socket.on('disconnect', disconnectUser);
   </script>
 </html>

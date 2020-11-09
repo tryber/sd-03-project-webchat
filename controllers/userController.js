@@ -42,7 +42,6 @@ const saveUser = (io, socket) =>
 const removeUser = (io) =>
   rescue(async (req) => {
     try {
-      console.log('removeUser', req);
       const { nickname } = req;
 
       await userService.removeUser(nickname);
