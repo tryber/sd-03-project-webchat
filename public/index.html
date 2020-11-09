@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.io - Client Demo</title>
+
+  <!-- Carrega o socket.io -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <!-- script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script -->
+</head>
+<body>
+  <div>
+    <span>Usuários online</span><br />
+    <div id="users">
+      <ul id="online-user">
+      </ul>
+    </div>
+  </div>
+  <div>
+    <ul id="mensagem"></ul>
+  </div>
+  <div>
+    <div>
+      <label for="nickname">Apelido</label><br />
+      <input data-testid="nickname-box" type="text" id="input-nickname" name="nickname" />
+      <button data-testid="nickname-save" type="submit" id="submit-nickname">Salvar</button>
+    </div>
+    <div>
+      <label for="message-input">Mensagem</label><br />
+      <input data-testid="message-box" type="text" id="input" name="message-input" />
+      <button data-testid="send-button" type="submit" id="submit">Enviar</button>
+    </div>
+  </div>
+    <!-- Configura interação com o servidor -->
+    <script>
+      window.onload = () => {
+      const input = document.getElementById("input");
+      const submit = document.getElementById("submit");
+      const inputNickname = document.getElementById("input-nickname");
+      const submitNickname = document.getElementById("submit-nickname");
+      const socket = io();
+      let onlineUsers = [];
+  
+      submit.addEventListener("click", (e) => {
+        e.preventDefault();
+         socket.emit('message', { nickname, chatMessage: input.value });
+         input.value = '';
+        });
+
+      submitNickname.addEventListener("click", (e) => {
+        e.preventDefault();;
+         socket.emit('nameChange', { newNickname: inputNickname.value, socketID: socket.id });
+         nickname = inputNickname.value;
+         onlineUsers.push(inputNickname.value);
+         inputNickname.value = '';
+      });
+  
+      // Recebe as novas mensagens e o histórico de mensagens
+      socket.on('message', (data) => {
+        const li = document.createElement('li')
+        li.id = 'list-of-messages';
+        li.setAttribute('data-testid', 'message');
+        li.textContent = `${data}`;
+        document.getElementById('mensagem').appendChild(li);
+      });
+      socket.on('history', (messages) => {
+        // Limpa a lista
+        const previusList = document.querySelectorAll('#list-of-messages');
+        if (previusList.length) {
+          for (let i = previusList.length; i > 0; i -= 1) {
+            const list = document.getElementById('mensagem');
+            list.removeChild(list.lastElementChild);
+          }
+        }
+        messages.forEach(data => {
+          const li = document.createElement('li');
+          li.id = 'list-of-messages';
+          li.setAttribute('data-testid', 'message');
+          li.textContent = `${data}`;
+          document.getElementById('mensagem').appendChild(li);
+        })
+      });
+      // Recebe as natualizações de nome
+      socket.on('nameChange', (data) => {
+        // Limpa a lista
+        const previusList = document.querySelectorAll('#list-of-users');
+        if (previusList.length) {
+          for (let i = previusList.length; i > 0; i -= 1) {
+            const list = document.getElementById('online-user');
+            list.removeChild(list.lastElementChild);
+          }
+        }
+        const onlyUsers = data.newNickname;
+        onlyUsers.map((e) => {
+          const li = document.createElement('li')
+          li.id = 'list-of-users';
+          li.setAttribute('data-testid', 'online-user');
+          li.textContent = e;
+          document.getElementById('online-user').appendChild(li);
+        });
+      });
+      };
+    </script>
+</body>
+</html> 

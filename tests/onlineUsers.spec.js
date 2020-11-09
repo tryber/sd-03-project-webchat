@@ -45,7 +45,7 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     await page.waitForTimeout(1000);
     await nicknameBox.type(nickname);
     await nicknameSave.click();
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1000)
     await page.waitForSelector(dataTestid('online-user'));
     let usersOnline = await page.$$eval(dataTestid('online-user'), (nodes) => nodes.map((n) => n.innerText));
 
