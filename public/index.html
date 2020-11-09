@@ -87,7 +87,6 @@
             document.getElementById("online-user").appendChild(li);
           });
         });
-
         socket.on("message", (data) => {
           const li = document.createElement("li");
           li.id = "list-of-messages";
