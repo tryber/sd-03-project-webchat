@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 require('dotenv/config');
 
 const connect = () =>
-  MongoClient.connect(process.env.MONGO_DB_URL, {
+  MongoClient.connect(process.env.DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
