@@ -9,6 +9,7 @@ const { messageModel: model } = require('./models/index');
 const connection = require('./models/connection');
 // const notificationController = require('./controllers/notificationController');
 
+const PORT = 3000;
 async function start() {
   const app = express();
 
@@ -23,7 +24,7 @@ async function start() {
   const messageModel = model(db);
   socketFactory(io, messageModel);
 
-  httpServer.listen(process.env.PORT, () => console.log('HTTP listening on 3000'));
+  httpServer.listen(PORT, () => console.log('HTTP listening on 3000'));
 }
 
 start()
