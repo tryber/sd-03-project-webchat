@@ -10,7 +10,7 @@ const io = require('socket.io')(httpServer);
 
 const { getAllMessage, saveMessage } = require('./models/messageModel');
 
-const { PORT = 3000 } = process.env;
+const { PORT } = process.env;
 
 app.use(express.static(path.join(__dirname, 'client')));
 
