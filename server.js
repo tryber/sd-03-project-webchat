@@ -28,7 +28,7 @@ io.on('connection', async (socket) => {
   socket.on('error', (err) => console.log('Erro no socket', err));
   socket.on('changeNicknanme', (newNicknameParam) => {
     sockets.newNickname = newNicknameParam;
-    const {newNickname} = sockets;
+    const { newNickname } = sockets;
     clientsOnline.push({ nickname: newNickname, id: socket.id });
     io.emit('ClientsOnline', clientsOnline);
     console.log(`new Nickname ${sockets.nickname}`);
