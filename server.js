@@ -13,17 +13,14 @@ app.use('/', express.static('/public', { extensions: ['html'] }));
 
 const PORT = 3000;
 const sockets = { nickname: '', chatMessage: '', clientSocketId: '', isClientOnline: '' };
+let clientsOnline = [];
 
 app.get('/', (req, res) => {
   res.sendFile(`${PATH_STATIC}/client.html`);
 });
 io.on('connection', async (socket) => {
-  socket.on('userOnline', (clientSocketId) => {
-    console.log(clientSocketId);
-    sockets.clientSocketId = clientSocketId;
-    sockets.isClientOnline = true;
-    console.log(sockets.clientSocketId);
-  });
+  console.log('connected');
+
   const messagesRegisters = await getAllMessages();
   socket.emit('history', messagesRegisters);
   sockets.newNickname = '';
@@ -55,6 +52,14 @@ io.on('connection', async (socket) => {
     socket.broadcast.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
     socket.emit('message', `${sockets.nickname} ${chatMessage} ${date} ${time}`);
   });
+  socket.on('disconnect', () => {
+    clientsOnline = clientsOnline.filter((client) => client.id !== socket.id);
+    io.emit('ClientsOnline', clientsOnline);
+    console.log('disconnect');
+  });
+  console.log(socket.nickname);
+  clientsOnline.push({ id: socket.id });
+  io.emit('ClientsOnline', clientsOnline);
 });
 
 http.listen(PORT, () => console.log('Servidor ouvindo na porta 3000'));
