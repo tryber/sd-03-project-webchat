@@ -12,6 +12,7 @@ const { saveMessage, getAllMessage } = require('./models/messageModel');
 const PUBLIC_PATH = path.join(__dirname, 'public');
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
+const PORT = 3000;
 const userInObj = {};
 
 io.on('connection', async (socket) => {
@@ -61,6 +62,6 @@ io.on('connection', async (socket) => {
   });
 });
 
-http.listen(3000, () => console.log('Servidor ouvindo na porta 3000'));
+http.listen(PORT, () => console.log(`Servidor ouvindo na porta ${PORT}`));
 
 // Alteração do todo o código com ajuda do Wilian por motivo de não conseguir passar no requisito 4.
