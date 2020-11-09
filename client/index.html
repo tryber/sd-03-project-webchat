@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webchat</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <form>
+    <input data-testid="nickname-box" type="text" name="username" id="nickname" />
+    <button data-testid="nickname-save" type="submit" id="change-nick-button">Salvar Nickname</button>
+    <div id="messages-div"></div>
+    <input data-testid="message-box" type="text" name="message" id="message-input" />
+    <button data-testid="send-button" type="submit" id="send-button">Enviar Mensagem</button>
+  </form>
+  <script>
+    window.onload = () => {
+      const socket = io();
+
+      const messageInput = document.getElementById('message-input');
+      const messages = document.getElementById('messages-div');
+      const sendButton = document.getElementById('send-button');
+      const nicknameElement = document.getElementById('nickname');
+
+      sendButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log(nicknameElement.value);
+        socket.emit('message', { nickname: nicknameElement.value, message: messageInput.value });
+      });
+
+      const addMessageToChat = (message) => {
+        const p = document.createElement('p');
+
+        p.setAttribute('data-testid', 'message');
+        p.innerText = message;
+
+        messages.appendChild(p);
+      };
+
+      socket.on('history', (message) => {
+        addMessageToChat(message);
+      });
+
+      socket.on('message', (message) => {
+        addMessageToChat(message);
+      });
+    };
+  </script>
+</body>
+
+</html>
