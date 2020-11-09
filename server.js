@@ -23,8 +23,8 @@ io.on('connection', async (socket) => {
     io.emit('message', `${msgDate} ${msgTime} - ${nickname}: ${chatMessage}`);
   });
 
-  socket.on('newUser', (nickname) => {
-    arrUsers.push({ id, nickname });
+  socket.on('newUser', async (nickname) => {
+    await arrUsers.push({ id, nickname });
     io.emit('onlineList', arrUsers);
   });
 
