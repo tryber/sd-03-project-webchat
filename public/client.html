@@ -29,7 +29,9 @@
 
         const nickname = chance.name();
         const client = io();
-    
+     window.onload = () => {
+        client.emit('connectedUser', nickname)
+     }
         buttonMessage.addEventListener('click',() => {
             if (messageInput.value === '') {
                 alert('mensagem não pode ser vazia');
@@ -46,12 +48,11 @@
             }
         })
         client.on('ClientsOnline', (clients) => {
-            console.log(clients);
           document.getElementById("OnlineClients").innerHTML = "";
           clients.forEach(client => {
         const ClientList = document.createElement('li');
         ClientList.setAttribute('data-testid','online-user');
-        ClientList.innerHTML = client.id;       
+        ClientList.innerHTML = client.nickname;       
         listClient.appendChild(ClientList);
         // }))
         })

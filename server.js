@@ -57,9 +57,13 @@ io.on('connection', async (socket) => {
     io.emit('ClientsOnline', clientsOnline);
     console.log('disconnect');
   });
-  console.log(socket.nickname);
-  clientsOnline.push({ id: socket.id });
-  io.emit('ClientsOnline', clientsOnline);
+  socket.on('connectedUser', (randonNickName) => {
+    sockets.nickname = randonNickName;
+    const { nickname } = sockets;
+    clientsOnline.push({ nickname, id: socket.id });
+    io.emit('ClientsOnline', clientsOnline);
+    console.log('connected', randonNickName);
+  });
 });
 
 http.listen(PORT, () => console.log('Servidor ouvindo na porta 3000'));
