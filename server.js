@@ -18,8 +18,6 @@ io.on('connection', (socket) => {
   const messageController = getMessageController(io, socket);
   const userController = getUserController(io, socket);
 
-  socket.emit('history');
-
   socket.on('history', messageController.getHistory);
   socket.on('message', messageController.sendMessage);
   socket.on('change-name', userController.updateName);

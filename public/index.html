@@ -159,6 +159,7 @@
     window.onload = () => {
       const nickname = getRandomicNickname();
 
+      socket.emit('history');
       socket.emit('self-join', { nickname });
     }
 
