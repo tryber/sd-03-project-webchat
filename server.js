@@ -15,14 +15,12 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 io.on('connection', async (socket) => {
-  const conect = socket.id;
-  socket.broadcast.emit('conectado', conect);
-
-  console.log(`${socket.id} conectado`);
   socket.on('message', async (message) => {
     const date = new Date();
     const newDate = moment(date).format('DD-MM-yyyy HH:mm:ss');
+
     const { nickname, chatMessage } = message;
+    io.emit('online', nickname);
     io.emit('message', `${newDate} ${nickname} ${chatMessage}`);
     await saveMessage(newDate, nickname, chatMessage);
   });

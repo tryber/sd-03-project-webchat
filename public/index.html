@@ -11,25 +11,21 @@
 <body>
   <form id="chat">
     <input type=text data-testid="nickname-box" name="usuario" placeholder="Digite seu nome" />
-    <button type="button" data-testid="nickname-save">Salvar nome</button>
+    <button type="submit" id="saveName" data-testid="nickname-save">Salvar nome</button>
     <input data-testid="message-box" id="idMessage" name="mensagens" placeholder="Digite sua mensagem" />
     <button type="submit" data-testid="send-button" id="send-buttons">Enviar</button>
     <div id="message"></div>
-    <div id="conectado"></div>
+    <ul id="conectado"></ul>
   </form>
 
   <script>
     let socket = io('http://localhost:3000');
 
-    function renderConect(conect) {
-      $('#conectado').append('<div data-testid="online-user">'
-        + conect +
-        '</div>');
+    function renderConect(onlineuser) {
+      $('#conectado').append('<li data-testid="online-user">'
+        + onlineuser +
+        '</li>');
     };
-
-    socket.on('conectado', function (conect) {
-      renderConect(conect);
-    });
 
     function renderizarMensagem(message) {
       $('#message').append('<div data-testid="message" classe="message">'
@@ -37,6 +33,7 @@
         '<div/>');
     };
 
+    socket.on('online', renderConect);
     socket.on('message', renderizarMensagem);
     socket.on('historico', renderizarMensagem);
 
