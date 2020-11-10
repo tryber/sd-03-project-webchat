@@ -39,7 +39,7 @@ const saveUser = (io, socket) =>
     }
   });
 
-const removeUser = (io) =>
+const removeUser = (io, socket) =>
   rescue(async (req) => {
     try {
       const { nickname } = req;
@@ -47,6 +47,11 @@ const removeUser = (io) =>
       await userService.removeUser(nickname);
 
       const onlineUsers = await userService.getAllOnlineUser();
+
+      console.log(onlineUsers, nickname);
+
+      socket.emit('disconnected', { nickname });
+      socket.broadcast.emit('left-chat', { nickname });
 
       io.emit('online', { onlineUsers });
     } catch (err) {
@@ -57,7 +62,7 @@ const removeUser = (io) =>
 const getUserController = (io, socket) => ({
   updateName: updateName(io, socket),
   saveUser: saveUser(io, socket),
-  removeUser: removeUser(io),
+  removeUser: removeUser(io, socket),
 });
 
 module.exports = {

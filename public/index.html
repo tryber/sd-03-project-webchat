@@ -145,8 +145,18 @@
     };
 
     const disconnectUser = () => {
+      console.log('desconectou');
       socket.emit('disconnected', { nickname: userNickname.textContent });
     }
+
+    const leftChat = ({ nickname }) => {
+      const liMsg = document.createElement('li');
+
+      liMsg.textContent = `${nickname} deixou o chat`;
+      liMsg.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(liMsg);
+    };
 
     const getRandomicNickname = () =>
       Math.random().toString(36).substring(2, 10);
@@ -165,6 +175,7 @@
       socket.emit('history');
       socket.emit('online');
       socket.emit('self-join', { nickname });
+      socket.emit('online');
     });
 
     socket.on('self-join', (data) => selfJoin(data));
@@ -182,5 +193,7 @@
     socket.on('online', (data) => setOnlineUsers(data));
 
     socket.on('disconnect', disconnectUser);
+
+    socket.on('left-chat', (data) => leftChat(data));
   </script>
 </html>
