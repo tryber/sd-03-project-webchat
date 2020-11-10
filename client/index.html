@@ -33,8 +33,11 @@
       const sendButton = document.getElementById('send-button');
       const nicknameElement = document.getElementById('nickname');
       const changeNickname = document.getElementById('change-nick-button');
+      const usersList = document.getElementById('online-list');
 
       let chosenName = chance.name();
+
+      socket.emit('user-login', { nickname: chosenName });
 
       sendButton.addEventListener('click', (e) => {
         e.preventDefault();
@@ -44,8 +47,10 @@
 
       changeNickname.addEventListener('click', (e) => {
         e.preventDefault();
-        if (nicknameElement !== '') chosenName = nicknameElement.value;
-        socket.emit('name-change', { chosenName, socketID: socket.id });
+        if (nicknameElement.value !== '') {
+          socket.emit('name-change', { newNickname: nicknameElement.value });
+          chosenName = nicknameElement.value;
+        }
       });
 
       const addMessageToChat = (message) => {
@@ -65,21 +70,13 @@
         addMessageToChat(message);
       });
 
-      socket.on('name-change', (data) => {
-        const oldList = document.querySelectorAll("#online-list");
-        if (oldList.length) {
-          oldList.forEach((user) => {
-            const list = document.getElementById("online-user");
-            list.removeChild(list.lastElementChild);
-          });
-        }
-        const onlyUsers = data.chosenName;
-        onlyUsers.map((e) => {
-          const li = document.createElement("li");
-          li.id = "list-of-users";
-          li.setAttribute("data-testid", "online-user");
-          li.textContent = e;
-          document.getElementById("online-user").appendChild(li);
+      socket.on('update-users', (usersArray) => {
+        usersList.innerHTML = '';
+        usersArray.forEach((user) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-testid', 'online-user');
+          li.innerHTML = user.nickname;
+          usersList.appendChild(li);
         });
       });
     };

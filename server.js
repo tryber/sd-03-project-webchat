@@ -1,5 +1,3 @@
-require('dotenv/config');
-
 const express = require('express');
 const path = require('path');
 const moment = require('moment');
@@ -10,7 +8,8 @@ const io = require('socket.io')(httpServer);
 
 const { getAllMessage, saveMessage } = require('./models/messageModel');
 
-const { PORT } = process.env;
+const PORT = 3000;
+let usersOnline = [];
 
 app.use(express.static(path.join(__dirname, 'client')));
 
@@ -36,6 +35,23 @@ io.on('connection', async (socket) => {
     // socket.broadcast.emit('message', renderMessages);
 
     return saveMessage(chatMessage, nickname, timeEdited);
+  });
+
+  socket.on('user-login', ({ nickname }) => {
+    usersOnline.push({ socketId: socket.id, nickname });
+    console.log(usersOnline);
+    io.emit('update-users', usersOnline);
+  });
+
+  socket.on('name-change', ({ newNickname }) => {
+    usersOnline = usersOnline.filter(({ nickname }) => nickname !== newNickname);
+    usersOnline.push({ socketId: socket.id, nickname: newNickname });
+    io.emit('update-users', usersOnline);
+  });
+
+  socket.on('disconnect', () => {
+    usersOnline = usersOnline.filter(({ socketId }) => socketId !== socket.id);
+    io.emit('update-users', usersOnline);
   });
 });
 
