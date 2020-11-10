@@ -45,7 +45,9 @@ const removeUser = (io, socket) =>
     try {
       const { id } = socket;
 
-      const nickname = userService.removeUser(id);
+      const removedUser = userService.removeUser(id);
+
+      const nickname = removedUser ? removedUser.nickname : 'Alguém';
 
       const onlineUsers = userService.getAllOnlineUser();
 
