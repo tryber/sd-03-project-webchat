@@ -28,7 +28,7 @@
     const chat = document.getElementById('chatBox');
 
     const renderChat = (payload) => {
-      const p = document.createElement('p');
+      const p = document.createElement('div');
       p.setAttribute('data-testid', 'message');
       p.innerHTML = `${payload}`;
       chat.appendChild(p);
