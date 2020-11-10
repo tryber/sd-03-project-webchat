@@ -10,10 +10,11 @@
 <body>
   <form id="formChat">
     <input data-testid="nickname-box" name="inputName" id="changeNick" placeholder="Digite seu Nickname" />
-    <button data-testid="nickname-save" id="nickButton" type="button">Salvar Nick</button> <br />
+    <button data-testid="nickname-save" id="nickButton" type="submit">Salvar Nick</button> <br />
     <input data-testid="message-box" name="inputMessage" id="inputMsg" placeholder="Digite uma Mensagem" />
     <button data-testid="send-button" id="messageButton">Enviar</button>
   </form>
+  <ul id="userBox"></ul>
   <div id="chatBox"></div>
 
   <script>
@@ -23,20 +24,29 @@
     const saveName = document.getElementById('nickButton');
     const inputMessage = document.getElementById('inputMsg');
     const sendButton = document.getElementById('messageButton');
+    const usersOn = document.getElementById('userBox');
     const chat = document.getElementById('chatBox');
 
     const renderChat = (payload) => {
-      const newMessage = document.createElement('p');
-      newMessage.setAttribute('data-testid', 'message');
-      newMessage.innerHTML = `${payload}`;
-      chat.appendChild(newMessage);
+      const p = document.createElement('p');
+      p.setAttribute('data-testid', 'message');
+      p.innerHTML = `${payload}`;
+      chat.appendChild(p);
       inputMessage.value = '';
+    }
+
+    const onlineUser = (nick) => {
+      const li = document.createElement('li');
+      li.setAttribute('data-testid', 'online-user');
+      li.innerHTML = `${nick}`;
+      usersOn.appendChild(li);
     }
 
     let newNick;
     let message;
 
-    saveName.addEventListener('click', () => {
+    saveName.addEventListener('click', (e) => {
+      e.preventDefault();
       newNick = changeNick.value
 
       socket.emit('nickname', newNick);
@@ -46,7 +56,7 @@
       e.preventDefault();
       message = inputMessage.value;
 
-      if (newNick.length && message.length) {
+      if (message.length) {
         const objectMsg = {
           nickname: changeNick.value,
           chatMessage: inputMessage.value,
@@ -58,7 +68,7 @@
     });
 
     socket.on('history', renderChat);
-
+    socket.on('nickname', onlineUser);
     socket.on('message', renderChat);
   </script>
 </body>
