@@ -26,8 +26,8 @@ io.on('connection', async (socket) => {
   const date = new Date();
   const now = moment(date).format('DD-MM-yyyy HH:mm:ss');
 
-  chatHistory.forEach(({ nickname, chatMessage, date }) => {
-    socket.emit('history', `${nickname} ${chatMessage} ${date}`);
+  chatHistory.forEach(({ nickname, chatMessage, dateN }) => {
+    socket.emit('history', `${nickname} ${chatMessage} ${dateN}`);
   });
 
   socket.on('nickname', (newNickname) => {
