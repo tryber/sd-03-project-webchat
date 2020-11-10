@@ -10,6 +10,9 @@
     <input data-testid="nickname-box" id="nickname" type="text" />
     <button type="button" data-testid="nickname-save" id="savenick">Salvar</button>
     <ul id="msgList"></ul>
+    <div class="users">
+      <ul id="onlineUsers"></ul>
+    </div>
     <form>
       <input data-testid="message-box" id="msgInput" autocomplete="off" />
       <button data-testid="send-button" type="button" id="btn-send">Send</button>
@@ -22,10 +25,23 @@
       const nickInput = document.getElementById('nickname');
       const btnSend = document.getElementById('btn-send');
 
+      // Função disparada quando é carregado a página para receber o hist de msgs
+      window.onload = () => {socket.emit('getHistory')};
+
+      // Pega o historico e monta a página.
+      socket.on('historyMsgs', (msgs) => {
+        msgs.forEach((msg) => {
+          let li = document.createElement('li');
+          li.setAttribute('data-testid','message');
+          li.innerText = `${msg.nick}  ${msg.data} ${msg.msg}`;
+          msgList.appendChild(li)
+        });
+      });
+
       // Função ao clicar em enviar msg
       btnSend.addEventListener('click', (e) => {
         e.preventDefault();
-        const msg = { chatMsg: msgInput.value, nick: nickInput.value }; 
+        const msg = { chatMessage: msgInput.value, nickname: nickInput.value }; 
         socket.emit('message', msg);
         msgInput.value = '';
         return;
@@ -37,7 +53,6 @@
         li.innerText = msg;
         msgList.appendChild(li);
       });
-
     </script>
   </body>
 </html>

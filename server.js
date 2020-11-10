@@ -3,6 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const bodyParser = require('body-parser');
 const moment = require('moment');
+const { saveChat, callChat } = require('./models/chatMsgs');
 require('dotenv/config');
 
 const app = express();
@@ -13,11 +14,21 @@ const io = socketIo(server);
 io.on('connection', (socket) => {
   console.log('Usuário conectado');
 
-  socket.on('message', (msg) => {
+  socket.on('getHistory', async () => {
+    //* Ao ser chamado, é feito uma busca no banco por todas as msg e retornado um array
+    const msgs = await callChat();
+
+    io.emit('historyMsgs', msgs);
+  });
+
+  socket.on('message', async (msg) => {
+    //* cria algumas variáveis para gravar no banco.
     const date = new Date();
     const newDate = moment(date).format('DD-MM-yyyy HH:mm:ss');
-    const { chatMsg, nick } = msg;
-    const formatMsg = `${nick} ${chatMsg}`;
+    const { chatMessage, nickname } = msg;
+    await saveChat(nickname, chatMessage, newDate);
+
+    const formatMsg = `${nickname} ${newDate} ${chatMessage}`;
     io.emit('message', formatMsg);
   });
 });

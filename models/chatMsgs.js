@@ -4,7 +4,7 @@ const saveChat = async (nick, msg, data) => connection()
   .then((db) => db.collection('messages').insertOne({ nick, msg, data }));
 
 const callChat = async () => connection()
-  .then((db) => db.collection('messages').find({}));
+  .then((db) => db.collection('messages').find({}).toArray());
 
 module.exports = {
   saveChat,

@@ -23,3 +23,15 @@ form button {
   width: 9%;
   background: rgb(130, 224, 255);
   border: none;
+}
+
+.users {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: 1px solid darkblue;
+  min-height: 20em;
+  width: 100%;
+  margin-top: 25em;
+  background-color: rgb(130, 224, 255);
+}
