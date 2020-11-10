@@ -26,8 +26,9 @@ const saveUser = (io, socket) =>
   rescue((req) => {
     try {
       const { nickname } = req;
+      const { id } = socket;
 
-      userService.saveUser(nickname);
+      userService.saveUser(nickname, id);
       const onlineUsers = userService.getAllOnlineUser();
 
       socket.emit('self-join', { nickname });
@@ -40,15 +41,14 @@ const saveUser = (io, socket) =>
   });
 
 const removeUser = (io, socket) =>
-  rescue((req) => {
+  rescue(() => {
     try {
-      const { nickname } = req;
+      const { id } = socket;
 
-      userService.removeUser(nickname);
+      const nickname = userService.removeUser(id);
 
       const onlineUsers = userService.getAllOnlineUser();
 
-      socket.emit('disconnected', { nickname });
       socket.broadcast.emit('left-chat', { nickname });
 
       io.emit('online', onlineUsers);

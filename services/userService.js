@@ -1,6 +1,6 @@
 const userModel = require('../model/userModel');
 
-const saveUser = (user) => userModel.saveUser(user);
+const saveUser = (user, id) => userModel.saveUser(user, id);
 
 const getAllOnlineUser = () => userModel.getAllOnlineUser();
 
