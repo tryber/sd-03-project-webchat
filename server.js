@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const bodyParser = require('body-parser');
+const moment = require('moment');
 require('dotenv/config');
 
 const app = express();
@@ -10,18 +11,19 @@ app.use(bodyParser.json());
 const io = socketIo(server);
 
 io.on('connection', (socket) => {
-  console.log('client connected');
+  console.log('Usuário conectado');
 
-  socket.emit('message', 'HelO!');
+  socket.on('message', (msg) => {
+    const date = new Date();
+    const newDate = moment(date).format('DD-MM-yyyy HH:mm:ss');
+    const { chatMsg, nick } = msg;
+    const formatMsg = `${nick} ${chatMsg}`;
+    io.emit('message', formatMsg);
+  });
 });
 
-app.post('/', (req, res) => {
-  const { title, message } = req.body;
-  console.log(req.body);
-  io.emit('notification', { title, message });
-  res.status(200).json({ ok: true })
-});
+app.use('/', express.static('./views', { extensions: ['html'] }));
 
-const { PORT = 3000 } = process.env.PORT;
+const PORT = 3000;
 
 server.listen(PORT, () => console.log(`Escutando na porta ${PORT}`));

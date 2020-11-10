@@ -1,15 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.0/socket.io.js"></script>
-</head>
-<body>
-  <h1>Olá Socket Io</h1>
-  <script>
-    const socket = io();
-  </script>
-</body>
+<html>
+  <head>
+    <title>Socket.IO - trybe</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <label for="nickname">Nickname</label>
+    <input data-testid="nickname-box" id="nickname" type="text" />
+    <button type="button" data-testid="nickname-save" id="savenick">Salvar</button>
+    <ul id="msgList"></ul>
+    <form>
+      <input data-testid="message-box" id="msgInput" autocomplete="off" />
+      <button data-testid="send-button" type="button" id="btn-send">Send</button>
+    </form>
+    <script>
+      // Variáveis e elementos da página
+      const socket = io();
+      const msgList = document.getElementById('msgList');
+      const msgInput =  document.getElementById('msgInput');
+      const nickInput = document.getElementById('nickname');
+      const btnSend = document.getElementById('btn-send');
+
+      // Função ao clicar em enviar msg
+      btnSend.addEventListener('click', (e) => {
+        e.preventDefault();
+        const msg = { chatMsg: msgInput.value, nick: nickInput.value }; 
+        socket.emit('message', msg);
+        msgInput.value = '';
+        return;
+      });
+
+      socket.on('message', (msg) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid','message');
+        li.innerText = msg;
+        msgList.appendChild(li);
+      });
+
+    </script>
+  </body>
 </html>
