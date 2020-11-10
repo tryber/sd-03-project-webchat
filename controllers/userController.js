@@ -2,7 +2,7 @@ const rescue = require('express-rescue');
 const userService = require('../services/userService');
 
 const updateName = (io, socket) =>
-  rescue(async (req) => {
+  rescue((req) => {
     try {
       const { nickname, newName } = req;
 
@@ -10,50 +10,48 @@ const updateName = (io, socket) =>
         throw new Error('Missing new name');
       }
 
-      await userService.updateUser(nickname, newName);
-      const onlineUsers = await userService.getAllOnlineUser();
+      userService.updateUser(nickname, newName);
+      const onlineUsers = userService.getAllOnlineUser();
 
       socket.emit('change-name', { newName });
       socket.broadcast.emit('someone-change-name', { nickname, newName });
 
-      io.emit('online', { onlineUsers });
+      io.emit('online', onlineUsers);
     } catch (err) {
       console.error(err);
     }
   });
 
 const saveUser = (io, socket) =>
-  rescue(async (req) => {
+  rescue((req) => {
     try {
       const { nickname } = req;
 
-      await userService.saveUser(nickname);
-      const onlineUsers = await userService.getAllOnlineUser();
+      userService.saveUser(nickname);
+      const onlineUsers = userService.getAllOnlineUser();
 
       socket.emit('self-join', { nickname });
       socket.broadcast.emit('joined', { nickname });
 
-      io.emit('online', { onlineUsers });
+      io.emit('online', onlineUsers);
     } catch (err) {
       console.error(err);
     }
   });
 
 const removeUser = (io, socket) =>
-  rescue(async (req) => {
+  rescue((req) => {
     try {
       const { nickname } = req;
 
-      await userService.removeUser(nickname);
+      userService.removeUser(nickname);
 
-      const onlineUsers = await userService.getAllOnlineUser();
-
-      console.log(onlineUsers, nickname);
+      const onlineUsers = userService.getAllOnlineUser();
 
       socket.emit('disconnected', { nickname });
       socket.broadcast.emit('left-chat', { nickname });
 
-      io.emit('online', { onlineUsers });
+      io.emit('online', onlineUsers);
     } catch (err) {
       console.error(err);
     }

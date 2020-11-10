@@ -1,17 +1,17 @@
-const connection = require('./connection');
+let onlineUsers = [];
 
-const saveUser = async (user) =>
-  connection().then((db) => db.collection('online').insertOne({ user }));
+const saveUser = (user) => onlineUsers.push(user);
 
-const getAllOnlineUser = async () =>
-  connection().then((db) => db.collection('online').find({}).toArray());
+const getAllOnlineUser = () => onlineUsers;
 
-const removeUser = async (user) =>
-  connection().then((db) => db.collection('online').deleteOne({ user }));
+const removeUser = (deleteUser) => {
+  onlineUsers = onlineUsers.filter((user) => user !== deleteUser);
+};
 
-const updateUser = async (user, newName) =>
-  connection().then((db) =>
-    db.collection('online').updateOne({ user }, { $set: { user: newName } }));
+const updateUser = (user, newName) => {
+  const indexOfUser = onlineUsers.indexOf(user);
+  onlineUsers[indexOfUser] = newName;
+};
 
 module.exports = {
   saveUser,

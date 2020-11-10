@@ -126,28 +126,23 @@
       history ? history.map(receivedMessage) : null;
     };
 
-    const setOnlineUsers = (data) => {
-      const { onlineUsers } = data ? data : [];
+    const setOnlineUsers = (onlineUsers) => {
+      ulOnlineUser.innerHTML = '';
 
-      if (onlineUsers) {
-        ulOnlineUser.innerHTML = '';
+      onlineUsers.map((user) => {
+        const liOnline = document.createElement('li');
 
-        onlineUsers.map(({ user }) => {
-          const liOnline = document.createElement('li');
+        liOnline.textContent = user;
+        liOnline.classList = 'online-user';
+        liOnline.setAttribute('data-testid', 'online-user');
 
-          liOnline.textContent = user;
-          liOnline.classList = 'online-user';
-          liOnline.setAttribute('data-testid', 'online-user');
-
-          ulOnlineUser.appendChild(liOnline);
-        });
-      }
+        ulOnlineUser.appendChild(liOnline);
+      });
     };
 
     const disconnectUser = () => {
-      console.log('desconectou');
       socket.emit('disconnected', { nickname: userNickname.textContent });
-    }
+    };
 
     const leftChat = ({ nickname }) => {
       const liMsg = document.createElement('li');
