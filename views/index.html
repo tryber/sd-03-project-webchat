@@ -8,7 +8,7 @@
   <body>
     <label for="nickname">Nickname</label>
     <input data-testid="nickname-box" id="nickname" type="text" />
-    <button type="button" data-testid="nickname-save" id="savenick">Salvar</button>
+    <button type="button" data-testid="nickname-save" id="savenick">Conectar</button>
     <ul id="msgList"></ul>
     <div class="users">
       <ul id="onlineUsers"></ul>
@@ -24,6 +24,8 @@
       const msgInput =  document.getElementById('msgInput');
       const nickInput = document.getElementById('nickname');
       const btnSend = document.getElementById('btn-send');
+      const btnConectar = document.getElementById('savenick');
+      const usersList = document.getElementById('onlineUsers');
 
       // Função disparada quando é carregado a página para receber o hist de msgs
       window.onload = () => {socket.emit('getHistory')};
@@ -45,6 +47,22 @@
         socket.emit('message', msg);
         msgInput.value = '';
         return;
+      });
+
+      // Função ao clicar no botão conectar
+      btnConectar.addEventListener('click', (e) => {
+        e.preventDefault();
+        socket.emit('confirmConnect', nickInput.value);
+        nickInput.value = '';
+        return;
+      });
+
+      socket.on('confirmConnect', (nick) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid','online-user');
+        li.setAttribute('id', nick);
+        li.innerText = nick;
+        usersList.appendChild(li);
       });
 
       socket.on('message', (msg) => {

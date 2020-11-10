@@ -12,13 +12,16 @@ app.use(bodyParser.json());
 const io = socketIo(server);
 
 io.on('connection', (socket) => {
-  console.log('Usuário conectado');
-
   socket.on('getHistory', async () => {
     //* Ao ser chamado, é feito uma busca no banco por todas as msg e retornado um array
     const msgs = await callChat();
 
     io.emit('historyMsgs', msgs);
+  });
+
+  socket.on('confirmConnect', (nick) => {
+    //* Informado que um usuário foi conectado.
+    io.emit('confirmConnect', nick);
   });
 
   socket.on('message', async (msg) => {
