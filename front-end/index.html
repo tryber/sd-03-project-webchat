@@ -25,10 +25,10 @@
     const sendButton = document.getElementById('messageButton');
     const chat = document.getElementById('chatBox');
 
-    const renderChat = (nickname, chatMessage, date) => {
+    const renderChat = (payload) => {
       const newMessage = document.createElement('p');
       newMessage.setAttribute('data-testid', 'message');
-      newMessage.innerHTML = `(${nickname}) > ${chatMessage} ${date}`;
+      newMessage.innerHTML = `${payload}`;
       chat.appendChild(newMessage);
       inputMessage.value = '';
     }
@@ -57,15 +57,9 @@
       }
     });
 
-    socket.on('history', (historyMsg) => {
-      const { nickname, chatMessage, date } = historyMsg;
-      renderChat(nickname, chatMessage, date);
-    });
+    socket.on('history', renderChat);
 
-    socket.on('message', (objectMsg) => {
-      const { nickname, chatMessage, now } = objectMsg;
-      renderChat(nickname, chatMessage, now);
-    });
+    socket.on('message', renderChat);
   </script>
 </body>
 

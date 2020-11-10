@@ -23,9 +23,11 @@ io.on('connection', async (socket) => {
   console.log(`client ${socket.id} connected`);
 
   const chatHistory = await chatModel.readChat();
+  const date = new Date();
+  const now = moment(date).format('DD-MM-yyyy HH:mm:ss');
 
   chatHistory.forEach(({ nickname, chatMessage, date }) => {
-    socket.emit('history', { nickname, chatMessage, date });
+    socket.emit('history', `${nickname} ${chatMessage} ${date}`);
   });
 
   socket.on('nickname', (newNickname) => {
@@ -38,8 +40,6 @@ io.on('connection', async (socket) => {
     const { nickname, chatMessage } = data;
     aboutUser.nickname = nickname;
     aboutUser.chatMessage = chatMessage;
-    const date = new Date();
-    const now = moment(date).format('DD-MM-yyyy HH:mm:ss');
 
     await chatModel.createChat(
       nickname,
@@ -47,7 +47,7 @@ io.on('connection', async (socket) => {
       now,
     );
 
-    io.emit('message', { ...data, now });
+    io.emit('message', `${nickname} ${chatMessage} ${now}`);
   });
 });
 
