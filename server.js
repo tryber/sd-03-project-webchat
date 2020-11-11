@@ -8,6 +8,8 @@ const messagesModel = require('./models/messagesModel');
 
 const app = express();
 
+let activeUsers = [];
+
 const server = http.createServer(app);
 
 const io = socketIo(server);
@@ -15,19 +17,18 @@ const io = socketIo(server);
 const { PORT = 3000 } = process.env;
 
 io.on('connect', async (socket) => {
-  await messagesModel.insertData({ nickname: socket.id, _id: socket.id }, 'onlineUsers');
+  activeUsers.push({ nickname: socket.id, _id: socket.id });
 
   const history = await messagesModel.allPastMessages();
-  const onlineUsers = await messagesModel.onlineUsers();
 
   history.forEach((message) => socket.emit('message', message.chatMessage));
 
-  io.emit('onlineUsers', onlineUsers);
+  io.emit('onlineUsers', activeUsers);
 
   socket.on('changeNickname', async (nickname) => {
-    await messagesModel.changeNickname({ nickname, id: socket.id });
-    const newList = await messagesModel.onlineUsers();
-    io.emit('onlineUsers', newList);
+    const socketIndex = activeUsers.findIndex(({ _id }) => _id === socket.id);
+    activeUsers[socketIndex].nickname = nickname;
+    io.emit('onlineUsers', activeUsers);
   });
 
   socket.on('message', async ({ nickname, chatMessage }) => {
@@ -41,9 +42,8 @@ io.on('connect', async (socket) => {
   });
 
   socket.on('disconnect', async () => {
-    await messagesModel.deleteUser(socket.id);
-    const newOnlineUsers = await messagesModel.onlineUsers();
-    io.emit('onlineUsers', newOnlineUsers);
+    activeUsers = activeUsers.filter(({ _id }) => socket.id !== _id);
+    io.emit('onlineUsers', activeUsers);
   });
 });
 
