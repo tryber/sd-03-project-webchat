@@ -29,7 +29,7 @@ describe('Crie um frontend para que as pessoas interajam com o chat', () => {
   });
 
   afterEach(async () => {
-    browser.close();
+    await browser.close();
     await db.collection('messages').deleteMany({});
     await connection.close();
   });

@@ -26,7 +26,7 @@ describe('Elabore o histórico do chat para que as mensagens persistão', () => 
   });
 
   afterEach(async () => {
-    browser.close();
+    await browser.close();
     client1.disconnect();
     client2.disconnect();
     await db.collection('messages').deleteMany({});
