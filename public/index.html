@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script defef>
+    const socket = io();
+    let nickname = socket.id;
+
+    const sendMessage = () => {
+      const chatMessage = document.getElementById('message-input');
+      socket.emit('message', { nickname, chatMessage: chatMessage.value });
+      chatMessage.value = '';
+    };
+
+    const createMessage = (data) => {
+      const newMessage = document.createElement('li');
+      newMessage.setAttribute('data-testid', 'message');
+      newMessage.textContent = `${data}`;
+      return newMessage;
+    };
+
+    const userOnlineTag = (user) => {
+      const newOnlineUser = document.createElement('li');
+      newOnlineUser.setAttribute('data-testid', 'online-user')
+      newOnlineUser.textContent = user;
+      return newOnlineUser;
+    }
+
+    const changeNickname = () => {
+      const newNickname = document.getElementById('nickname-box').value;
+      nickname = newNickname;
+      socket.emit('changeNickname', newNickname);
+    }
+
+    socket.on('onlineUsers', (data) => {
+      const allOnlineUsers = document.getElementById('all-online-users');
+
+      while (allOnlineUsers.firstChild) {
+        allOnlineUsers.removeChild(allOnlineUsers.lastChild);
+      }
+
+      data.map((user) => document
+        .getElementById('all-online-users')
+        .appendChild(userOnlineTag(user.nickname)))
+    });
+
+    socket.on('message', (chatMessage) => {
+      document.getElementById('all-messages')
+        .appendChild(createMessage(chatMessage));
+    });
+
+    window.onload = () => {
+      document.getElementById('send-button')
+        .addEventListener('click', () => sendMessage());
+      document.getElementById('nickname-save')
+        .addEventListener('click', () => changeNickname());
+    };
+
+  </script>
+  <title>Webchat</title>
+</head>
+
+<body>
+  <div>
+    <h4>Nickname</h4>
+    <input data-testid="nickname-box" id="nickname-box" />
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar</button>
+  </div>
+  <div>
+    <h4>Mensagens</h4>
+    <ul id="all-messages">
+    </ul>
+  </div>
+  <div>
+    <input data-testid="message-box" id="message-input" />
+    <button type="button" id="send-button" data-testid="send-button">Enviar</button>
+  </div>
+  <div>
+    <h4>Online</h4>
+    <ul id="all-online-users">
+
+    </ul>
+  </div>
+</body>
+
+</html>
