@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script defef>
-    const socket = io('http://localhost:4555');
+    const socket = io();
     let nickname = socket.id;
 
     const sendMessage = () => {

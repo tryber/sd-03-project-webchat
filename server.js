@@ -1,14 +1,19 @@
 require('dotenv').config();
 
-const socketServer = require('http').createServer();
-const io = require('socket.io')(socketServer);
+const http = require('http');
 const express = require('express');
+const socketIo = require('socket.io');
 const path = require('path');
 const messagesModel = require('./models/messagesModel');
+const { protocol } = require('socket.io-client');
 
 const app = express();
 
-const { PORT = 3000, IOPORT = 4555 } = process.env;
+const server = http.createServer(app);
+
+const io = socketIo(server);
+
+const { PORT = 3000 } = process.env;
 
 io.on('connect', async (socket) => {
   await messagesModel.insertData({ nickname: socket.id, _id: socket.id }, 'onlineUsers');
@@ -47,6 +52,4 @@ app.use(express.json());
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-app.listen(PORT, () => console.log(`Servidor na porta ${PORT}`));
-
-socketServer.listen(IOPORT, () => console.log(`Socket na port ${IOPORT}`));
+server.listen(PORT, () => console.log(`Socket na port ${PORT}`));
