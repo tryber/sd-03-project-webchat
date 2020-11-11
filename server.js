@@ -5,7 +5,6 @@ const express = require('express');
 const socketIo = require('socket.io');
 const path = require('path');
 const messagesModel = require('./models/messagesModel');
-const { protocol } = require('socket.io-client');
 
 const app = express();
 
