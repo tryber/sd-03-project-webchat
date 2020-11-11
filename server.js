@@ -32,7 +32,7 @@ io.on('connect', async (socket) => {
   });
 
   socket.on('message', async ({ nickname, chatMessage }) => {
-    const date = `${new Date().getDate()}/${new Date().getMonth()}/${new Date().getFullYear()}`;
+    const date = `${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
     const time = Date().split(' ')[4];
     const toChat = `${date}, ${time} - (${nickname || socket.id}): ${chatMessage}`;
 
