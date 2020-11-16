@@ -22,7 +22,8 @@ io.on('connection', async (socket) => {
     const { message } = data;
     const timestamp = Date.now();
     const user = await db.collection('users').findOne({ userId: socket.id });
-    const { _id: mongoId, userId, nick } = user;
+    // const { _id: mongoId, userId, nick } = user;
+    const { nick } = user;
     await registerMessage(nick, message, timestamp);
     io.emit('messageServer', { chatMessage: { message, timestamp }, nick });
   });
