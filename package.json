@@ -22,7 +22,7 @@
     "jest": "^26.5.2",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
-    "mongodb": "^3.6.2",
+    "mongodb": "^3.6.3",
     "mongoose": "^5.10.8",
     "puppeteer": "^5.3.1",
     "socket.io": "^2.3.0",

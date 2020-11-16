@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO - trybe</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font: 13px Helvetica, Arial;
+      }
+      form {
+        background: #000;
+        padding: 3px;
+        bottom: 0;
+        width: 100%;
+      }
+      form input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: 0.5%;
+      }
+      form button {
+        width: 9%;
+        background: rgb(130, 224, 255);
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+      }
+      #messages-container {
+        min-height: 400px;
+      }
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #messages li {
+        padding: 5px 10px;
+      }
+      #messages li:nth-child(odd) {
+        background: #eee;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+      $(function () {
+        const socket = io();
+        let nick = 'random';
+
+        $('#chat-form').submit(function(e) {
+         e.preventDefault();
+         socket.emit('message', { message: $('#chat-input').val()});
+         $('#chat-input').val('');
+         return false;
+       });
+
+       $('#nick-form').submit(function(e) {
+         e.preventDefault();
+         nick = $('#nick-input').val();
+         socket.emit('nick', { nick });
+         return false;
+       });
+
+       socket.on('messageServer', function(data){
+         const { chatMessage: { message, timestamp }, nick } = data;
+         const messageLi = document.createElement('li');
+         messageLi.setAttribute('data-testid', 'message');
+
+         $('#messages')
+          .append(messageLi).text(`${nick} disse: ${message}`);
+       });
+     });
+    </script>
+  </head>
+  <body>
+    <div id="messages-container">
+      <ul id="messages"></ul>
+    </div>
+
+    <div class="input-container">
+      <form id="nick-form" action="" >
+        <span style="color: white">NECKNAME</span>
+        <input id="nick-input" data-testid="nickname-box" style="max-width: 120px" placeholder="random" />
+        <button data-testid="nickname-save"></button>
+      </form>
+      <form id="chat-form" action="">
+        <input id="chat-input" data-testid="message-box" autocomplete="off" /><button data-testid="send-button">Send</button>
+      </form>
+    </div>
+  </body>
+</html>
