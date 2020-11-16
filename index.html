@@ -5,20 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Webchat</title>
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-  </script>
 </head>
 <body>
   <!--Pegar os elemtnos do html e salvar numa var pra manipular-->
-  <ul class="chat"></ul>
+  <ul class="chat" id="chat"></ul>
   <form>
     <input
       autocomplete="off"
       class="chatInput"
+      data-testid="message-box"
       type="text"
     />
-    <button class="sendButton">Enviar</button>
+    <button
+      class="sendButton"
+      data-testid="send-button"
+      id="sendButton"
+    >
+    Enviar
+    </button>
+    <input
+      autocomplete="off"
+      class="nickInput"
+      data-testid="nickname-box"
+      type="text"
+    />
+    <button
+      class="nickButton"
+      data-testid="nickname-save"
+      id="nickButton"
+    >
+    Enviar
+    </button>
   </form>
+  <ul class="onlineList" id="onlineList"></ul>
+  <script>
+    // Pegar todos os elementos e salvar
+    const chatList = document.getElementById('chat');
+    const onlineList = document.getElementById('onlineList');
+    const sendButton = document.getElementById('sendButton');
+    const nickButton = document.getElementById('nickButton');
+    const socket = io();
+    socket.on('onlineUsers', (users) => {
+      console.log(users);
+      // users.map((user) => {
+      //   const li = document.createElement('li');
+      //   li.textContent = users.nickname || users.id;
+      //   return onlineList.appendChild(li);
+      // });
+    });
+    socket.on('message', ({ chatMessage, nickname }) => {
+      const msg = document.createElement('li');
+      msg.textContent = `${nickname} - ${chatMessage}`;
+      chatList.appendChild(msg);
+    });
+  </script>
 </body>
 </html>

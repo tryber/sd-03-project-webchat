@@ -4,6 +4,10 @@ const io = require('socket.io')(http);
 
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 
+const saveMessage = (msg, nickname) => {
+  // salva mensagens no banco de dados
+};
+
 io.on('connection', (socket) => {
   // aki fazer o user ficar on
   // aki fazer o user ficar off
