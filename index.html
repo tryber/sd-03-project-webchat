@@ -3,8 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Webchat</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+  </script>
 </head>
 <body>
+  <!--Pegar os elemtnos do html e salvar numa var pra manipular-->
+  <ul class="chat"></ul>
+  <form>
+    <input
+      autocomplete="off"
+      class="chatInput"
+      type="text"
+    />
+    <button class="sendButton">Enviar</button>
+  </form>
 </body>
 </html>
