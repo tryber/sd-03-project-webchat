@@ -10,8 +10,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {});
   // aki ele emite pra geral a mensagem
   socket.on('message', ({ chatMessage, nickname }) => {
-    //salvar mensagem no banco de dados e retornar a hora
-    const time = '21/10/1999 05:23'
+    // salvar mensagem no banco de dados e retornar a hora
+    const time = '21/10/1999 05:23';
     io.emit('serverMessage', `${nickname}${time}${chatMessage}`);
   });
 });
