@@ -2,14 +2,21 @@ const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
+const { registerUser, getUserById } = require('./model/user');
+
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 
-const saveMessage = (msg, nickname) => {
+const saveUser = async (nick, id) => {
+  // salva usuário no banco para sinalizar que está online
+};
+
+const saveMessage = async (msg, nickname) => {
   // salva mensagens no banco de dados
 };
 
-io.on('connection', (socket) => {
-  // aki fazer o user ficar on
+io.on('connection', async (socket) => {
+  // aki fazer o user ficar on salvando no banco
+  await saveUser(socket.nickname, socket.id);
   // aki fazer o user ficar off
   socket.on('disconnect', () => {});
   // aki ele emite pra geral a mensagem
