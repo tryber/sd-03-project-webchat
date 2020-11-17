@@ -30,12 +30,10 @@
         padding: 10px;
         cursor: pointer;
       }
-      #messages-container {
-        min-height: 400px;
-      }
       #messages {
         list-style-type: none;
         margin: 0;
+        min-height: 400px;
         padding: 0;
       }
       #messages li {
@@ -50,37 +48,38 @@
     <script>
       $(function () {
         const socket = io();
-        let nick = 'random';
+        
+        const randomNum = Math.floor(Math.random() * 100000);
+        let nickname = `random${randomNum}`;
+        $('#nick-input').attr('placeholder', nickname);
+        socket.emit('nick', { nickname });
 
         $('#chat-form').submit(function(e) {
          e.preventDefault();
-         socket.emit('message', { message: $('#chat-input').val()});
+         socket.emit('message', { chatMessage: $('#chat-input').val()});
          $('#chat-input').val('');
          return false;
        });
 
        $('#nick-form').submit(function(e) {
          e.preventDefault();
-         nick = $('#nick-input').val();
-         socket.emit('nick', { nick });
+         nickname = $('#nick-input').val();
+         socket.emit('nick', { nickname });
          return false;
        });
 
        socket.on('messageServer', function(data){
-         const { chatMessage: { message, timestamp }, nick } = data;
-         const messageLi = document.createElement('li');
-         messageLi.setAttribute('data-testid', 'message');
-
-         $('#messages')
-          .append(messageLi).text(`${nick} disse: ${message}`);
+         const { chatMessage, timestamp, nickname } = data;
+         const messageLi = document.createElement('li', { 'data-testid': 'message' });
+         const messageText = document.createTextNode(`${nickname} disse: ${chatMessage}`);
+         messageLi.appendChild(messageText);
+         $('#messages').append(messageLi);
        });
      });
     </script>
   </head>
   <body>
-    <div id="messages-container">
-      <ul id="messages"></ul>
-    </div>
+    <ul id="messages"></ul>
 
     <div class="input-container">
       <form id="nick-form" action="" >

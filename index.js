@@ -14,21 +14,21 @@ io.on('connection', async (socket) => {
 
   const userId = socket.id;
   const db = await connection();
-  await updateUser(userId, 'random');
 
-  socket.on('nick', async ({ nick }) => updateUser(userId, nick));
+  socket.on('nick', async ({ nickname }) => updateUser(userId, nickname));
 
   socket.on('message', async (data) => {
-    const { message } = data;
-    const timestamp = Date.now();
+    const { chatMessage } = data;
+    let timestamp = new Date(Date.now());
+    timestamp = timestamp.toLocaleString('pt-BR');
     const user = await db.collection('users').findOne({ userId: socket.id });
-    // const { _id: mongoId, userId, nick } = user;
-    const { nick } = user;
-    await registerMessage(nick, message, timestamp);
-    io.emit('messageServer', { chatMessage: { message, timestamp }, nick });
+    // const { _id: mongoId, userId, nickname } = user;
+    const { nickname } = user;
+    await registerMessage(nickname, chatMessage, timestamp);
+    io.emit('messageServer', { chatMessage, timestamp, nickname });
   });
 
-  socket.broadcast.emit('messageServer');
+  // socket.broadcast.emit('messageServer');
 
   socket.on('disconnect', () => {
     io.emit('adeus', { mensagem: 'Poxa, fica mais, vai ter bolo :)' });

@@ -1,10 +1,10 @@
 const connection = require('./connection');
 
-const registerMessage = async (nick, message, timestamp) => {
+const registerMessage = async (nickname, chatMessage, timestamp) => {
   const db = await connection();
   db.collection('sessionMessages').insertOne(
     {
-      nick, message, timestamp,
+      nickname, chatMessage, timestamp,
     },
   );
 };

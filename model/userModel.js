@@ -1,13 +1,13 @@
 const connection = require('./connection');
 
-const updateUser = async (userId, nick) => {
+const updateUser = async (userId, nickname) => {
   const db = await connection();
   db.collection('users').updateOne(
     {
       userId,
     },
     {
-      $set: { userId, nick },
+      $set: { userId, nickname },
     },
     {
       upsert: true,
