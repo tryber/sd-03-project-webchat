@@ -2,7 +2,7 @@ const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const { updateUser } = require('./model/userModel');
-const { registerMessage } = require('./model/messageModel');
+const { registerMessage, getHistory } = require('./model/messageModel');
 const connection = require('./model/connection');
 
 app.get('/', (req, res) => {
@@ -16,6 +16,9 @@ io.on('connection', async (socket) => {
   const db = await connection();
 
   socket.on('nick', async ({ nickname }) => updateUser(userId, nickname));
+
+  const history = await getHistory();
+  io.emit('history', { history });
 
   socket.on('message', async (data) => {
     const { chatMessage } = data;

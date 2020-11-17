@@ -48,7 +48,21 @@
     <script>
       $(function () {
         const socket = io();
-        
+
+        const createMessageElement = (nickname, chatMessage, timestamp) => {
+          const messageLi = document.createElement('li', { 'data-testid': 'message' });
+          const messageText = document.createTextNode(`${nickname} disse: ${chatMessage}`);
+          messageLi.appendChild(messageText);
+          $('#messages').append(messageLi);
+        }
+
+        const retrieveMessages = (history) => {
+          history
+          .forEach(({ nickname, chatMessage, timestamp }) => createMessageElement(nickname, chatMessage, timestamp));
+        };
+
+        socket.on('history', ({ history }) => retrieveMessages(history));
+
         const randomNum = Math.floor(Math.random() * 100000);
         let nickname = `random${randomNum}`;
         $('#nick-input').attr('placeholder', nickname);
@@ -70,10 +84,7 @@
 
        socket.on('messageServer', function(data){
          const { chatMessage, timestamp, nickname } = data;
-         const messageLi = document.createElement('li', { 'data-testid': 'message' });
-         const messageText = document.createTextNode(`${nickname} disse: ${chatMessage}`);
-         messageLi.appendChild(messageText);
-         $('#messages').append(messageLi);
+         createMessageElement(nickname, chatMessage, timestamp);
        });
      });
     </script>
