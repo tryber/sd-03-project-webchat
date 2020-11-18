@@ -29,7 +29,7 @@ describe('Crie um frontend para que as pessoas interajam com o chat', () => {
   });
 
   afterEach(async () => {
-    await browser.close();
+    browser.close();
     await db.collection('messages').deleteMany({});
     await connection.close();
   });
@@ -75,3 +75,4 @@ describe('Crie um frontend para que as pessoas interajam com o chat', () => {
     expect(_.last(messages)).toMatch(RegExp(chatMessage));
   });
 });
+
