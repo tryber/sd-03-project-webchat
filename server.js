@@ -30,11 +30,7 @@ io.on('connection', async (socket) => {
   io.emit('history', { history });
 
   socket.on('message', async (data) => {
-    const { chatMessage } = data;
-    let timestamp = new Date(Date.now());
-    timestamp = timestamp.toLocaleString('pt-BR');
-    const user = await db.collection('users').findOne({ userId: socket.id });
-    const { nickname } = user;
+    const { chatMessage, nickname, timestamp } = data;
     await registerMessage(nickname, chatMessage, timestamp);
     io.emit('messageServer', { chatMessage, timestamp, nickname });
   });
