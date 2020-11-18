@@ -48,12 +48,10 @@
         margin: 0;
         min-height: 400px;
         padding: 0;
+        background: #eee;
       }
       #user-list li {
         padding: 5px 10px;
-      }
-      #user-list li:nth-child(odd) {
-        background: #eee;
       }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
@@ -62,6 +60,13 @@
       $(function () {
         const socket = io();
 
+        //gera nick aleatório e cadastra no DB
+        const randomNum = Math.floor(Math.random() * 100000);
+        let nickname = `random${randomNum}`;
+        $('#nick-input').attr('placeholder', nickname);
+        socket.emit('registerNick', { nickname });
+
+        //cria elemento mensagem
         const createMessageElement = (nickname, chatMessage, timestamp) => {
           const messageLi = document.createElement('li', { 'data-testid': 'message' });
           const messageText = document.createTextNode(`${nickname} disse: ${chatMessage}`);
@@ -69,32 +74,33 @@
           $('#messages').append(messageLi);
         }
 
+        //obtem lista de mensagens
         const retrieveMessages = (history) => {
           history
           .forEach(({ nickname, chatMessage, timestamp }) => createMessageElement(nickname, chatMessage, timestamp));
         };
 
+        //cria elemento usuarios na lista
         const createUserItem = (nickname) => {
-          $('#user-list').attr('innerHTML', '');
           const userLi = document.createElement('li', { 'data-testid': 'user' });
           const userText = document.createTextNode(nickname);
           userLi.appendChild(userText);
           $('#user-list').append(userLi);
         }
 
+        //cria lista de usuarios
         const createUserList = (users) => {
+          $('#user-list').empty();
           users.forEach(({ nickname }) => createUserItem(nickname))
         };
 
+        //obtem histórico de mensagens
         socket.on('history', ({ history }) => retrieveMessages(history));
 
+        //obtem lista de usuarios
         socket.on('userList', ({ users }) => createUserList(users));
 
-        const randomNum = Math.floor(Math.random() * 100000);
-        let nickname = `random${randomNum}`;
-        $('#nick-input').attr('placeholder', nickname);
-        socket.emit('nick', { nickname });
-
+        //função do botao de enviar mensagem
         $('#chat-form').submit(function(e) {
          e.preventDefault();
          socket.emit('message', { chatMessage: $('#chat-input').val()});
@@ -102,19 +108,19 @@
          return false;
        });
 
+       //função do botao de mudar nick
        $('#nick-form').submit(function(e) {
          e.preventDefault();
          nickname = $('#nick-input').val();
-         socket.emit('nick', { nickname });
+         socket.emit('registerNick', { nickname });
          return false;
        });
 
+       //reage ao evento messageServer e envia mensagens para todos os clientes
        socket.on('messageServer', function(data){
          const { chatMessage, timestamp, nickname } = data;
          createMessageElement(nickname, chatMessage, timestamp);
        });
-
-       socket.on('userDisconnected'), () => createUserList(users);
      });
     </script>
   </head>
@@ -123,9 +129,9 @@
     <ul id="user-list"></ul>
     <div class="input-container">
       <form id="nick-form" action="" >
-        <span style="color: white">NECKNAME</span>
+        <span style="color: white">NICKNAME: </span>
         <input id="nick-input" data-testid="nickname-box" style="max-width: 120px" placeholder="random" />
-        <button data-testid="nickname-save"></button>
+        <button data-testid="nickname-save">SALVAR</button>
       </form>
       <form id="chat-form" action="">
         <input id="chat-input" data-testid="message-box" autocomplete="off" /><button data-testid="send-button">Send</button>

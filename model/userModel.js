@@ -32,11 +32,23 @@ const removeUser = async (userId) => {
 
 const getUsers = async () => {
   const db = await connection();
-  return db.collection('users').find().toArray();
+  return db.collection('users').find().toArray()
+    .catch(({ status, message }) => {
+      throw new Error(`${status} - ${message}`);
+    });
+};
+
+const deleteUsers = async (userId = {}) => {
+  const db = await connection();
+  await db.collection('users').deleteMany(userId)
+    .catch(({ status, message }) => {
+      throw new Error(`${status} - ${message}`);
+    });
 };
 
 module.exports = {
   updateUser,
   removeUser,
   getUsers,
+  deleteUsers,
 };

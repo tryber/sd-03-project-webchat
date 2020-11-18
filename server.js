@@ -1,9 +1,13 @@
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
-const { updateUser, removeUser, getUsers } = require('./model/userModel');
-const { registerMessage, getHistory } = require('./model/messageModel');
+const { updateUser, removeUser, getUsers, deleteUsers } = require('./model/userModel');
+const { registerMessage, getHistory, deleteMessages } = require('./model/messageModel');
 const connection = require('./model/connection');
+
+// clears users DB
+deleteUsers();
+deleteMessages();
 
 app.get('/', (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
@@ -12,34 +16,30 @@ app.get('/', (req, res) => {
 io.on('connection', async (socket) => {
   console.log('Conectado');
 
+  const refreshUserList = () => setTimeout(async () => {
+    const users = await getUsers();
+    io.emit('userList', { users });
+  }, 750);
+
   const userId = socket.id;
   const db = await connection();
 
-  socket.on('nick', async ({ nickname }) => updateUser(userId, nickname));
+  socket.on('registerNick', async ({ nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
 
   const history = await getHistory();
   io.emit('history', { history });
-
-  const users = await getUsers();
-  io.emit('userList', { users });
 
   socket.on('message', async (data) => {
     const { chatMessage } = data;
     let timestamp = new Date(Date.now());
     timestamp = timestamp.toLocaleString('pt-BR');
     const user = await db.collection('users').findOne({ userId: socket.id });
-    // const { _id: mongoId, userId, nickname } = user;
     const { nickname } = user;
     await registerMessage(nickname, chatMessage, timestamp);
     io.emit('messageServer', { chatMessage, timestamp, nickname });
   });
 
-  // socket.broadcast.emit('messageServer');
-
-  socket.on('disconnect', async () => {
-    removeUser(userId);
-    socket.broadcast.emit('userDisconnected', { users: await getUsers() });
-  });
+  socket.on('disconnect', async () => removeUser(userId).then(async () => refreshUserList()));
 });
 
 http.listen(3000, () => {
