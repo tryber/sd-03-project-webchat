@@ -2,7 +2,7 @@ const connection = require('./connection');
 
 const registerMessage = async (nickname, chatMessage, timestamp) => {
   const db = await connection();
-  db.collection('sessionMessages').insertOne(
+  db.collection('messages').insertOne(
     {
       nickname, chatMessage, timestamp,
     },
@@ -14,7 +14,7 @@ const registerMessage = async (nickname, chatMessage, timestamp) => {
 
 const getHistory = async () => {
   const db = await connection();
-  return db.collection('sessionMessages').find().toArray()
+  return db.collection('messages').find().toArray()
     .catch(({ status, message }) => {
       throw new Error(`${status} - ${message}`);
     });
@@ -22,7 +22,7 @@ const getHistory = async () => {
 
 const deleteMessages = async (messageId = {}) => {
   const db = await connection();
-  return db.collection('sessionMessages').deleteMany(messageId)
+  return db.collection('messages').deleteMany(messageId)
     .catch(({ status, message }) => {
       throw new Error(`${status} - ${message}`);
     });
