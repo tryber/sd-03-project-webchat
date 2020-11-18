@@ -42,6 +42,19 @@
       #messages li:nth-child(odd) {
         background: #eee;
       }
+      #user-list {
+        list-style-type: none;
+        float: right;
+        margin: 0;
+        min-height: 400px;
+        padding: 0;
+      }
+      #user-list li {
+        padding: 5px 10px;
+      }
+      #user-list li:nth-child(odd) {
+        background: #eee;
+      }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -61,7 +74,21 @@
           .forEach(({ nickname, chatMessage, timestamp }) => createMessageElement(nickname, chatMessage, timestamp));
         };
 
+        const createUserItem = (nickname) => {
+          $('#user-list').attr('innerHTML', '');
+          const userLi = document.createElement('li', { 'data-testid': 'user' });
+          const userText = document.createTextNode(nickname);
+          userLi.appendChild(userText);
+          $('#user-list').append(userLi);
+        }
+
+        const createUserList = (users) => {
+          users.forEach(({ nickname }) => createUserItem(nickname))
+        };
+
         socket.on('history', ({ history }) => retrieveMessages(history));
+
+        socket.on('userList', ({ users }) => createUserList(users));
 
         const randomNum = Math.floor(Math.random() * 100000);
         let nickname = `random${randomNum}`;
@@ -86,12 +113,14 @@
          const { chatMessage, timestamp, nickname } = data;
          createMessageElement(nickname, chatMessage, timestamp);
        });
+
+       socket.on('userDisconnected'), () => createUserList(users);
      });
     </script>
   </head>
   <body>
     <ul id="messages"></ul>
-
+    <ul id="user-list"></ul>
     <div class="input-container">
       <form id="nick-form" action="" >
         <span style="color: white">NECKNAME</span>

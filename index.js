@@ -1,7 +1,7 @@
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
-const { updateUser } = require('./model/userModel');
+const { updateUser, removeUser, getUsers } = require('./model/userModel');
 const { registerMessage, getHistory } = require('./model/messageModel');
 const connection = require('./model/connection');
 
@@ -20,6 +20,9 @@ io.on('connection', async (socket) => {
   const history = await getHistory();
   io.emit('history', { history });
 
+  const users = await getUsers();
+  io.emit('userList', { users });
+
   socket.on('message', async (data) => {
     const { chatMessage } = data;
     let timestamp = new Date(Date.now());
@@ -33,8 +36,9 @@ io.on('connection', async (socket) => {
 
   // socket.broadcast.emit('messageServer');
 
-  socket.on('disconnect', () => {
-    io.emit('adeus', { mensagem: 'Poxa, fica mais, vai ter bolo :)' });
+  socket.on('disconnect', async () => {
+    removeUser(userId);
+    socket.broadcast.emit('userDisconnected', { users: await getUsers() });
   });
 });
 
