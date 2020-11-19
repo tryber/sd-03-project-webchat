@@ -11,7 +11,6 @@ describe('Crie um backend back-end que permite que várias pessoas se conectem s
   let client2;
   let connection;
   let db;
-
   beforeEach(async () => {
     connection = await MongoClient.connect(process.env.DB_URL, {
       useNewUrlParser: true,

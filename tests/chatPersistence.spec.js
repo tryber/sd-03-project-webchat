@@ -53,7 +53,6 @@ describe('Elabore o histórico do chat para que as mensagens persistão', () => 
     const nickname = 'Tiago Abravanel';
 
     await page.goto(BASE_URL);
-
     const nicknameBox = await page.$('[data-testid=nickname-box]');
     await nicknameBox.type(nickname);
     await page.waitForTimeout(1000);

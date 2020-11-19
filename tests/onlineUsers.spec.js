@@ -111,3 +111,4 @@ describe('Informe a todos os clientes quem está online no momento', () => {
     expect(usersOnline).not.toContain(secondNickname);
   });
 });
+a
