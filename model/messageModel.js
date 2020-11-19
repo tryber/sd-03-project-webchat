@@ -2,7 +2,7 @@ const connection = require('./connection');
 
 const registerMessage = async (chatMessage, nickname) => {
   const db = await connection();
-  const timestamp = new Date(Date.now()).toLocaleString('en-US');
+  const timestamp = new Date(Date.now()).toLocaleString('en-US').replace(/\//g, '-');
   return db.collection('messages').insertOne(
     {
       chatMessage, nickname, timestamp,
