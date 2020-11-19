@@ -121,7 +121,7 @@
        });
 
        //reage ao evento messageServer e envia mensagens para todos os clientes
-       socket.on('messageServer', function(data){
+       socket.on('message', function(data){
          const { chatMessage, timestamp, nickname } = data;
          createMessageElement(nickname, chatMessage, timestamp);
        });
