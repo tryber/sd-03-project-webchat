@@ -75,10 +75,10 @@
        });
 
         //cria elemento mensagem
-        const createMessageElement = (nickname, chatMessage, timestamp) => {
+        const createMessageElement = (message) => {
           const messageLi = document.createElement('li');
           messageLi.setAttribute('data-testid','message')
-          const messageText = document.createTextNode(chatMessage);
+          const messageText = document.createTextNode(message);
           messageLi.appendChild(messageText);
           $('#messages').append(messageLi);
         }
@@ -86,7 +86,7 @@
         //obtem lista de mensagens
         const retrieveMessages = (history) => {
           history
-          .forEach(({ nickname, chatMessage, timestamp }) => createMessageElement(nickname, chatMessage, timestamp));
+          .forEach(({ message }) => createMessageElement(message));
         };
 
         //cria elemento usuarios na lista
@@ -114,16 +114,15 @@
         $('#chat-form').submit(function(e) {
          e.preventDefault();
          let timestamp = new Date(Date.now());
-         timestamp = timestamp.toLocaleString('pt-BR');
-         socket.emit('message', { chatMessage: `${timestamp} ${nickname} ${$('#chat-input').val()}`, nickname, timestamp });
+         timestamp = timestamp.toLocaleString('pt-BR', { hour12: true });
+         socket.emit('message', `${timestamp} ${nickname} ${$('#chat-input').val()}`);
          $('#chat-input').val('');
          return false;
        });
 
        //reage ao evento messageServer e envia mensagens para todos os clientes
-       socket.on('message', function(data){
-         const { chatMessage, timestamp, nickname } = data;
-         createMessageElement(nickname, chatMessage, timestamp);
+       socket.on('message', function(message){
+         createMessageElement(message);
        });
      });
     </script>

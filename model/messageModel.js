@@ -1,14 +1,14 @@
 const connection = require('./connection');
 
-const registerMessage = async (nickname, chatMessage, timestamp) => {
+const registerMessage = async (message) => {
   const db = await connection();
   db.collection('messages').insertOne(
     {
-      nickname, chatMessage, timestamp,
+      message,
     },
   )
-    .catch(({ status, message }) => {
-      throw new Error(`${status} - ${message}`);
+    .catch(({ status, errMessage }) => {
+      throw new Error(`${status} - ${errMessage}`);
     });
 };
 

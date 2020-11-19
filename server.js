@@ -27,10 +27,9 @@ io.on('connection', async (socket) => {
   const history = await getHistory();
   io.to(userId).emit('history', { history });
 
-  socket.on('message', async (data) => {
-    const { chatMessage, nickname, timestamp } = data;
-    await registerMessage(nickname, chatMessage, timestamp);
-    io.emit('message', { chatMessage, timestamp, nickname });
+  socket.on('message', async (message) => {
+    await registerMessage(message);
+    io.emit('message', message);
   });
 
   socket.on('disconnect', async () => removeUser(userId).then(async () => refreshUserList()));
