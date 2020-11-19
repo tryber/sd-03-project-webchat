@@ -1,4 +1,5 @@
 const app = require('express')();
+const express = require('express');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const { updateUser, removeUser, getUsers, deleteUsers } = require('./model/userModel');
@@ -7,6 +8,8 @@ const { registerMessage, getHistory, deleteMessages } = require('./model/message
 // clears users DB
 deleteUsers();
 deleteMessages();
+
+app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
