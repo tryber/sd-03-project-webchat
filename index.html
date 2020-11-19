@@ -83,12 +83,6 @@
           $('#messages').append(messageLi);
         }
 
-        //obtem lista de mensagens
-        const retrieveMessages = (history) => {
-          history
-          .forEach(({ message }) => createMessageElement(message));
-        };
-
         //cria elemento usuarios na lista
         const createUserItem = (nickname) => {
           const userLi = document.createElement('li');
@@ -104,8 +98,13 @@
           users.forEach(({ nickname }) => createUserItem(nickname))
         };
 
+        //obtem lista de mensagens
+        const retrieveMessages = ({ history }) => history.length > 0
+          ? history.forEach((message) => createMessageElement(message))
+          : null;
+
         //obtem histórico de mensagens
-        socket.on('history', ({ history }) => retrieveMessages(history));
+        socket.on('history', (history) => retrieveMessages(history));
 
         //atualiza lista de usuarios
         socket.on('userList', ({ users }) => createUserList(users));
@@ -113,9 +112,7 @@
         //função do botao de enviar mensagem
         $('#chat-form').submit(function(e) {
          e.preventDefault();
-         let timestamp = new Date(Date.now());
-         timestamp = timestamp.toLocaleString('pt-BR', { hour12: true });
-         socket.emit('message', `${timestamp} ${nickname} ${$('#chat-input').val()}`);
+         socket.emit('message', { chatMessage: $('#chat-input').val(), nickname });
          $('#chat-input').val('');
          return false;
        });

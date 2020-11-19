@@ -24,11 +24,12 @@ io.on('connection', async (socket) => {
 
   socket.on('registerNick', async ({ nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
 
-  const history = await getHistory();
-  io.to(userId).emit('history', { history });
+  await getHistory().then(((history) => io.to(userId).emit('history', { history })));
 
-  socket.on('message', async (message) => {
-    await registerMessage(message);
+  socket.on('message', async ({ chatMessage, nickname }) => {
+    const data = await registerMessage(chatMessage, nickname);
+    const { timestamp } = data.ops[0];
+    const message = `${timestamp} - ${nickname} diz: ${chatMessage}`;
     io.emit('message', message);
   });
 

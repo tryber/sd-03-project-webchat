@@ -1,10 +1,11 @@
 const connection = require('./connection');
 
-const registerMessage = async (message) => {
+const registerMessage = async (chatMessage, nickname) => {
   const db = await connection();
-  db.collection('messages').insertOne(
+  const timestamp = new Date(Date.now()).toLocaleString('en-US');
+  return db.collection('messages').insertOne(
     {
-      message,
+      chatMessage, nickname, timestamp,
     },
   )
     .catch(({ status, errMessage }) => {
@@ -14,10 +15,13 @@ const registerMessage = async (message) => {
 
 const getHistory = async () => {
   const db = await connection();
-  return db.collection('messages').find().toArray()
+  const history = await db.collection('messages').find().toArray()
     .catch(({ status, message }) => {
       throw new Error(`${status} - ${message}`);
     });
+  const messageHistory = history !== [] ? history
+    .map(({ chatMessage, nickname, timestamp }) => `${timestamp} - ${nickname} diz: ${chatMessage}`) : [];
+  return messageHistory;
 };
 
 const deleteMessages = async (messageId = {}) => {
