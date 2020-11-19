@@ -9,6 +9,9 @@
       $(function () {
         const socket = io();
 
+        let privateMode = false;
+        let reservedMessageTo = '';
+
         //gera nick aleatório e cadastra no DB
         const randomNum = Math.floor(Math.random() * 100000);
         let nickname = `random${randomNum}`;
@@ -21,7 +24,7 @@
           nickname = $('#nick-input').val();
           socket.emit('registerNick', { nickname });
           return false;
-       });
+        });
 
         //cria elemento mensagem
         const createMessageElement = (message) => {
@@ -36,8 +39,32 @@
         const createUserItem = (nickname) => {
           const userLi = document.createElement('li');
           userLi.setAttribute('data-testid','online-user')
+          userLi.setAttribute('class','user-list-item')
           const userText = document.createTextNode(nickname);
           userLi.appendChild(userText);
+
+          //cria botões de chat público ou reservado
+          const chatButtonsDiv = document.createElement('div');
+          chatButtonsDiv.setAttribute('class', 'private-public-buttons-div');
+
+          const privateChatButton = document.createElement('button');
+          const privateChatButtonContent = document.createTextNode('R')
+          privateChatButton.appendChild(privateChatButtonContent);
+          privateChatButton.setAttribute('class', 'private-chat-button');
+          privateChatButton.setAttribute('id', `private-chat-button-${nickname}`);
+          privateChatButton.setAttribute('data-testid', 'private');
+
+          const publicChatButton = document.createElement('button');
+          const publicChatButtonContent = document.createTextNode('P')
+          publicChatButton.appendChild(publicChatButtonContent);
+          publicChatButton.setAttribute('class', 'public-chat-button');
+          publicChatButton.setAttribute('data-testid', 'public');
+
+          chatButtonsDiv.appendChild(privateChatButton);
+          chatButtonsDiv.appendChild(publicChatButton);
+
+          //adiciona botões e item na lista
+          userLi.appendChild(chatButtonsDiv);
           $('#user-list').append(userLi);
         }
 
@@ -60,17 +87,33 @@
 
         //função do botao de enviar mensagem
         $('#chat-form').submit(function(e) {
-         e.preventDefault();
-         socket.emit('message', { chatMessage: $('#chat-input').val(), nickname });
-         $('#chat-input').val('');
-         return false;
-       });
+          e.preventDefault();
+          if(!privateMode) {
+            socket.emit('message', { chatMessage: $('#chat-input').val(), nickname });
+            $('#chat-input').val('');
+            return null;
+          }
+          io.to(reservedMessageTo).emit('privateMessage', { privateRecipient: reservedMessageTo, chatMessage: $('#chat-input').val(), nickname });
+          $('#chat-input').val('');
+        });
 
-       //reage ao evento messageServer e envia mensagens para todos os clientes
-       socket.on('message', function(message){
-         createMessageElement(message);
-       });
-     });
+        //reage ao evento messageServer e envia mensagens para todos os clientes
+        socket.on('message', function(message){
+          createMessageElement(message);
+        });
+
+        $(document).on('click', '.private-chat-button', (event) => {
+          // const privateChatRecipient = $(this).text();
+          const recipientNickname = event.target.id.substr(20)
+          socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
+        })
+        
+        socket.on('allowPrivateMode', ({ privateUserId }) => {
+          console.log('private mode allowed')
+          privateMode = true;
+          privateMessageTo = privateUserId;
+        });
+      });
     </script>
   </head>
   <body>

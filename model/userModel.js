@@ -30,9 +30,9 @@ const removeUser = async (userId) => {
     });
 };
 
-const getUsers = async () => {
+const getUsers = async (userInfo = {}) => {
   const db = await connection();
-  return db.collection('users').find().toArray()
+  return db.collection('users').find(userInfo).toArray()
     .catch(({ status, message }) => {
       throw new Error(`${status} - ${message}`);
     });

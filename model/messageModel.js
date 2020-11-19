@@ -32,8 +32,22 @@ const deleteMessages = async (messageId = {}) => {
     });
 };
 
+const registerPrivateMessage = async (from, to, chatMessage) => {
+  const db = await connection();
+  const timestamp = new Date(Date.now()).toLocaleString('en-US').replace(/\//g, '-');
+  return db.collection('messages').insertOne(
+    {
+      chatMessage, from, to, timestamp,
+    },
+  )
+    .catch(({ status, errMessage }) => {
+      throw new Error(`${status} - ${errMessage}`);
+    });
+};
+
 module.exports = {
   getHistory,
   registerMessage,
   deleteMessages,
+  registerPrivateMessage,
 };

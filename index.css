@@ -78,6 +78,14 @@ form button {
   width: 500px;
 }
 
-#user-list li {
+.user-list-item {
+  display: flex;
+  flex-flow: row nowrap;
+  align-content: space-around;
   padding: 5px 10px;
+  width: 95%;
+}
+
+.private-public-buttons-div {
+  display: flex;
 }
