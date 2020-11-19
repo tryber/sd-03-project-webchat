@@ -78,7 +78,7 @@
         const createMessageElement = (nickname, chatMessage, timestamp) => {
           const messageLi = document.createElement('li');
           messageLi.setAttribute('data-testid','message')
-          const messageText = document.createTextNode(`${nickname} disse: ${chatMessage}`);
+          const messageText = document.createTextNode(chatMessage);
           messageLi.appendChild(messageText);
           $('#messages').append(messageLi);
         }
@@ -115,7 +115,7 @@
          e.preventDefault();
          let timestamp = new Date(Date.now());
          timestamp = timestamp.toLocaleString('pt-BR');
-         socket.emit('message', { chatMessage: $('#chat-input').val(), nickname, timestamp });
+         socket.emit('message', { chatMessage: `${timestamp} ${nickname} ${$('#chat-input').val()}`, nickname, timestamp });
          $('#chat-input').val('');
          return false;
        });
