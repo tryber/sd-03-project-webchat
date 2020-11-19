@@ -66,6 +66,14 @@
         $('#nick-input').attr('placeholder', nickname);
         socket.emit('registerNick', { nickname });
 
+        //função do botao de mudar nick
+        $('#nick-form').submit(function(e) {
+          e.preventDefault();
+          nickname = $('#nick-input').val();
+          socket.emit('registerNick', { nickname });
+          return false;
+       });
+
         //cria elemento mensagem
         const createMessageElement = (nickname, chatMessage, timestamp) => {
           const messageLi = document.createElement('li');
@@ -99,7 +107,7 @@
         //obtem histórico de mensagens
         socket.on('history', ({ history }) => retrieveMessages(history));
 
-        //obtem lista de usuarios
+        //atualiza lista de usuarios
         socket.on('userList', ({ users }) => createUserList(users));
 
         //função do botao de enviar mensagem
@@ -109,14 +117,6 @@
          timestamp = timestamp.toLocaleString('pt-BR');
          socket.emit('message', { chatMessage: $('#chat-input').val(), nickname, timestamp });
          $('#chat-input').val('');
-         return false;
-       });
-
-       //função do botao de mudar nick
-       $('#nick-form').submit(function(e) {
-         e.preventDefault();
-         nickname = $('#nick-input').val();
-         socket.emit('registerNick', { nickname });
          return false;
        });
 

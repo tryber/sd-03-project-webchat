@@ -3,7 +3,6 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const { updateUser, removeUser, getUsers, deleteUsers } = require('./model/userModel');
 const { registerMessage, getHistory, deleteMessages } = require('./model/messageModel');
-const connection = require('./model/connection');
 
 // clears users DB
 deleteUsers();
@@ -22,7 +21,6 @@ io.on('connection', async (socket) => {
   }, 750);
 
   const userId = socket.id;
-  const db = await connection();
 
   socket.on('registerNick', async ({ nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
 
