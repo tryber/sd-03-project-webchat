@@ -47,7 +47,6 @@ io.on('connection', async (socket) => {
   socket.on('privateMessage', async ({ privateRecipient, chatMessage, nickname }) => {
     const getRecipientNickname = async () => {
       const data = await getUsers({ userId: privateRecipient });
-      console.log(privateRecipient)
       const { nickname: nick } = data[0];
       return nick;
     };
@@ -62,7 +61,6 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('triggerPublicChat', async ({ recipientId }) => {
-    console.log(recipientId, userId)
     io.to(recipientId).emit('allowPublicMode');
     io.to(userId).emit('allowPublicMode');
   });
