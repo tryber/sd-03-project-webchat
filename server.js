@@ -36,27 +36,35 @@ io.on('connection', async (socket) => {
     io.emit('message', message);
   });
 
-  socket.on('triggerPrivateChat', async ({ from, to }) => {
-    // console.log(nickname)
+  socket.on('triggerPrivateChat', async ({ to }) => {
     const data = await getUsers({ nickname: to });
-    // console.log(data);
     const { userId: privateUserId } = data[0];
-    // console.log(privateUserId)
-    if (privateUserId === userId) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
-    io.to(privateUserId).emit('allowPrivateMode', { privateUserId });
+
+    io.to(privateUserId).emit('allowPrivateMode', { privateUserId: userId });
+    io.to(userId).emit('allowPrivateMode', { privateUserId });
   });
 
   socket.on('privateMessage', async ({ privateRecipient, chatMessage, nickname }) => {
     const getRecipientNickname = async () => {
       const data = await getUsers({ userId: privateRecipient });
-      const { nick } = data[0];
+      console.log(privateRecipient)
+      const { nickname: nick } = data[0];
       return nick;
     };
+
     const recipientNick = await getRecipientNickname();
     const data = await registerPrivateMessage(nickname, recipientNick, chatMessage);
     const { timestamp } = data.ops[0];
     const message = `${timestamp} - ${nickname} diz reservadamente para ${recipientNick}: ${chatMessage}`;
+    console.log(message);
     io.to(privateRecipient).emit('message', message);
+    io.to(userId).emit('message', message);
+  });
+
+  socket.on('triggerPublicChat', async ({ recipientId }) => {
+    console.log(recipientId, userId)
+    io.to(recipientId).emit('allowPublicMode');
+    io.to(userId).emit('allowPublicMode');
   });
 
   socket.on('disconnect', async () => removeUser(userId).then(async () => refreshUserList()));

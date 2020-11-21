@@ -10,7 +10,7 @@
         const socket = io();
 
         let privateMode = false;
-        let reservedMessageTo = '';
+        let recipientId = '';
 
         //gera nick aleatório e cadastra no DB
         const randomNum = Math.floor(Math.random() * 100000);
@@ -93,7 +93,7 @@
             $('#chat-input').val('');
             return null;
           }
-          io.to(reservedMessageTo).emit('privateMessage', { privateRecipient: reservedMessageTo, chatMessage: $('#chat-input').val(), nickname });
+          socket.emit('privateMessage', { privateRecipient: recipientId, chatMessage: $('#chat-input').val(), nickname });
           $('#chat-input').val('');
         });
 
@@ -105,13 +105,24 @@
         $(document).on('click', '.private-chat-button', (event) => {
           // const privateChatRecipient = $(this).text();
           const recipientNickname = event.target.id.substr(20)
+          if (recipientNickname === nickname) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
           socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
+        })
+
+        $(document).on('click', '.public-chat-button', () => {
+          socket.emit('triggerPublicChat', { recipientId });
         })
         
         socket.on('allowPrivateMode', ({ privateUserId }) => {
           console.log('private mode allowed')
           privateMode = true;
-          privateMessageTo = privateUserId;
+          recipientId = privateUserId;
+        });
+
+        socket.on('allowPublicMode', () => {
+          console.log('public mode allowed')
+          privateMode = false;
+          recipientId = '';
         });
       });
     </script>
