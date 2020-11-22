@@ -7,7 +7,7 @@
   <title>Mensagens Sem Nexo</title>
 
   <!-- Carrega o socket.io -->
-  <script src="http://localhost:4555/socket.io/socket.io.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 
   <!-- Carrega o moment.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
@@ -30,7 +30,7 @@
   </section>
 
   <script type="text/javascript">
-    const socket = io('http://localhost:4555')
+    const socket = io('http://localhost:3000')
 
     socket.on('messageHistory', (history) => history.map((message) => renderMessage(message)));
 
