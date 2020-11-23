@@ -37,12 +37,15 @@
 
         //cria elemento usuarios na lista
         const createUserItem = (nickname) => {
+          const mainUserListDiv = document.createElement('div');
+          
           const userLi = document.createElement('li');
           userLi.setAttribute('data-testid','online-user')
           userLi.setAttribute('class','user-list-item')
           const userText = document.createTextNode(nickname);
           userLi.appendChild(userText);
-
+          mainUserListDiv.appendChild(userLi);
+          
           //cria botões de chat público ou reservado
           const chatButtonsDiv = document.createElement('div');
           chatButtonsDiv.setAttribute('class', 'private-public-buttons-div');
@@ -64,8 +67,9 @@
           chatButtonsDiv.appendChild(publicChatButton);
 
           //adiciona botões e item na lista
-          userLi.appendChild(chatButtonsDiv);
-          $('#user-list').append(userLi);
+          mainUserListDiv.appendChild(chatButtonsDiv)
+
+          $('#user-list').append(mainUserListDiv);
         }
 
         //cria lista de usuarios
