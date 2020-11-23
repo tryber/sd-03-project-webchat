@@ -111,8 +111,11 @@
           // const privateChatRecipient = $(this).text();
           const recipientNickname = event.target.id.substr(20)
           if (recipientNickname === nickname) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
+          $('#messages').empty();
           socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
         })
+
+        socket.on('clearChat', () => $('#messages').empty());
 
         $(document).on('click', '.public-chat-button', () => {
           socket.emit('triggerPublicChat', { recipientId });

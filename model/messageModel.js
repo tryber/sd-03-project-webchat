@@ -35,7 +35,7 @@ const deleteMessages = async (messageId = {}) => {
 const registerPrivateMessage = async (from, to, chatMessage) => {
   const db = await connection();
   const timestamp = new Date(Date.now()).toLocaleString('en-US').replace(/\//g, '-');
-  return db.collection('messages').insertOne(
+  return db.collection('reservedMessages').insertOne(
     {
       chatMessage, from, to, timestamp,
     },

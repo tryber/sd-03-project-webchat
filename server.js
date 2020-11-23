@@ -25,9 +25,11 @@ io.on('connection', async (socket) => {
 
   const userId = socket.id;
 
-  socket.on('registerNick', async ({ nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
+  const retrieveMessages = async (id) => getHistory().then(((history) => io.to(id).emit('history', { history })));
 
-  await getHistory().then(((history) => io.to(userId).emit('history', { history })));
+  await retrieveMessages(userId);
+
+  socket.on('registerNick', async ({ nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const data = await registerMessage(chatMessage, nickname);
@@ -40,6 +42,7 @@ io.on('connection', async (socket) => {
     const data = await getUsers({ nickname: to });
     const { userId: privateUserId } = data[0];
 
+    io.to(privateUserId).emit('clearChat');
     io.to(privateUserId).emit('allowPrivateMode', { privateUserId: userId });
     io.to(userId).emit('allowPrivateMode', { privateUserId });
   });
@@ -60,8 +63,12 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('triggerPublicChat', async ({ recipientId }) => {
+    io.to(recipientId).emit('clearChat');
+    io.to(userId).emit('clearChat');
     io.to(recipientId).emit('allowPublicMode');
     io.to(userId).emit('allowPublicMode');
+    await retrieveMessages(recipientId);
+    await retrieveMessages(userId);
   });
 
   socket.on('disconnect', async () => removeUser(userId).then(async () => refreshUserList()));
