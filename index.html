@@ -72,12 +72,13 @@
        data-testid="send-button" data-testid="public"
        id="public-btn"
       >Send</button>
+      <button data-testid="send-button" 
+      data-testid="private"
+      id="private-btn"
+  
+      >Send</button>
     </form>
-    <button data-testid="send-button" 
-    data-testid="private"
-    id="private-btn"
 
-    >Send</button>
     <script>
 
 const messageInput = document.getElementById('messageInput');
@@ -87,7 +88,7 @@ const nicknameElement = document.getElementById('nickname');
 const usersOnlineElement = document.getElementById('usersOnline');
 const chattingWithElement = document.getElementById('chat');
 
-const publicChatButton = document.getElementById('public');
+const publicChatButton = document.getElementById('public-chat');
 
 publicChatButton.onclick = () =>{
   messages.innerHTML = '';
@@ -138,7 +139,8 @@ general.addEventListener('submit', (e) => {
 
 const private = document.getElementById('private-btn');
 
-private.addEventListener('click', () => {
+private.addEventListener('submit', (e) => {
+  e.preventDefault();
   const message = {
     message: messageInput.value,
     nickname,
@@ -167,7 +169,7 @@ socket.on('usersOnline', (users) => {
       chattingWithElement.innerText = nickname;
       // clear pub_history and create private history
       messages.innerHTML = '';
-      socket.emit('privateHistory', nickname)
+      socket.emit('getPVHistory', nickname)
     }
     btn.disabled = id !== socket.id
     li.appendChild(btn)

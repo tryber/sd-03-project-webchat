@@ -30,13 +30,14 @@ module.exports = (io, messageModel) => {
       io.emit('message', string);
     });
 
-    socket.on('privateHistory', async (nickname) => {
+    socket.on('getPVHistory', async (nickname) => {
       const user1 = users.find((u) => u.id === socket.id);
       const index1 = users.indexOf(user1);
       const user2 = users.find((u) => u.nickname === nickname);
       const index2 = users.indexOf(user2);
 
       const usersArray = [users[index1], users[index2]];
+      console.log(usersArray)
 
       const messages = await messageModel.getPrivate(usersArray);
       console.log(messages);
@@ -47,12 +48,13 @@ module.exports = (io, messageModel) => {
       const index1 = users.indexOf(user1);
       const user2 = users.find((u) => u.nickname === nickname);
       const index2 = users.indexOf(user2);
+      console.log(io.clients);
+
       console.log('pv', user2, message);
       console.log('users', users);
       const usersArray = [users[index1], users[index2]];
       const chatMessage = messageWithDate(nickname, message);
       await messageModel.insertPrivate({ chatMessage, users: usersArray });
-      console.log(users);
       io.clients[user2.id].emit('private', chatMessage);
     });
 
