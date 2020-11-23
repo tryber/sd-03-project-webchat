@@ -21,7 +21,7 @@ io.on('connection', async (socket) => {
   const refreshUserList = () => setTimeout(async () => {
     const users = await getUsers();
     io.emit('userList', { users });
-  }, 750);
+  }, 500);
 
   const userId = socket.id;
 
@@ -55,7 +55,6 @@ io.on('connection', async (socket) => {
     const data = await registerPrivateMessage(nickname, recipientNick, chatMessage);
     const { timestamp } = data.ops[0];
     const message = `${timestamp} - ${nickname} diz reservadamente para ${recipientNick}: ${chatMessage}`;
-    console.log(message);
     io.to(privateRecipient).emit('message', message);
     io.to(userId).emit('message', message);
   });

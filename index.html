@@ -51,16 +51,17 @@
           chatButtonsDiv.setAttribute('class', 'private-public-buttons-div');
 
           const privateChatButton = document.createElement('button');
-          const privateChatButtonContent = document.createTextNode('R')
+          const privateChatButtonContent = document.createTextNode('Reserv.')
           privateChatButton.appendChild(privateChatButtonContent);
           privateChatButton.setAttribute('class', 'private-chat-button');
           privateChatButton.setAttribute('id', `private-chat-button-${nickname}`);
           privateChatButton.setAttribute('data-testid', 'private');
 
           const publicChatButton = document.createElement('button');
-          const publicChatButtonContent = document.createTextNode('P')
+          const publicChatButtonContent = document.createTextNode('Público')
           publicChatButton.appendChild(publicChatButtonContent);
           publicChatButton.setAttribute('class', 'public-chat-button');
+          publicChatButton.setAttribute('id', `public-chat-button-${nickname}`);
           publicChatButton.setAttribute('data-testid', 'public');
 
           chatButtonsDiv.appendChild(privateChatButton);
@@ -148,7 +149,8 @@
           <button data-testid="nickname-save">SALVAR</button>
         </form>
         <form id="chat-form" action="">
-          <input id="chat-input" data-testid="message-box" autocomplete="off" /><button data-testid="send-button">Send</button>
+          <input id="chat-input" data-testid="message-box" autocomplete="off" />
+          <button data-testid="send-button">Send</button>
         </form>
       </div>
     </div>
