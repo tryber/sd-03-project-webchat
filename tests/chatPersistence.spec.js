@@ -39,13 +39,20 @@ describe('Elabore o histórico do chat para que as mensagens persistão', () => 
     client1.emit('message', firstMessageToSend);
 
     await page.goto(BASE_URL);
+    console.log('tessssssssssssssssssst')
     await page.waitForSelector('[data-testid=message]');
-    await page.waitForTimeout(1000);
+    console.log('tessssssssssssssssssst')
+    // await page.waitForTimeout(1000);
+    console.log('tessssssssssssssssssst')
     const messages = await page.$$eval('[data-testid=message]', (nodes) => nodes.map((n) => n.innerText));
+    console.log('tessssssssssssssssssst')
     expect(messages.length).toBeGreaterThanOrEqual(1);
+    console.log('tessssssssssssssssssst')
     console.log(messages)
     const lastMessage = messages.pop();
+    console.log('tessssssssssssssssssst')
     expect(lastMessage).toMatch(RegExp(firstMessageToSend.chatMessage));
+    console.log('tessssssssssssssssssst')
   });
 
   it('Será validado que ao enviar uma mensagem e recarregar a página , a mensagem persistirá', async () => {
