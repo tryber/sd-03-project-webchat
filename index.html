@@ -17,7 +17,7 @@
         const randomNum = Math.floor(Math.random() * 100000);
         let nickname = `random${randomNum}`;
         $('#nick-input').attr('placeholder', nickname);
-        socket.emit('registerNick', { nickname });
+        await socket.emit('registerNick', { nickname });
 
 
         //cria elemento mensagem
@@ -87,7 +87,7 @@
           (e) => {
           e.preventDefault();
           nickname = $('#nick-input').val();
-          socket.emit('registerNick', { nickname });
+          await socket.emit('registerNick', { nickname });
           return false;
         });
 
@@ -96,12 +96,12 @@
           (e) => {
           e.preventDefault();
           if(!privateMode) {
-            socket.emit('message', { chatMessage: $('#chat-input').val(), nickname });
+            await socket.emit('message', { chatMessage: $('#chat-input').val(), nickname });
             $('#chat-input').val('');
             return null;
           }
           
-          socket.emit('privateMessage', { recipientId, chatMessage: $('#chat-input').val(), nickname });
+          await socket.emit('privateMessage', { recipientId, chatMessage: $('#chat-input').val(), nickname });
           $('#chat-input').val('');
         });
 
@@ -112,13 +112,13 @@
           if (recipientNickname === nickname) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
           $('#messages').empty();
 
-          socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
+          await socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
         })
 
         $(document).on('click', '[data-testid=public]', (
         ) => {
           $('#messages').empty();
-          socket.emit('triggerPublicChat', { recipientId });
+          await socket.emit('triggerPublicChat', { recipientId });
         })
 
         //obtem histórico de mensagens
