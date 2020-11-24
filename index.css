@@ -1,0 +1,91 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font: 13px Helvetica, Arial;
+}
+
+form {
+  background: #000;
+  padding: 3px;
+  bottom: 0;
+  width: 100%;
+}
+
+form input {
+  border: 0;
+  padding: 10px;
+  width: 90%;
+  margin-right: 0.5%;
+}
+
+form button {
+  width: 9%;
+  background: rgb(130, 224, 255);
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.master-container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-content: space-between;
+  min-width: 100%;
+  padding: 0;
+}
+
+.messages-user-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-content: space-around;
+  min-width: 100%;
+  margin: 0;
+}
+
+.message-div {
+  min-width: 80%;
+}
+
+.user-div {
+  max-width: 30%;
+}
+
+#messages {
+  list-style-type: none;
+  margin: 0;
+  min-height: 400px;
+  padding: 0;
+}
+
+#messages li {
+  padding: 5px 10px;
+}
+
+#messages li:nth-child(odd) {
+  background: #eee;
+}
+
+#user-list {
+  list-style-type: none;
+  margin: 0;
+  min-height: 400px;
+  padding: 0;
+  background: #eee;
+  width: 500px;
+}
+
+.user-list-item {
+  display: flex;
+  flex-flow: row nowrap;
+  align-content: space-around;
+  padding: 5px 10px;
+  width: 95%;
+}
+
+.private-public-buttons-div {
+  display: flex;
+}

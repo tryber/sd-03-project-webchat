@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO - trybe</title>
+    <link type="text/css" rel="stylesheet" href="/index.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+      $((
+      ) => {
+        const socket = io();
+
+        let privateMode = false;
+        let recipientId = '';
+
+        const randomNum = Math.floor(Math.random() * 100000);
+        let nickname = `random${randomNum}`;
+        $('#nick-input').attr('placeholder', nickname);
+        socket.emit('registerNick', { nickname });
+
+
+        const createMessageElement = (message) => {
+          const messageLi = $('<li>').attr('data-testid','message').text(message);
+          const messageList = document.getElementById('messages')
+          messageList.append(...messageLi);
+        }
+
+        const createUserItem = (nickname) => {
+          const userListContainer = $('<div>')
+            .prop({ 'class': 'user-list-item', 'id': `user-list-item-${nickname}` });
+
+          const userListItem = $('<li>')
+            .attr('data-testid', 'online-user')
+            .text(nickname);
+
+          userListContainer.append(userListItem);
+          
+          const chatButtonsDiv = $('<div>').prop('class', 'private-public-buttons-div');
+
+          const privateChatButton = $('<button>').prop({
+            'class': 'private-chat-button',
+            'id': `private-chat-button-${nickname}`,
+          })
+          .attr('data-testid', 'private')
+          .text('Reserv.');
+
+          const publicChatButton = $('<button>').prop({
+            'class': 'public-chat-button',
+            'id': `public-chat-button-${nickname}`,
+          })
+          .attr('data-testid', 'public')
+          .text('Público');
+
+          chatButtonsDiv.append(privateChatButton);
+          chatButtonsDiv.append(publicChatButton);
+
+          userListContainer.append(chatButtonsDiv)
+
+          const userList = document.getElementById('user-list')
+          userList.append(...userListContainer);
+        }
+
+        const createUserList = (users) => {
+          $('#user-list').empty();
+          users.forEach(
+            ({ nickname }) => {
+              createUserItem(nickname)
+          })
+          const myNick = $(`#user-list-item-${nickname}`).detach();
+          $('#user-list').prepend(myNick);
+        };
+
+        const retrieveMessages = (history) => history.length > 0
+        ? history.forEach((message) => createMessageElement(message))
+        : null;
+
+        $('#nick-form').submit(
+          (e) => {
+          e.preventDefault();
+          nickname = $('#nick-input').val();
+          socket.emit('registerNick', { nickname });
+          return false;
+        });
+
+        $('#chat-form').submit(
+          (e) => {
+          e.preventDefault();
+          if(!privateMode) {
+            socket.emit('message', { chatMessage: $('#chat-input').val(), nickname });
+            $('#chat-input').val('');
+            return null;
+          }
+          
+          socket.emit('privateMessage', { recipientId, chatMessage: $('#chat-input').val(), nickname });
+          $('#chat-input').val('');
+        });
+
+        $(document).on('click', '[data-testid=private]',
+        (event) => {
+          const recipientNickname = event.target.id.substr(20)
+          if (recipientNickname === nickname) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
+          $('#messages').empty();
+
+          socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
+        })
+
+        $(document).on('click', '[data-testid=public]', (
+        ) => {
+          $('#messages').empty();
+          socket.emit('triggerPublicChat', { recipientId });
+        })
+
+        socket.on('history', ({ history }) => retrieveMessages(history));
+
+        socket.on('userList', ({ users }) => createUserList(users));
+
+        socket.on('message', (
+          message) => {
+          if(!message.includes('reservadamente') && privateMode) return null;
+          createMessageElement(message);
+        });
+
+        socket.on('newPrivateMessage', (
+          message) => {
+          if(!message.includes('reservadamente') || !privateMode) return null;
+          createMessageElement(message);
+        });
+      
+        socket.on('retrieveSecretHistory', (
+          { secretHistory }) => {
+          retrieveMessages(secretHistory)
+        });
+
+        socket.on('allowPrivateMode', (
+          { recipientId: currentRecipientId }) => {
+          privateMode = true;
+          recipientId = currentRecipientId;
+        });
+
+        socket.on('allowPublicMode', (
+        ) => {
+          privateMode = false;
+          recipientId = '';
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="master-container">
+      <div class="messages-user-container">
+        <div class="message-div">
+          <ul id="messages"></ul>
+        </div>
+        <div class="user-div">
+          <ul id="user-list"></ul>
+        </div>
+      </div>
+      <div class="input-container">
+        <form id="nick-form" action="" >
+          <span style="color: white">NICKNAME: </span>
+          <input id="nick-input" data-testid="nickname-box" style="max-width: 120px" placeholder="random" />
+          <button data-testid="nickname-save">SALVAR</button>
+        </form>
+        <form id="chat-form" action="">
+          <input id="chat-input" data-testid="message-box" autocomplete="off" />
+          <button data-testid="send-button">Send</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

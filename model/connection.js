@@ -1,4 +1,4 @@
-const { mongoClient } = require('mongodb');
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 let schema = null;
@@ -6,8 +6,8 @@ let schema = null;
 async function connection() {
   if (schema) return Promise.resolve(schema);
 
-  return mongoClient
-    .connect(process.env.DB_URL, {
+  return MongoClient
+    .connect(process.env.DB_URL || 'mongodb://localhost:27017/webchat', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
