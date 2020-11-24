@@ -52,7 +52,9 @@ const getSecretHistory = async (from, to) => {
       throw new Error(`${status} - ${message}`);
     });
   const secretHistory = history !== [] ? history
-    .map(({ chatMessage, timestamp, fromNick, toNick }) => `${timestamp} - ${fromNick} diz reservadamente para ${toNick}: ${chatMessage}`) : [];
+    .map(({ chatMessage, timestamp, fromNick, toNick }) =>
+      `${timestamp} - ${fromNick} diz reservadamente para ${toNick}: ${chatMessage}`)
+    : [];
   return secretHistory;
 };
 

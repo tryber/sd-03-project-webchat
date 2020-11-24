@@ -6,7 +6,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script>
-      $(function () {
+      $((
+      ) => {
         const socket = io();
 
         let privateMode = false;
@@ -19,7 +20,8 @@
         socket.emit('registerNick', { nickname });
 
         //função do botao de mudar nick
-        $('#nick-form').submit(function(e) {
+        $('#nick-form').submit(
+          (e) => {
           e.preventDefault();
           nickname = $('#nick-input').val();
           socket.emit('registerNick', { nickname });
@@ -76,7 +78,8 @@
         //cria lista de usuarios
         const createUserList = (users) => {
           $('#user-list').empty();
-          users.forEach(({ nickname }) => createUserItem(nickname))
+          users.forEach(
+            ({ nickname }) => createUserItem(nickname))
         };
 
         //obtem lista de mensagens
@@ -95,7 +98,8 @@
         socket.on('userList', ({ users }) => createUserList(users));
 
         //função do botao de enviar mensagem
-        $('#chat-form').submit(function(e) {
+        $('#chat-form').submit(
+          (e) => {
           e.preventDefault();
           if(!privateMode) {
             socket.emit('message', { chatMessage: $('#chat-input').val(), nickname });
@@ -108,12 +112,14 @@
         });
 
         //reage ao evento messageServer e envia mensagens para todos os clientes
-        socket.on('message', function({message}){
+        socket.on('message', (
+          {message}) => {
           console.log(message)
           createMessageElement(message);
         });
 
-        $(document).on('click', '.private-chat-button', (event) => {
+        $(document).on(
+          'click', '.private-chat-button', (event) => {
           // const privateChatRecipient = $(this).text();
           const recipientNickname = event.target.id.substr(20)
           if (recipientNickname === nickname) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
@@ -123,12 +129,14 @@
 
         socket.on('clearChat', () => $('#messages').empty());
 
-        $(document).on('click', '.public-chat-button', () => {
+        $(document).on('click', '.public-chat-button', (
+        ) => {
           $('#messages').empty();
           socket.emit('triggerPublicChat', { recipientId });
         })
         
-        socket.on('allowPrivateMode', ({ recipientId: currentRecipientId }) => {
+        socket.on('allowPrivateMode', (
+          { recipientId: currentRecipientId }) => {
           console.log('private mode allowed')
           // console.log(`private recipient*: ${currentRecipientId}`)
 
@@ -136,13 +144,15 @@
           recipientId = currentRecipientId;
         });
 
-        socket.on('retrieveSecretHistory', ({ secretHistory }) => {
+        socket.on('retrieveSecretHistory', (
+          { secretHistory }) => {
           console.log(`secret history: ${secretHistory}`)
 
           retrieveMessages(secretHistory);
         });
 
-        socket.on('allowPublicMode', () => {
+        socket.on('allowPublicMode', (
+        ) => {
           console.log('public mode allowed')
           privateMode = false;
           recipientId = '';
