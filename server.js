@@ -25,7 +25,7 @@ io.on('connection', async (socket) => {
   ) => {
     const users = await getUsers();
     io.emit('userList', { users });
-  }, 500);
+  }, 0);
 
   const retrieveMessagesFrom = async (
     id) => getHistory().then(((history) => io.to(id).emit('history', { history })));
@@ -42,7 +42,7 @@ io.on('connection', async (socket) => {
     return io.to(one).emit(event, data);
   };
 
-  const clearThisChat = (id) => io.to(id).emit('clearChat');
+  // const clearThisChat = (id) => io.to(id).emit('clearChat');
 
   await retrieveMessagesFrom(userId);
 
@@ -56,21 +56,24 @@ io.on('connection', async (socket) => {
     io.emit('message', message);
   });
 
-  socket.on('triggerPrivateChat', async ({ _from, to }) => {
+  socket.on('triggerPrivateChat', async ({ from, to }) => {
     const data = await getUsers({ nickname: to });
     const { userId: recipientId } = data[0] || data;
 
-    const secretHistory = await getSecretHistory(userId, recipientId);
+    const current = await getUsers({ nickname: from });
+    const { userId: fromId } = current[0] || current;
 
-    clearThisChat(recipientId);
+    const messageFromSender = await getSecretHistory(fromId, recipientId);
+    const messageFromRecipient = await getSecretHistory(recipientId, fromId);
+    let secretHistory = messageFromSender.concat(messageFromRecipient);
+    secretHistory = secretHistory
+      .sort(({ timestamp: timeA }, { timestamp: timeB }) => timeA > timeB)
+      .map(({ message }) => message);
+    // console.log(secretHistory);
+    // clearThisChat(recipientId);
 
-    [recipientId, userId].forEach(
-      (c, i) => {
-        warnOneAbout(c, 'retrieveSecretHistory', { secretHistory });
-        if (i === 0) return warnOneAbout(c, 'allowPrivateMode', { recipientId: userId });
-        warnOneAbout(c, 'allowPrivateMode', { recipientId });
-      },
-    );
+    warnOneAbout(fromId, 'allowPrivateMode', { recipientId });
+    warnOneAbout(fromId, 'retrieveSecretHistory', { secretHistory });
   });
 
   socket.on('privateMessage', async ({ recipientId, chatMessage, nickname }) => {
@@ -84,19 +87,22 @@ io.on('connection', async (socket) => {
 
     [recipientId, userId].forEach(
       (c) => {
-        warnOneAbout(c, 'message', message);
+        warnOneAbout(c, 'newPrivateMessage', message);
       },
     );
   });
 
-  socket.on('triggerPublicChat', async ({ recipientId }) => {
-    [recipientId, userId].forEach(
-      (c) => {
-        retrieveMessagesFrom(c);
-        warnOneAbout(c, 'clearChat');
-        warnOneAbout(c, 'allowPublicMode');
-      },
-    );
+  socket.on('triggerPublicChat', async ({ _recipientId }) => {
+    // [recipientId, userId].forEach(
+    //   (c) => {
+    //     retrieveMessagesFrom(c);
+    //     warnOneAbout(c, 'clearChat');
+    //     warnOneAbout(c, 'allowPublicMode');
+    //   },
+    // );
+    retrieveMessagesFrom(userId);
+    warnOneAbout(userId, 'clearChat');
+    warnOneAbout(userId, 'allowPublicMode');
   });
 
   socket.on('disconnect', async () => removeUser(userId).then(async () => refreshUserList()));

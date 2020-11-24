@@ -68,9 +68,15 @@ describe('Permita que usuários troquem mensagens particulares', () => {
 
     await page.bringToFront();
     await page.waitForSelector(dataTestid('private'));
-    let privButtons = await page.$$(dataTestid('private'));
-    wait(10000);
-    await _.last(privButtons).click();
+    // let privButtons = await page.$$(dataTestid('private'));
+    // wait(10000);
+    // await _.last(privButtons).click();
+
+    await page.evaluate(() => {
+      const privateButton = document.querySelectorAll('[data-testid=private]');
+      privateButton[privateButton.length - 1].click();
+    });
+
 
     await page.waitForSelector(dataTestid('message-box'));
     const messageBox = await page.$(dataTestid('message-box'));
@@ -83,9 +89,14 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     await page2.bringToFront();
    
     await page.waitForSelector(dataTestid('private'));
-    let secondPrivButton = await page2.$$(dataTestid('private'));
-    wait(10000);
-    await _.last(secondPrivButton).click();
+    // let secondPrivButton = await page2.$(dataTestid('private'));
+    // wait(10000);
+    // await _.last(secondPrivButton).click();
+
+    await page2.evaluate(() => {
+      const privateButton = document.querySelectorAll('[data-testid=private]');
+      privateButton[privateButton.length - 1].click();
+    });
 
     await page.waitForSelector(dataTestid('message'));
     const secondPageMessages = await page2.$$eval(dataTestid('message'), (nodes) => nodes.map((n) => n.innerText));
@@ -114,8 +125,15 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     await sendButton.click();
 
     await page.waitForSelector(dataTestid('private'));
-    const privButtons = await page.$$(dataTestid('private'));
-    await _.last(privButtons).click();
+    // const privButtons = await page.$$(dataTestid('private'));
+    // await _.last(privButtons).click();
+
+    await page.evaluate(() => {
+      const privateButton = document.querySelectorAll('[data-testid=private]');
+      privateButton[privateButton.length - 1].click();
+    });
+
+    wait(1000);
 
     await page.waitForSelector(dataTestid('message-box'));
     messageBox = await page.$(dataTestid('message-box'));
@@ -129,9 +147,15 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     const secondPagePublicMessages = await page2.$$eval(dataTestid('message'), (nodes) => nodes.map((n) => n.innerText));
     expect(secondPagePublicMessages[0]).toMatch('fala jovens');
 
-    await page.waitForSelector(dataTestid('private'));
-    let secondPrivateButton = await page2.$$(dataTestid('private'));
-    await _.last(secondPrivateButton).click();
+    await page2.waitForSelector(dataTestid('private'));
+    // let secondPrivateButton = await page2.$$(dataTestid('private'));
+    // await _.last(secondPrivateButton).click();
+    
+    await page2.evaluate(() => {
+      const privateButton = document.querySelectorAll('[data-testid=private]');
+      privateButton[0].click();
+    });
+
     wait(1000);
 
     const secondPageMessagePrivate = await page2.$$eval(dataTestid('message'), (nodes) => nodes.map((n) => n.innerText));

@@ -22,19 +22,21 @@
 
         //cria elemento mensagem
         const createMessageElement = (message) => {
-          const messageLi = $('<li>').prop('data-testid','message').text(message);
-          $('#messages').append(messageLi);
+          const messageLi = $('<li>').attr('data-testid','message').text(message);
+          const messageList = document.getElementById('messages')
+          messageList.append(...messageLi);
         }
 
         //cria elemento usuarios na lista
         const createUserItem = (nickname) => {
-          const mainUserListDiv = $('<div>');
+          const userListContainer = $('<div>');
 
           const userListItem = $('<li>')
-            .prop({ 'data-testid': 'online-user', 'class': 'user-list-item' })
+            .prop('class', 'user-list-item')
+            .attr('data-testid', 'online-user')
             .text(nickname);
 
-          mainUserListDiv.append(userListItem);
+          userListContainer.append(userListItem);
           
           //cria botões de chat público ou reservado
           const chatButtonsDiv = $('<div>').prop('class', 'private-public-buttons-div');
@@ -57,9 +59,11 @@
           chatButtonsDiv.append(publicChatButton);
 
           //adiciona botões e item na lista
-          mainUserListDiv.append(chatButtonsDiv)
+          userListContainer.append(chatButtonsDiv)
 
-          $('#user-list').append(mainUserListDiv);
+          const userList = document.getElementById('user-list')
+          userList.append(...userListContainer);
+          // $('#user-list').append(userListContainer);
         }
 
         //cria lista de usuarios
@@ -125,26 +129,32 @@
         socket.on('message', (
           message) => {
           console.log(message)
+          if(!message.includes('reservadamente') && privateMode) return null;
           createMessageElement(message);
         });
 
+        socket.on('newPrivateMessage', (
+          message) => {
+          console.log(message)
+          console.log(message.includes('reservadamente'), privateMode)
+          if(!message.includes('reservadamente') || !privateMode) return null;
+          createMessageElement(message);
+        });
 
-        socket.on('clearChat', () => $('#messages').empty());
-        
+        // socket.on('clearChat', () => $('#messages').empty());
+      
+        socket.on('retrieveSecretHistory', (
+          { secretHistory }) => {
+          console.log(`secret history: ${secretHistory}`)
+          retrieveMessages(secretHistory)
+        });
+
         socket.on('allowPrivateMode', (
           { recipientId: currentRecipientId }) => {
           console.log('private mode allowed')
           // console.log(`private recipient*: ${currentRecipientId}`)
-
           privateMode = true;
           recipientId = currentRecipientId;
-        });
-
-        socket.on('retrieveSecretHistory', (
-          { secretHistory }) => {
-          console.log(`secret history: ${secretHistory}`)
-
-          retrieveMessages(secretHistory)
         });
 
         socket.on('allowPublicMode', (
