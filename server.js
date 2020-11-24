@@ -6,7 +6,6 @@ const io = require('socket.io')(http);
 const { updateUser, removeUser, getUsers, deleteUsers } = require('./model/userModel');
 const { registerMessage, getHistory, deleteMessages, registerPrivateMessage, getSecretHistory } = require('./model/messageModel');
 
-// clears users DB
 deleteUsers();
 deleteMessages();
 
@@ -36,13 +35,7 @@ io.on('connection', async (socket) => {
     return nick;
   };
 
-  const warnOneAbout = (one, event, data) => {
-    // interesting log
-    console.log(`event recipient: ${one}, event: ${event}, data: ${data}`);
-    return io.to(one).emit(event, data);
-  };
-
-  // const clearThisChat = (id) => io.to(id).emit('clearChat');
+  const warnOneAbout = (one, event, data) => io.to(one).emit(event, data);
 
   await retrieveMessagesFrom(userId);
 
@@ -69,8 +62,6 @@ io.on('connection', async (socket) => {
     secretHistory = secretHistory
       .sort(({ timestamp: timeA }, { timestamp: timeB }) => timeA > timeB)
       .map(({ message }) => message);
-    // console.log(secretHistory);
-    // clearThisChat(recipientId);
 
     warnOneAbout(fromId, 'allowPrivateMode', { recipientId });
     warnOneAbout(fromId, 'retrieveSecretHistory', { secretHistory });
@@ -93,13 +84,6 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('triggerPublicChat', async ({ _recipientId }) => {
-    // [recipientId, userId].forEach(
-    //   (c) => {
-    //     retrieveMessagesFrom(c);
-    //     warnOneAbout(c, 'clearChat');
-    //     warnOneAbout(c, 'allowPublicMode');
-    //   },
-    // );
     retrieveMessagesFrom(userId);
     warnOneAbout(userId, 'clearChat');
     warnOneAbout(userId, 'allowPublicMode');
