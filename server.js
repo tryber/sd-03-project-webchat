@@ -81,3 +81,6 @@ io.on('connection', async (socket) => {
 });
 
 httpServer.listen(3000, () => console.log('Server HTTP ouvindo na porta 3000'));
+
+// agradecimento ao jafet henrique, obrigado <3
+// você é incrivel.
