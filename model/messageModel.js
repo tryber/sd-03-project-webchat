@@ -32,12 +32,11 @@ const deleteMessages = async (messageId = {}) => {
     });
 };
 
-const registerPrivateMessage = async (from, to, chatMessage) => {
+const registerPrivateMessage = async (from, to, fromNick, toNick, chatMessage, timestamp) => {
   const db = await connection();
-  const timestamp = new Date(Date.now()).toLocaleString('en-US').replace(/\//g, '-');
   return db.collection('reservedMessages').insertOne(
     {
-      chatMessage, from, to, timestamp,
+      chatMessage, from, fromNick, to, toNick, timestamp,
     },
   )
     .catch(({ status, errMessage }) => {
@@ -47,11 +46,14 @@ const registerPrivateMessage = async (from, to, chatMessage) => {
 
 const getSecretHistory = async (from, to) => {
   const db = await connection();
-  return db.collection('reservedMessages')
-    .find({ from, to }).toArray()
+  const history = await db.collection('reservedMessages')
+    .find({ $and: [{ from }, { to }] }).toArray()
     .catch(({ status, message }) => {
       throw new Error(`${status} - ${message}`);
     });
+  const secretHistory = history !== [] ? history
+    .map(({ chatMessage, timestamp, fromNick, toNick }) => `${timestamp} - ${fromNick} diz reservadamente para ${toNick}: ${chatMessage}`) : [];
+  return secretHistory;
 };
 
 module.exports = {

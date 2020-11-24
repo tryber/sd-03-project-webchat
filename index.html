@@ -84,12 +84,12 @@
         //   ? history.forEach((message) => createMessageElement(message))
         //   : null;
 
-        const retrieveMessages = (history = { history }) => history.length > 0
+        const retrieveMessages = (history) => history.length > 0
         ? history.forEach((message) => createMessageElement(message))
         : null;
 
         //obtem histórico de mensagens
-        socket.on('history', (history) => retrieveMessages(history));
+        socket.on('history', ({ history }) => retrieveMessages(history));
 
         //atualiza lista de usuarios
         socket.on('userList', ({ users }) => createUserList(users));
@@ -102,12 +102,14 @@
             $('#chat-input').val('');
             return null;
           }
-          socket.emit('privateMessage', { privateRecipient: recipientId, chatMessage: $('#chat-input').val(), nickname });
+          
+          socket.emit('privateMessage', { recipientId, chatMessage: $('#chat-input').val(), nickname });
           $('#chat-input').val('');
         });
 
         //reage ao evento messageServer e envia mensagens para todos os clientes
-        socket.on('message', function(message){
+        socket.on('message', function({message}){
+          console.log(message)
           createMessageElement(message);
         });
 
@@ -122,17 +124,22 @@
         socket.on('clearChat', () => $('#messages').empty());
 
         $(document).on('click', '.public-chat-button', () => {
+          $('#messages').empty();
           socket.emit('triggerPublicChat', { recipientId });
         })
         
-        socket.on('allowPrivateMode', ({ privateUserId }) => {
+        socket.on('allowPrivateMode', ({ recipientId: currentRecipientId }) => {
           console.log('private mode allowed')
+          // console.log(`private recipient*: ${currentRecipientId}`)
+
           privateMode = true;
-          recipientId = privateUserId;
+          recipientId = currentRecipientId;
         });
 
         socket.on('retrieveSecretHistory', ({ secretHistory }) => {
-          retrieveMessages(({secretHistory} || secretHistory))
+          console.log(`secret history: ${secretHistory}`)
+
+          retrieveMessages(secretHistory);
         });
 
         socket.on('allowPublicMode', () => {
