@@ -20,11 +20,10 @@ io.on('connection', async (socket) => {
 
   const userId = socket.id;
 
-  const refreshUserList = () => setTimeout(async (
-  ) => {
+  const refreshUserList = async () => {
     const users = await getUsers();
     io.emit('userList', { users });
-  }, 0);
+  };
 
   const retrieveMessagesFrom = async (
     id) => getHistory().then(((history) => io.to(id).emit('history', { history })));
