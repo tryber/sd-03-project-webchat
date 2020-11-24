@@ -153,7 +153,7 @@ describe('Permita que usuários troquem mensagens particulares', () => {
     
     await page2.evaluate(() => {
       const privateButton = document.querySelectorAll('[data-testid=private]');
-      privateButton[0].click();
+      privateButton[privateButton.length - 1].click();
     });
 
     wait(1000);

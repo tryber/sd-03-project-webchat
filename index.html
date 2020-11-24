@@ -29,10 +29,10 @@
 
         //cria elemento usuarios na lista
         const createUserItem = (nickname) => {
-          const userListContainer = $('<div>');
+          const userListContainer = $('<div>')
+            .prop({ 'class': 'user-list-item', 'id': `user-list-item-${nickname}` });
 
           const userListItem = $('<li>')
-            .prop('class', 'user-list-item')
             .attr('data-testid', 'online-user')
             .text(nickname);
 
@@ -73,6 +73,8 @@
             ({ nickname }) => {
               createUserItem(nickname)
           })
+          const myNick = $(`#user-list-item-${nickname}`).detach();
+          $('#user-list').prepend(myNick);
         };
 
         //obtem lista de mensagens
