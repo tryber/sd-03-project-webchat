@@ -13,9 +13,9 @@ jobs:
         options: -v ${{ github.workspace }}:/github/workspace
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1.4.3	
-        with:	
-          node-version: '12'
+      - uses: actions/setup-node@v1.4.4
+        with:
+          node-version: "12"
       - name: Static code analysis step
         uses: betrybe/eslint-linter-action@v2
         with:
@@ -24,8 +24,8 @@ jobs:
         id: evaluator
         uses: betrybe/jest-evaluator-action@fix-puppeteer-dep
         with:
-          repository-test-name: 'betrybe/sd-0x-project-webchat-tests'
-          repository-test-branch: 'main'
+          repository-test-name: "betrybe/sd-0x-project-webchat-tests"
+          repository-test-branch: "main"
           npm-start: true
         env:
           DB_URL: mongodb://mongodb:27017/webchat
