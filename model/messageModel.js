@@ -45,7 +45,17 @@ const registerPrivateMessage = async (from, to, chatMessage) => {
     });
 };
 
+const getSecretHistory = async (from, to) => {
+  const db = await connection();
+  return db.collection('reservedMessages')
+    .find({ from, to }).toArray()
+    .catch(({ status, message }) => {
+      throw new Error(`${status} - ${message}`);
+    });
+};
+
 module.exports = {
+  getSecretHistory,
   getHistory,
   registerMessage,
   deleteMessages,

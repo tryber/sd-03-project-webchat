@@ -80,9 +80,13 @@
         };
 
         //obtem lista de mensagens
-        const retrieveMessages = ({ history }) => history.length > 0
-          ? history.forEach((message) => createMessageElement(message))
-          : null;
+        // const retrieveMessages = ({ history }) => history.length > 0
+        //   ? history.forEach((message) => createMessageElement(message))
+        //   : null;
+
+        const retrieveMessages = (history = { history }) => history.length > 0
+        ? history.forEach((message) => createMessageElement(message))
+        : null;
 
         //obtem histórico de mensagens
         socket.on('history', (history) => retrieveMessages(history));
@@ -125,6 +129,10 @@
           console.log('private mode allowed')
           privateMode = true;
           recipientId = privateUserId;
+        });
+
+        socket.on('retrieveSecretHistory', ({ secretHistory }) => {
+          retrieveMessages(({secretHistory} || secretHistory))
         });
 
         socket.on('allowPublicMode', () => {

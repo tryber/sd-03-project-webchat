@@ -1,9 +1,10 @@
+/* eslint-disable arrow-parens */
 const app = require('express')();
 const express = require('express');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const { updateUser, removeUser, getUsers, deleteUsers } = require('./model/userModel');
-const { registerMessage, getHistory, deleteMessages, registerPrivateMessage } = require('./model/messageModel');
+const { registerMessage, getHistory, deleteMessages, registerPrivateMessage, getSecretHistory } = require('./model/messageModel');
 
 // clears users DB
 deleteUsers();
@@ -25,9 +26,9 @@ io.on('connection', async (socket) => {
 
   const userId = socket.id;
 
-  const retrieveMessages = async (id) => getHistory().then(((history) => io.to(id).emit('history', { history })));
+  const retrieveMessagesFrom = async (id) => getHistory().then(((history) => io.to(id).emit('history', { history })));
 
-  await retrieveMessages(userId);
+  await retrieveMessagesFrom(userId);
 
   socket.on('registerNick', async ({ nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
 
@@ -38,23 +39,33 @@ io.on('connection', async (socket) => {
     io.emit('message', message);
   });
 
+  const getRecipientNickname = async (idRecipient) => {
+    const data = await getUsers({ userId: idRecipient });
+    const { nickname: nick } = data[0];
+    return nick;
+  };
+
+  const warnOneAbout = (one, event, data) => io.to(one).emit(event, { data });
+
   socket.on('triggerPrivateChat', async ({ to }) => {
     const data = await getUsers({ nickname: to });
     const { userId: privateUserId } = data[0];
 
+    const { nick: from } = await getRecipientNickname(userId);
+    const secretHistory = await getSecretHistory(from, to);
+    console.log(secretHistory);
+
     io.to(privateUserId).emit('clearChat');
-    io.to(privateUserId).emit('allowPrivateMode', { privateUserId: userId });
-    io.to(userId).emit('allowPrivateMode', { privateUserId });
+
+    [privateUserId, userId].forEach((c, i) => {
+      warnOneAbout(c, 'retrieveSecretHitory', { secretHistory });
+      warnOneAbout(c, 'allowPrivateMode', { privateUserId });
+      return i === 0 && warnOneAbout(c, 'allowPrivateMode', { privateUserId: userId });
+    });
   });
 
   socket.on('privateMessage', async ({ privateRecipient, chatMessage, nickname }) => {
-    const getRecipientNickname = async () => {
-      const data = await getUsers({ userId: privateRecipient });
-      const { nickname: nick } = data[0];
-      return nick;
-    };
-
-    const recipientNick = await getRecipientNickname();
+    const recipientNick = await getRecipientNickname(privateRecipient);
     const data = await registerPrivateMessage(nickname, recipientNick, chatMessage);
     const { timestamp } = data.ops[0];
     const message = `${timestamp} - ${nickname} diz reservadamente para ${recipientNick}: ${chatMessage}`;
@@ -63,12 +74,11 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('triggerPublicChat', async ({ recipientId }) => {
-    io.to(recipientId).emit('clearChat');
-    io.to(userId).emit('clearChat');
-    io.to(recipientId).emit('allowPublicMode');
-    io.to(userId).emit('allowPublicMode');
-    await retrieveMessages(recipientId);
-    await retrieveMessages(userId);
+    [recipientId, userId].forEach(c => {
+      retrieveMessagesFrom(c);
+      warnOneAbout('clearChat', c);
+      warnOneAbout('allowPublicMode', c);
+    });
   });
 
   socket.on('disconnect', async () => removeUser(userId).then(async () => refreshUserList()));
