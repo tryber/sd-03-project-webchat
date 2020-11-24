@@ -22,56 +22,53 @@
 
         //cria elemento mensagem
         const createMessageElement = (message) => {
-          const messageLi = document.createElement('li');
-          messageLi.setAttribute('data-testid','message')
-          const messageText = document.createTextNode(message);
-          messageLi.appendChild(messageText);
-          $('#messages').appendChild(messageLi);
+          const messageLi = $('<li>').prop('data-testid','message').text(message);
+          $('#messages').append(messageLi);
         }
 
         //cria elemento usuarios na lista
         const createUserItem = (nickname) => {
-          const mainUserListDiv = document.createElement('div');
-          
-          const userLi = document.createElement('li');
-          userLi.setAttribute('data-testid','online-user')
-          userLi.setAttribute('class','user-list-item')
-          const userText = document.createTextNode(nickname);
-          userLi.appendChild(userText);
-          mainUserListDiv.appendChild(userLi);
+          const mainUserListDiv = $('<div>');
+
+          const userListItem = $('<li>')
+            .prop({ 'data-testid': 'online-user', 'class': 'user-list-item' })
+            .text(nickname);
+
+          mainUserListDiv.append(userListItem);
           
           //cria botões de chat público ou reservado
-          const chatButtonsDiv = document.createElement('div');
-          chatButtonsDiv.setAttribute('class', 'private-public-buttons-div');
+          const chatButtonsDiv = $('<div>').prop('class', 'private-public-buttons-div');
 
-          const privateChatButton = document.createElement('button');
-          const privateChatButtonContent = document.createTextNode('Reserv.')
-          privateChatButton.appendChild(privateChatButtonContent);
-          privateChatButton.setAttribute('class', 'private-chat-button');
-          privateChatButton.setAttribute('id', `private-chat-button-${nickname}`);
-          privateChatButton.setAttribute('data-testid', 'private');
+          const privateChatButton = $('<button>').prop({
+            'class': 'private-chat-button',
+            'id': `private-chat-button-${nickname}`,
+          })
+          .attr('data-testid', 'private')
+          .text('Reserv.');
 
-          const publicChatButton = document.createElement('button');
-          const publicChatButtonContent = document.createTextNode('Público')
-          publicChatButton.appendChild(publicChatButtonContent);
-          publicChatButton.setAttribute('class', 'public-chat-button');
-          publicChatButton.setAttribute('id', `public-chat-button-${nickname}`);
-          publicChatButton.setAttribute('data-testid', 'public');
+          const publicChatButton = $('<button>').prop({
+            'class': 'public-chat-button',
+            'id': `public-chat-button-${nickname}`,
+          })
+          .attr('data-testid', 'public')
+          .text('Público');
 
-          chatButtonsDiv.appendChild(privateChatButton);
-          chatButtonsDiv.appendChild(publicChatButton);
+          chatButtonsDiv.append(privateChatButton);
+          chatButtonsDiv.append(publicChatButton);
 
           //adiciona botões e item na lista
-          mainUserListDiv.appendChild(chatButtonsDiv)
+          mainUserListDiv.append(chatButtonsDiv)
 
-          $('#user-list').appendChild(mainUserListDiv);
+          $('#user-list').append(mainUserListDiv);
         }
 
         //cria lista de usuarios
         const createUserList = (users) => {
           $('#user-list').empty();
           users.forEach(
-            ({ nickname }) => createUserItem(nickname))
+            ({ nickname }) => {
+              createUserItem(nickname)
+          })
         };
 
         //obtem lista de mensagens
@@ -102,16 +99,17 @@
           $('#chat-input').val('');
         });
 
-        $(document).on('click', '.private-chat-button',
+        $(document).on('click', '[data-testid=private]',
         (event) => {
           // const privateChatRecipient = $(this).text();
           const recipientNickname = event.target.id.substr(20)
           if (recipientNickname === nickname) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
           $('#messages').empty();
+
           socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
         })
 
-        $(document).on('click', '.public-chat-button', (
+        $(document).on('click', '[data-testid=public]', (
         ) => {
           $('#messages').empty();
           socket.emit('triggerPublicChat', { recipientId });
