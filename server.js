@@ -19,28 +19,16 @@ app.get('/', (req, res) => {
 io.on('connection', async (socket) => {
   console.log('Conectado');
 
+  const userId = socket.id;
+
   const refreshUserList = () => setTimeout(async (
   ) => {
     const users = await getUsers();
     io.emit('userList', { users });
   }, 500);
 
-  const userId = socket.id;
-
   const retrieveMessagesFrom = async (
     id) => getHistory().then(((history) => io.to(id).emit('history', { history })));
-
-  await retrieveMessagesFrom(userId);
-
-  socket.on('registerNick', async (
-    { nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
-
-  socket.on('message', async ({ chatMessage, nickname }) => {
-    const data = await registerMessage(chatMessage, nickname);
-    const { timestamp } = data.ops[0];
-    const message = `${timestamp} - ${nickname} diz: ${chatMessage}`;
-    io.emit('message', { message });
-  });
 
   const getRecipientNickname = async (idRecipient) => {
     const data = await getUsers({ userId: idRecipient });
@@ -55,6 +43,18 @@ io.on('connection', async (socket) => {
   };
 
   const clearThisChat = (id) => io.to(id).emit('clearChat');
+
+  await retrieveMessagesFrom(userId);
+
+  socket.on('registerNick', async (
+    { nickname }) => updateUser(userId, nickname).then(() => refreshUserList()));
+
+  socket.on('message', async ({ chatMessage, nickname }) => {
+    const data = await registerMessage(chatMessage, nickname);
+    const { timestamp } = data.ops[0];
+    const message = `${timestamp} - ${nickname} diz: ${chatMessage}`;
+    io.emit('message', message);
+  });
 
   socket.on('triggerPrivateChat', async ({ _from, to }) => {
     const data = await getUsers({ nickname: to });
@@ -84,7 +84,7 @@ io.on('connection', async (socket) => {
 
     [recipientId, userId].forEach(
       (c) => {
-        warnOneAbout(c, 'message', { message });
+        warnOneAbout(c, 'message', message);
       },
     );
   });

@@ -19,14 +19,6 @@
         $('#nick-input').attr('placeholder', nickname);
         socket.emit('registerNick', { nickname });
 
-        //função do botao de mudar nick
-        $('#nick-form').submit(
-          (e) => {
-          e.preventDefault();
-          nickname = $('#nick-input').val();
-          socket.emit('registerNick', { nickname });
-          return false;
-        });
 
         //cria elemento mensagem
         const createMessageElement = (message) => {
@@ -34,7 +26,7 @@
           messageLi.setAttribute('data-testid','message')
           const messageText = document.createTextNode(message);
           messageLi.appendChild(messageText);
-          $('#messages').append(messageLi);
+          $('#messages').appendChild(messageLi);
         }
 
         //cria elemento usuarios na lista
@@ -72,7 +64,7 @@
           //adiciona botões e item na lista
           mainUserListDiv.appendChild(chatButtonsDiv)
 
-          $('#user-list').append(mainUserListDiv);
+          $('#user-list').appendChild(mainUserListDiv);
         }
 
         //cria lista de usuarios
@@ -83,19 +75,18 @@
         };
 
         //obtem lista de mensagens
-        // const retrieveMessages = ({ history }) => history.length > 0
-        //   ? history.forEach((message) => createMessageElement(message))
-        //   : null;
-
         const retrieveMessages = (history) => history.length > 0
         ? history.forEach((message) => createMessageElement(message))
         : null;
 
-        //obtem histórico de mensagens
-        socket.on('history', ({ history }) => retrieveMessages(history));
-
-        //atualiza lista de usuarios
-        socket.on('userList', ({ users }) => createUserList(users));
+        //função do botao de mudar nick
+        $('#nick-form').submit(
+          (e) => {
+          e.preventDefault();
+          nickname = $('#nick-input').val();
+          socket.emit('registerNick', { nickname });
+          return false;
+        });
 
         //função do botao de enviar mensagem
         $('#chat-form').submit(
@@ -111,15 +102,8 @@
           $('#chat-input').val('');
         });
 
-        //reage ao evento messageServer e envia mensagens para todos os clientes
-        socket.on('message', (
-          {message}) => {
-          console.log(message)
-          createMessageElement(message);
-        });
-
-        $(document).on(
-          'click', '.private-chat-button', (event) => {
+        $(document).on('click', '.private-chat-button',
+        (event) => {
           // const privateChatRecipient = $(this).text();
           const recipientNickname = event.target.id.substr(20)
           if (recipientNickname === nickname) return console.log('Você não pode entrar em chat reservado consigo mesmo.');
@@ -127,13 +111,27 @@
           socket.emit('triggerPrivateChat', { from: nickname, to: recipientNickname });
         })
 
-        socket.on('clearChat', () => $('#messages').empty());
-
         $(document).on('click', '.public-chat-button', (
         ) => {
           $('#messages').empty();
           socket.emit('triggerPublicChat', { recipientId });
         })
+
+        //obtem histórico de mensagens
+        socket.on('history', ({ history }) => retrieveMessages(history));
+
+        //atualiza lista de usuarios
+        socket.on('userList', ({ users }) => createUserList(users));
+
+        //reage ao evento messageServer e envia mensagens para todos os clientes
+        socket.on('message', (
+          message) => {
+          console.log(message)
+          createMessageElement(message);
+        });
+
+
+        socket.on('clearChat', () => $('#messages').empty());
         
         socket.on('allowPrivateMode', (
           { recipientId: currentRecipientId }) => {
@@ -148,7 +146,7 @@
           { secretHistory }) => {
           console.log(`secret history: ${secretHistory}`)
 
-          retrieveMessages(secretHistory);
+          retrieveMessages(secretHistory)
         });
 
         socket.on('allowPublicMode', (
