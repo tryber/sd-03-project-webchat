@@ -16,14 +16,18 @@ const saveMessage = async (msg, nickname) => {
 
 io.on('connection', async (socket) => {
   // aki fazer o user ficar on salvando no banco
+  console.log('New User: ', socket.id.substring(socket.id.length - 4));
   await saveUser(socket.nickname, socket.id);
   // aki fazer o user ficar off
-  socket.on('disconnect', () => {});
+  socket.on('disconnect', (e) => {
+    console.log(e);
+  });
   // aki ele emite pra geral a mensagem
   socket.on('message', ({ chatMessage, nickname }) => {
     // salvar mensagem no banco de dados e retornar a hora
-    const time = '21/10/1999 05:23';
-    io.emit('serverMessage', `${nickname}${time}${chatMessage}`);
+    console.log(chatMessage);
+    const time = new Date();
+    io.emit('serverMessage', `${nickname} ${time} ${chatMessage}`);
   });
 });
 

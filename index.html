@@ -12,6 +12,7 @@
   <form>
     <input
       autocomplete="off"
+      id="chatInput"
       class="chatInput"
       data-testid="message-box"
       type="text"
@@ -25,6 +26,7 @@
     </button>
     <input
       autocomplete="off"
+      id="nickInput"
       class="nickInput"
       data-testid="nickname-box"
       type="text"
@@ -46,17 +48,30 @@
     const nickButton = document.getElementById('nickButton');
     const socket = io();
     socket.on('onlineUsers', (users) => {
+      // Vai sempre ser emitido pelo server quando houver conexão e desconexão
       console.log(users);
-      // users.map((user) => {
+    // users.map((user) => {
       //   const li = document.createElement('li');
       //   li.textContent = users.nickname || users.id;
       //   return onlineList.appendChild(li);
       // });
     });
-    socket.on('message', ({ chatMessage, nickname }) => {
+    //socket.emit('message', () => {});
+    socket.on('serverMessage', (message) => {
       const msg = document.createElement('li');
-      msg.textContent = `${nickname} - ${chatMessage}`;
+      msg.textContent = message;
       chatList.appendChild(msg);
+    });
+    // adiciona os ouvidores de eventos
+    sendButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const chatMessage = document.getElementById('chatInput').value;
+      const nickname = document.getElementById('nickInput').value;
+      socket.emit('message', { chatMessage, nickname });
+    });
+    nickButton.addEventListener('click', (event) => {
+      const nickname = document.getElementById('nickInput').value;
+      return event.preventDefault()
     });
   </script>
 </body>
