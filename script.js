@@ -1,3 +1,4 @@
+const moment = require('moment');
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
@@ -26,7 +27,7 @@ io.on('connection', async (socket) => {
   socket.on('message', ({ chatMessage, nickname }) => {
     // salvar mensagem no banco de dados e retornar a hora
     console.log(chatMessage);
-    const time = new Date();
+    const time = moment().format('DD-MM-YYYY hh:mm:ss');
     io.emit('serverMessage', `${nickname} ${time} ${chatMessage}`);
   });
 });

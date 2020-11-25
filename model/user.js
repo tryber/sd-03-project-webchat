@@ -1,14 +1,20 @@
 const connection = require('./connection');
 
 const registerUser = async (nick, id) => connection()
-  .then((db) => db.collection('users').insertOne({ nick, _id: id }))
-  .then((resp) => { console.log(resp)});
+  .then((db) => db.collection('users').insertOne({ nick, _id: id }));
 
-// const getUserById = async (id) => connection()
-//   .then((db) => db.collection('users').findOne({ _id: id }))
-//   .then((user) => user);
+const removeUser = async (id, nick) => connection()
+  .then((db) => db.collection('users').deleteOne({ $or: [{ _id: id }, { nick }] }));
+
+const retrieveUsers = async () => connection()
+  .then((db) => db.collection('users').find().toArray());
+
+const updateUser = async (id, nick) => connection()
+  .then((db) => db.collection('users').updateOne({ _id: id }, { $set: { nick } }));
 
 module.exports = {
   registerUser,
-  // getUserById,
+  retrieveUsers,
+  removeUser,
+  updateUser,
 };

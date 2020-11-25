@@ -50,28 +50,31 @@
     socket.on('onlineUsers', (users) => {
       // Vai sempre ser emitido pelo server quando houver conexão e desconexão
       console.log(users);
-    // users.map((user) => {
+      // users.map((user) => {
       //   const li = document.createElement('li');
       //   li.textContent = users.nickname || users.id;
       //   return onlineList.appendChild(li);
       // });
     });
-    //socket.emit('message', () => {});
     socket.on('serverMessage', (message) => {
       const msg = document.createElement('li');
       msg.textContent = message;
       chatList.appendChild(msg);
     });
+
+    //socket.emit('message', () => {});
+
     // adiciona os ouvidores de eventos
     sendButton.addEventListener('click', (event) => {
       event.preventDefault();
       const chatMessage = document.getElementById('chatInput').value;
       const nickname = document.getElementById('nickInput').value;
-      socket.emit('message', { chatMessage, nickname });
+      return socket.emit('message', { chatMessage, nickname });
     });
     nickButton.addEventListener('click', (event) => {
+      event.preventDefault()
       const nickname = document.getElementById('nickInput').value;
-      return event.preventDefault()
+      return socket.emit('nickname', nickname);
     });
   </script>
 </body>
