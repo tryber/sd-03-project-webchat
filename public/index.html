@@ -17,16 +17,21 @@
 <body>
 
   <section>
-    <form id="webchat">
-      <label for="user">Nome de usuario:</label>
-      <input type="text" name="user" id="user" placeholder="username"><br>
-
     <div id="messageWrapper">
       <p>Bem vindo ao MSN</p>
     </div>
-      <input type="text" name="message" id="message" placeholder="message"><br>
-      <button type="submit">Send</button>
+    <form id="usernameUpdate" >
+      <label for="user">Nome de usuario:</label><br>
+      <input type="text" name="username" id="username" placeholder="username" data-testid="nickname-box">
+      <button type="submit" data-testid="nickname-save">Save new username</button>
     </form>
+    <form id="webchat">
+      <input type="text" name="message" id="message" placeholder="message" data-testid="message-box">
+      <button type="submit" data-testid="send-button">Send</button>
+    </form>
+    <div id="onlineListWrapper">
+      <ul id="onlineList"></ul>
+    </div>
   </section>
 
   <script type="text/javascript">
@@ -34,31 +39,51 @@
 
     socket.on('messageHistory', (history) => history.map((message) => renderMessage(message)));
 
+    socket.on('refreshOnline', (users) => {
+          const onlineList = document.getElementById("onlineList");
+          onlineList.innerHTML = ""
+          users.forEach((user) => {
+            const onlineUser = document.createElement('p');
+            onlineUser.innerHTML = user.username;
+            onlineList.append(onlineUser);
+          })
+        });
+
+    socket.on('renderMessage', (message) => renderMessage(message));
+
     const renderMessage = (messageObject) => {
-      const { user, message, sentTime } = messageObject;
+      const { username, message, sentTime } = messageObject;
       const p = document.createElement('p')
-      p.textContent = `${user}: ${message} enviado as: ${sentTime}`;
-      document.getElementById('messageWrapper').appendChild(p)
+      p.textContent = `${username}: ${message} enviado as: ${sentTime}`;
+      document.getElementById('messageWrapper').appendChild(p);
+      return true;
     }
 
     const webchat = document.getElementById('webchat');
     webchat.onsubmit = (event) => {
       event.preventDefault();
 
-      const user = document.getElementById('user').value;
       const message = document.getElementById('message').value;
       const sentTime = moment().format('D-M-YYYY, HH:mm:ss');
 
-      const messageObject = { user, message, sentTime };
+      const messageData = { username: socket.id, message, sentTime };
 
-      renderMessage(messageObject);
+      socket.emit('message', messageData);
 
-      socket.emit('message', messageObject);
+      document.getElementById('message').value = '';
+      return true;
     }
 
-    socket.on('messageReceived', (messageObject) => renderMessage(messageObject));
+    const usernameUpdate = document.getElementById('usernameUpdate');
+    usernameUpdate.onsubmit = (event) => {
+      event.preventDefault();
 
-    
+      const newUsername = document.getElementById('username').value;
+      const usernameObject = { newUsername, id: socket.id };
+
+      socket.emit('usernameUpdate', usernameObject);
+      return true;
+    }
   </script>
 </body>
 
