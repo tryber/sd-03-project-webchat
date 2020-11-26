@@ -61,18 +61,18 @@
     });
 
     socket.on('history', (messages) => {
-      return messages.map(({ message }) => createMessage(message, chatList));
+      return messages.forEach(({ message }) => createMessage(message, chatList));
     });
 
-    // socket.on('onlineUsers', (users) => {
-    //   // Vai sempre ser emitido pelo server quando houver conexão e desconexão
-    //   console.log(users);
-    //   users.map((user) => {
-    //     const li = document.createElement('li');
-    //     li.textContent = users.nickname || users.id;
-    //     return onlineList.appendChild(li);
-    //   });
-    // });
+    socket.on('onlineUsers', (users) => {
+      // Vai sempre ser emitido pelo server quando houver conexão e desconexão
+      return users.forEach((user) => {
+        const li = document.createElement('li');
+        li.textContent = user.nickname;
+        li.setAttribute('data-testid', 'online-user');
+        onlineList.appendChild(li);
+      });
+    });
 
     // adiciona os ouvidores de eventos
     sendButton.addEventListener('click', (event) => {

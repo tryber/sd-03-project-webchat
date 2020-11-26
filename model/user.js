@@ -1,7 +1,7 @@
 const connection = require('./connection');
 
 const registerUser = async (nick, id) => connection()
-  .then((db) => db.collection('users').insertOne({ nick, _id: id }));
+  .then((db) => db.collection('users').insertOne({ nick, id }));
 
 const removeUser = async (id, nick) => connection()
   .then((db) => db.collection('users').deleteOne({ $or: [{ _id: id }, { nick }] }));
