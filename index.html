@@ -45,6 +45,7 @@
     const createMessage = (message, list) => {
       const msg = document.createElement('li');
       msg.textContent = message;
+      msg.setAttribute('data-testid', 'message')
       list.appendChild(msg);
     };
 
