@@ -45,16 +45,18 @@
           users.forEach((user) => {
             const onlineUser = document.createElement('p');
             onlineUser.innerHTML = user.username;
+            onlineUser.setAttribute('data-testid', 'online-user')
             onlineList.append(onlineUser);
           })
         });
 
     socket.on('renderMessage', (message) => renderMessage(message));
 
-    const renderMessage = (messageObject) => {
-      const { username, message, sentTime } = messageObject;
+    const renderMessage = (message) => {
+      const  { nickname, chatMessage, date } = message;
       const p = document.createElement('p')
-      p.textContent = `${username}: ${message} enviado as: ${sentTime}`;
+      p.setAttribute('data-testid', 'message');
+      p.textContent = `${date} ${nickname} ${chatMessage}`
       document.getElementById('messageWrapper').appendChild(p);
       return true;
     }
@@ -63,10 +65,9 @@
     webchat.onsubmit = (event) => {
       event.preventDefault();
 
-      const message = document.getElementById('message').value;
-      const sentTime = moment().format('D-M-YYYY, HH:mm:ss');
+      const chatMessage = document.getElementById('message').value;
 
-      const messageData = { username: socket.id, message, sentTime };
+      const messageData = { chatMessage };
 
       socket.emit('message', messageData);
 

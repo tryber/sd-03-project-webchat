@@ -5,6 +5,7 @@ const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const socketIo = require('socket.io');
+const moment = require('moment');
 const messages = require('./models/messagesModel');
 const messengerController = require('./controllers/messengerController');
 
@@ -35,14 +36,21 @@ io.on('connection', async (socket) => {
     io.emit('refreshOnline', onlineUsers);
   });
 
-  socket.on('message', async (data) => {
-    const { username, message, sentTime } = data;
-    const updatedUsername = onlineUsers.filter(
-      (user) => user.id === username,
-    )[0].username;
-    const messageObject = { username: updatedUsername, message, sentTime };
+  socket.on('message', (data) => {
+    const myDate = new Date();
+    const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
+    const nickname = onlineUsers.filter((user) => user.id === socket.id)[0];
+    const messageObject = {
+      id: socket.id,
+      nickname: nickname.username,
+      chatMessage: data.chatMessage,
+      date: formattedDate,
+    };
     messengerController.sendMessage(messageObject);
-    io.emit('renderMessage', messageObject);
+    io.emit(
+      'renderMessage',
+      messageObject,
+    );
   });
 
   socket.on('disconnect', async () => {
