@@ -39,10 +39,10 @@ io.on('connection', async (socket) => {
   socket.on('message', (data) => {
     const myDate = new Date();
     const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
-    const nickname = onlineUsers.filter((user) => user.id === socket.id)[0];
+    const nickname = onlineUsers.filter((user) => user.id === socket.id)[0].username;
     const messageObject = {
       id: socket.id,
-      nickname: nickname.username,
+      nickname: data.nickname ? data.nickname : nickname,
       chatMessage: data.chatMessage,
       date: formattedDate,
     };
