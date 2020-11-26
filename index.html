@@ -54,22 +54,24 @@
     const sendButton = document.getElementById('sendButton');
     const nickButton = document.getElementById('nickButton');
     const socket = io();
-    socket.on('onlineUsers', (users) => {
-      // Vai sempre ser emitido pelo server quando houver conexão e desconexão
-      console.log(users);
-      // users.map((user) => {
-      //   const li = document.createElement('li');
-      //   li.textContent = users.nickname || users.id;
-      //   return onlineList.appendChild(li);
-      // });
-    });
-    socket.on('serverMessage', (message) => {
+
+    socket.on('message', (message) => {
       return createMessage(message, chatList);
     });
 
     socket.on('history', (messages) => {
-      return createMessage(message, chatList);
+      return messages.map(({ message }) => createMessage(message, chatList));
     });
+
+    // socket.on('onlineUsers', (users) => {
+    //   // Vai sempre ser emitido pelo server quando houver conexão e desconexão
+    //   console.log(users);
+    //   users.map((user) => {
+    //     const li = document.createElement('li');
+    //     li.textContent = users.nickname || users.id;
+    //     return onlineList.appendChild(li);
+    //   });
+    // });
 
     //socket.emit('message', () => {});
 

@@ -13,13 +13,14 @@ app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 // };
 
 io.on('connection', async (socket) => {
-  // aki fazer o user ficar on salvando no banco
-  console.log('New User: ', socket.id.substring(socket.id.length - 4));
+  console.log('New User: ', socket.id);
+  // pega o histórico de mensagens
   const messages = await retrieveMessages();
   io.to(socket.id).emit('history', messages);
+  // aki fazer o user ficar on salvando no banco
   // await saveUser(socket.nickname, socket.id);
-  // aki fazer o user ficar off
   socket.on('disconnect', (e) => {
+    // aki fazer o user ficar off
     console.log(e);
   });
   // aki ele emite pra geral a mensagem
@@ -29,7 +30,7 @@ io.on('connection', async (socket) => {
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
     const message = `${nickname} - ${time} - ${chatMessage}`;
     await registerMessage(message);
-    io.emit('serverMessage', message);
+    io.emit('message', message);
   });
 });
 
