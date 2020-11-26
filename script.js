@@ -3,14 +3,9 @@ const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-// const { registerUser } = require('./model/user');
 const { registerMessage, retrieveMessages } = require('./model/messages');
 
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
-
-// const saveMessage = async (msg, nickname) => {
-//   // salva mensagens no banco de dados
-// };
 
 io.on('connection', async (socket) => {
   console.log('New User: ', socket.id);
@@ -18,7 +13,6 @@ io.on('connection', async (socket) => {
   const messages = await retrieveMessages();
   io.to(socket.id).emit('history', messages);
   // aki fazer o user ficar on salvando no banco
-  // await saveUser(socket.nickname, socket.id);
   socket.on('disconnect', (e) => {
     // aki fazer o user ficar off
     console.log(e);
