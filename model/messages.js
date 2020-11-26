@@ -1,7 +1,7 @@
 const connection = require('./connection');
 
-const registerMessage = async (message, nickname, id, time) => connection()
-  .then((db) => db.collection('messages').insertOne({ _id: id, nickname, message, time }));
+const registerMessage = async (message) => connection()
+  .then((db) => db.collection('messages').insertOne({ message }));
 
 const retrieveMessages = async () => connection()
   .then((db) => db.collection('messages').find().toArray());

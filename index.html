@@ -41,6 +41,13 @@
   </form>
   <ul class="onlineList" id="onlineList"></ul>
   <script>
+    // Cria uma mensagem e joga ela na lista
+    const createMessage = (message, list) => {
+      const msg = document.createElement('li');
+      msg.textContent = message;
+      list.appendChild(msg);
+    };
+
     // Pegar todos os elementos e salvar
     const chatList = document.getElementById('chat');
     const onlineList = document.getElementById('onlineList');
@@ -57,9 +64,11 @@
       // });
     });
     socket.on('serverMessage', (message) => {
-      const msg = document.createElement('li');
-      msg.textContent = message;
-      chatList.appendChild(msg);
+      return createMessage(message, chatList);
+    });
+
+    socket.on('history', (messages) => {
+      return createMessage(message, chatList);
     });
 
     //socket.emit('message', () => {});
