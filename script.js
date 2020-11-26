@@ -16,7 +16,7 @@ io.on('connection', async (socket) => {
   io.to(socket.id).emit('history', messages);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
-    // salvar mensagem no banco de dados e retornar a hora
+    // salvar mensagem no banco de dados e retornar a hora certa
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
     const message = `${nickname} - ${time} - ${chatMessage}`;
     await registerMessage(message);
