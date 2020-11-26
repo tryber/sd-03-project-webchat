@@ -4,20 +4,17 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
 const { registerMessage, retrieveMessages } = require('./model/messages');
-const { registerUser, retrieveUsers } = require('./model/user');
+
+let onlineUsers = [];
 
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 
 io.on('connection', async (socket) => {
+  io.to(socket.id).emit('allOnline', onlineUsers);
   // pega o histórico de mensagens
   const messages = await retrieveMessages();
   io.to(socket.id).emit('history', messages);
-  // aki fazer o user ficar on salvando no banco
-  socket.on('disconnect', (e) => {
-    // aki fazer o user ficar off
-    console.log(e);
-  });
-  // aki ele emite pra geral a mensagem
+
   socket.on('message', async ({ chatMessage, nickname }) => {
     // salvar mensagem no banco de dados e retornar a hora
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
@@ -25,8 +22,19 @@ io.on('connection', async (socket) => {
     await registerMessage(message);
     io.emit('message', message);
   });
-  socket.on('nickname', async () => {
-    
+
+  socket.on('nickname', async ({ prevNick, nickname }) => {
+    if (prevNick) {
+      onlineUsers = onlineUsers.filter(({ nickname: nick }) => nick !== prevNick);
+    }
+    onlineUsers.push({ nickname, id: socket.id });
+    io.emit('onlineUsers', onlineUsers);
+  });
+
+  socket.on('disconnect', () => {
+    // aki fazer o user ficar off
+    onlineUsers = onlineUsers.filter(({ id }) => id !== socket.id);
+    io.emit('onlineUsers', onlineUsers);
   });
 });
 

@@ -48,12 +48,26 @@
     const nickButton = document.getElementById('nickButton');
     const socket = io();
 
+    let nickname = '';
+
     // Cria uma mensagem e joga ela na lista
     const createMessage = (message, list) => {
       const msg = document.createElement('li');
       msg.textContent = message;
       msg.setAttribute('data-testid', 'message')
       list.appendChild(msg);
+    };
+
+    const generateRndNick = () => {
+      // adaptado da primeira resposta deste link
+      // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
+      const nickname = [];
+      const chars = 'abcdefghijklmnopqrstuvwxyz';
+      const charsLen = 26;
+      for (let i = 0; i < 6; i += 1) {
+        nickname.push(chars.charAt(Math.floor(Math.random() * charsLen)));
+      }
+      return nickname.join('');
     };
 
     socket.on('message', (message) => {
@@ -64,11 +78,22 @@
       return messages.forEach(({ message }) => createMessage(message, chatList));
     });
 
-    socket.on('onlineUsers', (users) => {
+    socket.on('allOnline', (users) => {
       // Vai sempre ser emitido pelo server quando houver conexão e desconexão
-      return users.forEach((user) => {
+      return users.forEach(({ nickname }) => {
         const li = document.createElement('li');
-        li.textContent = user.nickname;
+        li.textContent = nickname;
+        li.setAttribute('data-testid', 'online-user');
+        onlineList.appendChild(li);
+      });
+    });
+
+    socket.on('onlineUsers', (users) => {
+      console.log(users)
+      onlineList.innerHTML = '';
+      return users.forEach(({ nickname }) => {
+        const li = document.createElement('li');
+        li.textContent = nickname;
         li.setAttribute('data-testid', 'online-user');
         onlineList.appendChild(li);
       });
@@ -78,14 +103,19 @@
     sendButton.addEventListener('click', (event) => {
       event.preventDefault();
       const chatMessage = document.getElementById('chatInput').value;
-      const nickname = document.getElementById('nickInput').value;
       return socket.emit('message', { chatMessage, nickname });
     });
     nickButton.addEventListener('click', (event) => {
       event.preventDefault()
-      const nickname = document.getElementById('nickInput').value;
-      return socket.emit('nickname', nickname);
+      const newNick = document.getElementById('nickInput').value;
+      socket.emit('nickname', { prevNick: nickname, nickname: newNick });
+      nickname = newNick;
     });
+
+    window.onload = () => {
+      nickname = generateRndNick();
+      socket.emit('nickname', { prevNick: null, nickname });
+    };
   </script>
 </body>
 </html>
