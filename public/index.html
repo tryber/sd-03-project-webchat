@@ -20,7 +20,7 @@
     <div id="messageWrapper">
       <p>Bem vindo ao MSN</p>
     </div>
-    <form id="usernameUpdate" >
+    <form id="usernameUpdate">
       <label for="user">Nome de usuario:</label><br>
       <input type="text" name="username" id="username" placeholder="username" data-testid="nickname-box">
       <button type="submit" data-testid="nickname-save">Save new username</button>
@@ -37,26 +37,31 @@
   <script type="text/javascript">
     const socket = io('http://localhost:3000')
 
-    socket.on('messageHistory', (history) => history.map((message) => renderMessage(message)));
+    socket.on('messageHistory', (history) => {
+      const stringfiedMessages = history.map((message) => {
+        const { nickname, chatMessage, date } = message;
+        return `${date} - ${nickname}: ${chatMessage}`
+      })
+      stringfiedMessages.map((message) => renderMessage(message));
+    });
 
     socket.on('refreshOnline', (users) => {
-          const onlineList = document.getElementById("onlineList");
-          onlineList.innerHTML = ""
-          users.forEach((user) => {
-            const onlineUser = document.createElement('p');
-            onlineUser.innerHTML = user.username;
-            onlineUser.setAttribute('data-testid', 'online-user')
-            onlineList.append(onlineUser);
-          })
-        });
+      const onlineList = document.getElementById("onlineList");
+      onlineList.innerHTML = ""
+      users.forEach((user) => {
+        const onlineUser = document.createElement('p');
+        onlineUser.innerHTML = user.username;
+        onlineUser.setAttribute('data-testid', 'online-user')
+        onlineList.append(onlineUser);
+      })
+    });
 
-    socket.on('renderMessage', (message) => renderMessage(message));
+    socket.on('message', (message) => renderMessage(message));
 
     const renderMessage = (message) => {
-      const  { nickname, chatMessage, date } = message;
       const p = document.createElement('p')
       p.setAttribute('data-testid', 'message');
-      p.textContent = `${date} ${nickname} ${chatMessage}`
+      p.textContent = message;
       document.getElementById('messageWrapper').appendChild(p);
       return true;
     }

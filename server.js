@@ -47,9 +47,10 @@ io.on('connection', async (socket) => {
       date: formattedDate,
     };
     messengerController.sendMessage(messageObject);
+    const messageString = `${formattedDate} - ${nickname}: ${data.chatMessage}`;
     io.emit(
-      'renderMessage',
-      messageObject,
+      'message',
+      messageString,
     );
   });
 
