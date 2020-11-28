@@ -17,8 +17,8 @@ io.on('connection', async (socket) => {
   io.to(socket.id).emit('allOnline', onlineUsers);
   // pega o histórico de mensagens
   const messages = await retrievePublicMessages();
-  // const privateMessages = await retrievePrivateMessages();
   io.to(socket.id).emit('history', messages);
+  // const privateMessages = await retrievePrivateMessages();
   // io.to(socket.id).emit('privateHistory', privateMessages);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
