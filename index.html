@@ -95,15 +95,15 @@
       return messages.forEach(({ message }) => createMessage(message, chatList));
     });
 
-    socket.on('privateMessage', (message) => {
-      if (!private) return;
-      return createMessage(message, chatList);
-    });
+    // socket.on('privateMessage', (message) => {
+    //   if (!private) return;
+    //   return createMessage(message, chatList);
+    // });
 
-    socket.on('privateHistory', (messages) => {
-      if (!private) return;
-      return messages.forEach(({ message }) => createMessage(message, chatList));
-    });
+    // socket.on('privateHistory', (messages) => {
+    //   if (!private) return;
+    //   return messages.forEach(({ message }) => createMessage(message, chatList));
+    // });
 
     socket.on('allOnline', (users) => {
       // Vai sempre ser emitido pelo server quando houver conexão e desconexão
