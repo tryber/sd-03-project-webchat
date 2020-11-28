@@ -28,12 +28,12 @@ io.on('connection', async (socket) => {
     io.emit('message', message);
   });
 
-  socket.on('privateMessage', async ({ chatMessage, nickname }) => {
-    const time = moment().format('DD-MM-YYYY hh:mm:ss');
-    const message = `${nickname} - ${time} - ${chatMessage}`;
-    await registerMessage(message);
-    io.emit('privateMessage', message);
-  });
+  // socket.on('privateMessage', async ({ chatMessage, nickname }) => {
+  //   const time = moment().format('DD-MM-YYYY hh:mm:ss');
+  //   const message = `${nickname} - ${time} - ${chatMessage}`;
+  //   await registerMessage(message);
+  //   io.emit('privateMessage', message);
+  // });
 
   socket.on('nickname', async ({ prevNick, nickname }) => {
     if (prevNick) {
