@@ -3,7 +3,11 @@ const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-const { registerMessage, retrieveMessages } = require('./model/messages');
+const {
+  registerMessage,
+  retrievePublicMessages,
+  retrievePrivateMessages,
+} = require('./model/messages');
 
 let onlineUsers = [];
 
@@ -12,15 +16,23 @@ app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 io.on('connection', async (socket) => {
   io.to(socket.id).emit('allOnline', onlineUsers);
   // pega o histórico de mensagens
-  const messages = await retrieveMessages();
+  const messages = await retrievePublicMessages();
+  const privateMessages = await retrievePrivateMessages();
   io.to(socket.id).emit('history', messages);
+  io.to(socket.id).emit('privateHistory', privateMessages);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
-    // salvar mensagem no banco de dados e retornar a hora certa
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
     const message = `${nickname} - ${time} - ${chatMessage}`;
-    await registerMessage(message);
+    await registerMessage(message, true);
     io.emit('message', message);
+  });
+
+  socket.on('privateMessage', async ({ chatMessage, nickname }) => {
+    const time = moment().format('DD-MM-YYYY hh:mm:ss');
+    const message = `${nickname} - ${time} - ${chatMessage}`;
+    await registerMessage(message, false);
+    io.emit('privateMessage', message);
   });
 
   socket.on('nickname', async ({ prevNick, nickname }) => {

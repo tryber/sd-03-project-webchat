@@ -40,6 +40,13 @@
     </button>
   </form>
   <ul class="onlineList" id="onlineList"></ul>
+  <button
+    class="publicButton"
+    data-testid="public"
+    id="publicButton"
+  >
+    Pulico
+  </button>
   <script>
     // Pegar todos os elementos e salvar
     const chatList = document.getElementById('chat');
@@ -59,6 +66,13 @@
       list.appendChild(msg);
     };
 
+    const switchChat = () => {
+      if (chatList.childNodes.length === 1) return;
+      chatList.removeChild(chatList.childNodes[0]);
+      private = !private;
+      socket.emit('switching');
+    };
+
     const generateRndNick = () => {
       // adaptado da primeira resposta deste link
       // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
@@ -72,10 +86,22 @@
     };
 
     socket.on('message', (message) => {
+      if (private) return;
       return createMessage(message, chatList);
     });
 
     socket.on('history', (messages) => {
+      if (private) return;
+      return messages.forEach(({ message }) => createMessage(message, chatList));
+    });
+
+    socket.on('privateMessage', (message) => {
+      if (!private) return;
+      return createMessage(message, chatList);
+    });
+
+    socket.on('privateHistory', (messages) => {
+      if (!private) return;
       return messages.forEach(({ message }) => createMessage(message, chatList));
     });
 
@@ -83,19 +109,28 @@
       // Vai sempre ser emitido pelo server quando houver conexão e desconexão
       return users.forEach(({ nickname }) => {
         const li = document.createElement('li');
-        li.textContent = nickname;
+        const btn = document.createElement('button');
+        btn.innerText = 'Iniciar chat';
+        btn.setAttribute('data-testid', 'private')
+        btn.addEventListener('click', () => switchChat());
+        li.innerText = nickname;
         li.setAttribute('data-testid', 'online-user');
+        onlineList.appendChild(btn);
         onlineList.appendChild(li);
       });
     });
 
     socket.on('onlineUsers', (users) => {
-      console.log(users)
       onlineList.innerHTML = '';
-      return users.forEach(({ nickname }) => {
+      return users.forEach(({ nickname: nick }) => {
         const li = document.createElement('li');
-        li.textContent = nickname;
+        const btn = document.createElement('button');
+        btn.innerText = 'Iniciar chat';
+        btn.setAttribute('data-testid', 'private')
+        btn.addEventListener('click', () => switchChat());
+        li.innerText = nick;
         li.setAttribute('data-testid', 'online-user');
+        onlineList.appendChild(btn);
         onlineList.appendChild(li);
       });
     });
@@ -106,6 +141,7 @@
       const chatMessage = document.getElementById('chatInput').value;
       return socket.emit('message', { chatMessage, nickname });
     });
+
     nickButton.addEventListener('click', (event) => {
       event.preventDefault()
       const newNick = document.getElementById('nickInput').value;
