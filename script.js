@@ -6,7 +6,7 @@ const io = require('socket.io')(http);
 const {
   registerMessage,
   retrievePublicMessages,
-  retrievePrivateMessages,
+  // retrievePrivateMessages,
 } = require('./model/messages');
 
 let onlineUsers = [];
