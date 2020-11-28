@@ -7,7 +7,7 @@ const retrievePublicMessages = async () => connection()
   .then((db) => db.collection('messages').find().toArray());
 
 const retrievePrivateMessages = async () => connection()
-  .then((db) => db.collection('messages').find({ isPublic: false }).toArray());
+  .then((db) => db.collection('messages').find().toArray());
 
 module.exports = {
   registerMessage,
