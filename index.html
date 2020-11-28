@@ -87,13 +87,11 @@
     };
 
     socket.on('message', (message) => {
-      if (private) return;
-      return createMessage(message, chatList);
+      if (!private) return createMessage(message, chatList);;
     });
 
     socket.on('history', (messages) => {
-      if (private) return;
-      return messages.forEach(({ message }) => createMessage(message, chatList));
+      if (!private) return messages.forEach(({ message }) => createMessage(message, chatList));;
     });
 
     socket.on('privateMessage', (message) => {
