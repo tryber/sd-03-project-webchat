@@ -24,14 +24,14 @@ io.on('connection', async (socket) => {
   socket.on('message', async ({ chatMessage, nickname }) => {
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
     const message = `${nickname} - ${time} - ${chatMessage}`;
-    await registerMessage(message, true);
+    await registerMessage(message);
     io.emit('message', message);
   });
 
   socket.on('privateMessage', async ({ chatMessage, nickname }) => {
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
     const message = `${nickname} - ${time} - ${chatMessage}`;
-    await registerMessage(message, false);
+    await registerMessage(message);
     io.emit('privateMessage', message);
   });
 

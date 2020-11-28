@@ -45,7 +45,7 @@
     data-testid="public"
     id="publicButton"
   >
-    Pulico
+    Publico
   </button>
   <script>
     // Pegar todos os elementos e salvar
@@ -53,6 +53,7 @@
     const onlineList = document.getElementById('onlineList');
     const sendButton = document.getElementById('sendButton');
     const nickButton = document.getElementById('nickButton');
+    const publicButton = document.getElementById('public');
     const socket = io();
 
     let nickname = '';
@@ -95,15 +96,15 @@
       return messages.forEach(({ message }) => createMessage(message, chatList));
     });
 
-    // socket.on('privateMessage', (message) => {
-    //   if (!private) return;
-    //   return createMessage(message, chatList);
-    // });
+    socket.on('privateMessage', (message) => {
+      if (!private) return;
+      return createMessage(message, chatList);
+    });
 
-    // socket.on('privateHistory', (messages) => {
-    //   if (!private) return;
-    //   return messages.forEach(({ message }) => createMessage(message, chatList));
-    // });
+    socket.on('privateHistory', (messages) => {
+      if (!private) return;
+      return messages.forEach(({ message }) => createMessage(message, chatList));
+    });
 
     socket.on('allOnline', (users) => {
       // Vai sempre ser emitido pelo server quando houver conexão e desconexão
