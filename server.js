@@ -17,6 +17,10 @@ const httpServer = http.createServer(app);
 
 app.use(bodyParser.json());
 
+app.get('/', (req, res) => {
+  res.sendFile(`${__dirname}/public/index.html`);
+});
+
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
 const io = socketIo(httpServer);
@@ -39,15 +43,15 @@ io.on('connection', async (socket) => {
   socket.on('message', (data) => {
     const myDate = new Date();
     const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
-    const nickname = onlineUsers.filter((user) => user.id === socket.id)[0].username;
     const messageObject = {
       id: socket.id,
-      nickname: data.nickname ? data.nickname : nickname,
+      nickname: data.nickname,
       chatMessage: data.chatMessage,
       date: formattedDate,
     };
+    console.log('usuarios online:', onlineUsers);
     messengerController.sendMessage(messageObject);
-    const messageString = `${formattedDate} - ${nickname}: ${data.chatMessage}`;
+    const messageString = `${formattedDate} - ${data.nickname}: ${data.chatMessage}`;
     io.emit(
       'message',
       messageString,

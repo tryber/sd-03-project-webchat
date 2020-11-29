@@ -72,12 +72,10 @@
 
       const chatMessage = document.getElementById('message').value;
 
-      const messageData = { chatMessage };
-
-      socket.emit('message', messageData);
+      socket.emit('message', { chatMessage });
 
       document.getElementById('message').value = '';
-      return true;
+      return null;
     }
 
     const usernameUpdate = document.getElementById('usernameUpdate');
