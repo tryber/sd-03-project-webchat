@@ -43,15 +43,18 @@ io.on('connection', async (socket) => {
   socket.on('message', (data) => {
     const myDate = new Date();
     const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
+    const nickname = data.nickname
+      ? data.nickname
+      : onlineUsers.filter((user) => user.id === socket.id)[0].username;
     const messageObject = {
       id: socket.id,
-      nickname: data.nickname,
+      nickname,
       chatMessage: data.chatMessage,
       date: formattedDate,
     };
     console.log('usuarios online:', onlineUsers);
     messengerController.sendMessage(messageObject);
-    const messageString = `${formattedDate} - ${data.nickname}: ${data.chatMessage}`;
+    const messageString = `${formattedDate} - ${nickname}: ${data.chatMessage}`;
     io.emit(
       'message',
       messageString,
