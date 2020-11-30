@@ -29,9 +29,9 @@
       <button type="submit" id="send-button" data-testid="send-button">Enviar</button>
     </div>
     <nav class="bg-light border-right" id="sidebar-wrapper">
+      <input type="text" data-testid="nickname-box" id="nickname-box"/>
+      <button type="button" data-testid="nickname-save" id="nickname-save">Salvar</button>
       <div class="list-group list-group-flush" id="usersList">
-        <input type="text" data-testid="nickname-box"/>
-        <button type="button" data-testid="nickname-save">Salvar</button>
       </div>
     </nav>
   </body>
@@ -48,13 +48,14 @@
   <script>
     const socket = io('http://localhost:3000');
     const sendButton = document.getElementById('send-button');
+    let nickname = '';
 
     sendButton.addEventListener('click', (e) => {
       e.preventDefault();
       let message = document.getElementById('message').value;
       const messageObj = {
         chatMessage: message,
-        nickname: 'asdf',
+        nickname,
       };
       socket.emit('message', messageObj);
       message = '';
@@ -66,6 +67,13 @@
       li.setAttribute('data-testid', 'message');
       document.getElementById('messages').appendChild(li)
     }
+
+    const nicknameSave = document.getElementById('nickname-save');
+    const nicknameBox = document.getElementById('nickname-box');
+
+    nicknameSave.addEventListener('click', () => {
+      socket.emit('changeNickname', nicknameBox.value);
+    })
 
     socket.on('history', (messages) => {
       document.getElementById('messages').innerHTML = '';
@@ -88,6 +96,8 @@
         button.setAttribute('data-testid', 'online-user');
         document.getElementById('usersList').appendChild(button);
       })
+      nickname = onlineUsers.find(user => user.id === socket.id).nickname;
+      console.log(nickname);
     });
   </script>
 </html>
