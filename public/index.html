@@ -1,11 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  
-</body>
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bate-papo Trybol</title>
+  </head>
+
+  <body>
+    <input type="text" name="" id="username" data-testid="nickname-box">
+    <button id="user-save" data-testid="nickname-save">Salvar Apelido</button>
+    <h4 id="name"></h4>
+    <ul id="chat"></ul>
+    <input type="text" name="" id="user-message" data-testid="message-box">
+    <button id="send-msg" data-testid="send-button">Enviar</button>
+    <div>
+      <ul id="online-users"></ul>
+    </div>
+    <button id="private-chat-btn" data-testid="private">Chat Privado</button>
+    <button data-testid="public"> Chat Publico</button>
+  </body>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:3000');
+
+    const saveUserName = document.getElementById('user-save');
+    const sendChatMessage = document.getElementById('send-msg');
+    const privateChatButton = document.getElementById('private-chat-btn');
+
+    saveUserName.addEventListener('click', () => {
+      const nickname = document.getElementById('username').value;
+      const name = document.getElementById('name');
+      name.textContent = `Name: ${nickname}`;
+
+      socket.emit('user-nickname', { nickname });
+    });
+
+    sendChatMessage.addEventListener('click', () => {
+      const chatMessage = document.getElementById('user-message').value;
+      const nickname = document.getElementById('name').textContent.split(' ')[1];
+      socket.emit('message', { chatMessage, nickname });
+    });
+
+    privateChatButton.addEventListener('click', () => {
+      const list = document.getElementById('chat');
+      if (list.childNodes.length === 1) return;
+      list.removeChild(list.childNodes[0]);
+    });
+
+    socket.on('messages-history', (allMsg) => {
+      allMsg.forEach(({ message }) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('chat').appendChild(li);
+      });
+    });
+
+    socket.on('online-users', (data) => {
+      data.forEach(({ name }) => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        li.setAttribute('data-testid', 'online-user');
+        document.getElementById('online-users').appendChild(li)
+      });
+    });
+
+    socket.on('new-online-user', (name) => {
+      const li = document.createElement('li');
+      li.textContent = name;
+      li.setAttribute('data-testid', 'online-user');
+      document.getElementById('online-users').appendChild(li)
+    });
+
+    socket.on('new-online-list', (data) => {
+      document.getElementById('online-users').textContent = '';
+      data.forEach(({ name }) => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        document.getElementById('online-users').appendChild(li);
+      });
+    });
+
+    socket.on('message', (message) => {
+      const li = document.createElement('li');
+      li.textContent = message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('chat').appendChild(li);
+    });
+  </script>
+
 </html>
