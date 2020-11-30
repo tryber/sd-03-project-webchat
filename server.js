@@ -30,7 +30,7 @@ io.on('connection', async (socket) => {
       const actualPM = oldPM[0].arrMSG || [];
       const newArr = [...actualPM, completeMSG];
       await savePrivateChat(newArr, privateChatId);
-      io.to(privateChatId).emit('message', completeMSG);
+      io.to(privateChatId).emit('PVTmessage', completeMSG);
     }
   });
 
