@@ -85,6 +85,7 @@
         button.type="button";
         button.textContent=onlineUser.nickname;
         button.classList="list-group-item list-group-item-action bg-light"
+        button.setAttribute('data-testid', 'online-user');
         document.getElementById('usersList').appendChild(button);
       })
     });
