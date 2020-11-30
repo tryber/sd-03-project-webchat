@@ -24,21 +24,19 @@ io.on('connection', async (socket) => {
     const completeMSG = `${msgDate} ${msgTime} - ${nickname}: ${chatMessage}`;
     if (!privateChat) {
       await saveMessage(completeMSG);
-      io.emit('message', { completeMSG, status: 'public' });
+      io.emit('message', completeMSG);
     } else {
       const oldPM = await getOneChat(privateChatId);
-      console.log(oldPM, '1', privateChatId);
       const actualPM = oldPM[0].arrMSG || [];
-      console.log(actualPM, '2');
       const newArr = [...actualPM, completeMSG];
       await savePrivateChat(newArr, privateChatId);
-      io.emit('message', { completeMSG, status: 'private' });
+      io.to(privateChatId).emit('message', completeMSG);
     }
   });
 
   socket.on('newUser', async (nickname) => {
     await arrUsers.push({ id, nickname });
-    io.emit('onlineList', { arrUsers, id });
+    io.emit('onlineList', { arrUsers });
   });
 
   socket.on('changeNick', async (newNick) => {
@@ -52,7 +50,7 @@ io.on('connection', async (socket) => {
     // }, []);
     const index = arrUsers.findIndex((elem) => elem.id === id);
     if (arrUsers[index]) arrUsers[index].nickname = newNick;
-    io.emit('onlineList', arrUsers);
+    io.emit('onlineList', { arrUsers });
   });
 
   socket.on('EnterPrivate', async ({ user1, user2 }) => {

@@ -68,15 +68,12 @@
       })
     });
 
-    socket.on('message', ({ completeMSG, status }) => {
+    socket.on('message', (completeMSG) => {
       const p = document.createElement('p');
       p.setAttribute("data-testid", "message");
       p.textContent = completeMSG;
       console.log('entrei no message');
-      if ((status === 'public' && !privateChat) || (status === 'private' && privateChat)) {
-        console.log('entrei no if message', completeMSG, status);
-        document.getElementById('messagens-history').appendChild(p);
-      }
+      document.getElementById('messagens-history').appendChild(p);
     });
 
     socket.on('history', (arrMessage) => {
@@ -122,8 +119,6 @@
       socket.emit("changeNick", username);
       newNick.value = '';
     });
-
-    // oi
 
     document.getElementById("public").addEventListener('click',function() {
       privateChat = false;
