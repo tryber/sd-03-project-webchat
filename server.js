@@ -1,10 +1,11 @@
+const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
-const express = require('express');
 const serverIo = require('socket.io');
-const bodyParser = require('body-parser');
+require('dotenv').config();
 
 const controllers = require('./controllers');
 
@@ -23,7 +24,7 @@ const server = app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 const io = serverIo(server);
 
-const onlineUser = [];
+const onlineUsers = [];
 
 io.on('connect', (socket) => {
   axios({
@@ -31,18 +32,18 @@ io.on('connect', (socket) => {
     url: 'http://localhost:3000/msg',
   }).then(({ data }) => socket.emit('messages-history', data));
 
-  socket.emit('online-users', onlineUser);
+  socket.emit('online-users', onlineUsers);
 
   socket.on('user-nickname', ({ nickname: newUser }) => {
-    onlineUser.push({ name: newUser, id: socket.id });
+    onlineUsers.push({ name: newUser, id: socket.id });
     socket.emit('new-online-user', newUser);
     socket.broadcast.emit('new-online-user', newUser);
   });
 
   socket.on('disconnect', () => {
-    const index = onlineUser.map(({ id }) => id).indexOf(socket.id);
-    if (index !== -1) onlineUser.splice(index, 1);
-    socket.broadcast.emit('new-online-list', onlineUser);
+    const index = onlineUsers.map(({ id }) => id).indexOf(socket.id);
+    if (index !== -1) onlineUsers.splice(index, 1);
+    socket.broadcast.emit('new-online-list', onlineUsers);
   });
 
   socket.on('message', ({ chatMessage, nickname }) => {
