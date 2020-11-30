@@ -13,7 +13,6 @@ const newUser = (id, io) => {
 };
 
 const disconnectUser = (id, io) => {
-  console.log(getOnlineUsers());
   onlineUsers.forEach((user) => { if (user.id === id) onlineUsers.delete(user); });
   io.emit('getOnlineUsers', getOnlineUsers());
 };
