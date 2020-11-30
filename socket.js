@@ -10,5 +10,6 @@ module.exports = (app, dbConnection) => {
     socket.emit('history', await messageController.getChatHistory());
     socket.on('message', messageController.newMessage(io));
   });
+  console.log(dbConnection);
   return { io, httpServer };
 };

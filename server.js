@@ -6,7 +6,7 @@ const dbConnection = require('./tests/helpers/db');
 const app = express();
 
 http(app, express);
-const { io, httpServer } = socket(app, dbConnection);
+const { httpServer } = socket(app, dbConnection);
 
 httpServer.listen(3000, () => {
   console.log('App ouvindo na porta 3000');
