@@ -2,7 +2,7 @@ const { messagesModel } = require('../models');
 
 const saveMessages = async ({ message }) => {
   try {
-    await messagesModel.saveMessages({ message });
+    await messagesModel.save({ message });
     return { status: 'success' };
   } catch (error) {
     throw new Error(error.message);
