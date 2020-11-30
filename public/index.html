@@ -29,13 +29,7 @@
       <button type="submit" id="send-button" data-testid="send-button">Enviar</button>
     </div>
     <nav class="bg-light border-right" id="sidebar-wrapper">
-      <div class="list-group list-group-flush">
-        <a href="#" class="list-group-item list-group-item-action bg-light">Dashboard</a>
-        <a href="#" class="list-group-item list-group-item-action bg-light">Shortcuts</a>
-        <a href="#" class="list-group-item list-group-item-action bg-light">Overview</a>
-        <a href="#" class="list-group-item list-group-item-action bg-light">Events</a>
-        <a href="#" class="list-group-item list-group-item-action bg-light">Profile</a>
-        <a href="#" class="list-group-item list-group-item-action bg-light">Status</a>
+      <div class="list-group list-group-flush" id="usersList">
         <input type="text" data-testid="nickname-box"/>
         <button type="button" data-testid="nickname-save">Salvar</button>
       </div>
@@ -82,6 +76,17 @@
 
     socket.on('message', (message) => {
       createMessage(message);
+    });
+
+    socket.on('getOnlineUsers', (onlineUsers) => {
+      document.getElementById('usersList').innerHTML = '';
+      onlineUsers.forEach((onlineUser) => {
+        const button = document.createElement('button');
+        button.type="button";
+        button.textContent=onlineUser.nickname;
+        button.classList="list-group-item list-group-item-action bg-light"
+        document.getElementById('usersList').appendChild(button);
+      })
     });
   </script>
 </html>
