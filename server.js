@@ -1,5 +1,3 @@
-// o codigo deste projeto foi baseado no codigo da aula ao vivo presente neste pull request:
-// https://github.com/tryber/sd-03-live-lectures/tree/socket-io
 const path = require('path');
 const http = require('http');
 const express = require('express');
