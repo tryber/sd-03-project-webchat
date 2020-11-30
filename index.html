@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO - webchat</title>
+    <style>
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    </script>
+  </head>
+  <body>
+    <form>
+      <input type="text" id="nickname-box" data-testid="nickname-box"/>
+      <button id="nickname-save" data-testid="nickname-save" type="button">SAVE</button>
+    </form>
+    <div id="messagens-history"></div>
+    <form>
+      <input type="text" id="message-box" data-testid="message-box"/>
+      <button id="send-button" data-testid="send-button" type="button">SEND</button>
+    </form>
+    <ul data-testid="online-container" id="online-container"></ul>
+    <div id="public-container">
+      <button id="public" data-testid="public" type="button">public</button>
+    </div>
+  </body>
+  <script>
+    const socket = io('http://localhost:3000');
+    let sendMessage = document.getElementById('send-button');
+    let changeNick = document.getElementById('nickname-save');
+
+    const randomUserName = () => {
+      const randomNumber = parseInt(Math.random() * 100000 );
+      const newUserNick = `User${randomNumber}`;
+      socket.emit("newUser", newUserNick);
+      return newUserNick;
+    };
+    
+    let username = randomUserName();
+    let userto = '';
+    let privateChat = false;
+    let privateChatId = '';
+    let enteredChat = false;
+
+    socket.on('onlineList', ({ arrUsers }) => {
+      const parent = document.getElementById('online-container');
+      while (parent.firstChild) {
+        parent.firstChild.remove();
+      }
+      arrUsers.forEach((elem) => {
+        const li = document.createElement('li');
+        li.setAttribute("data-testid", "online-user");
+        li.textContent = elem.nickname;
+        document.getElementById('online-container').appendChild(li);
+
+        if (username !== elem.nickname) {
+          const btn = document.createElement('button');
+          btn.setAttribute("data-testid", "private");
+          btn.setAttribute("id", elem.nickname);
+          btn.textContent = "private";
+          document.getElementById('online-container').appendChild(btn);
+
+          document.getElementById(elem.nickname).addEventListener('click',function() {
+            privateChat = true;
+            const history = document.getElementById('messagens-history')
+            history.innerHTML = "";
+            socket.emit("EnterPrivate", { user1: elem.nickname , user2: username });
+          });
+        }
+      })
+    });
+
+    socket.on('message', (completeMSG) => {
+      const p = document.createElement('p');
+      p.setAttribute("data-testid", "message");
+      p.textContent = completeMSG;
+      document.getElementById('messagens-history').appendChild(p);
+    });
+
+    socket.on('PVTmessage', (completeMSG) => {
+      const p = document.createElement('p');
+      p.setAttribute("data-testid", "message");
+      p.textContent = completeMSG;
+      document.getElementById('messagens-history').appendChild(p);
+    });
+
+    socket.on('history', (arrMessage) => {
+      arrMessage.forEach(({ completeMSG }) => {
+        const p = document.createElement('p');
+        p.setAttribute("data-testid", "message");
+        p.textContent = completeMSG;
+        document.getElementById('messagens-history').appendChild(p);
+      })
+    });
+
+    socket.on('EnterPM', (chatInfo) => {
+      console.log(chatInfo, 'aqui estou');
+      if (!enteredChat) {
+        chatInfo.arrMSG.forEach((elem) => {
+          const p = document.createElement('p');
+          p.setAttribute("data-testid", "message");
+          p.textContent = elem;
+          document.getElementById('messagens-history').appendChild(p);
+        })
+        enteredChat = true;
+      }
+      const { _id: chatID } = chatInfo;
+      privateChatId = chatID;
+      console.log(privateId, chatID, chatInfo, 'dentro do EnterPM');
+    });
+
+    sendMessage.addEventListener('click',function() {
+      const message = document.getElementById('message-box');
+      console.log(privateChat, privateChatId)
+      socket.emit("message", {
+        chatMessage: message.value,
+        nickname: username,
+        privateChat,
+        privateChatId,
+      });
+      message.value = '';
+    });
+
+    changeNick.addEventListener('click',function() {
+      let newNick = document.getElementById("nickname-box");
+      username = newNick.value;
+      socket.emit("changeNick", username);
+      newNick.value = '';
+    });
+
+    document.getElementById("public").addEventListener('click',function() {
+      privateChat = false;
+      enteredChat = false;
+      document.getElementById('messagens-history').innerHTML = "";
+      socket.emit("recoverHistory", privateChatId);
+      privateChatId = '';
+    });
+   </script>
+</html>
