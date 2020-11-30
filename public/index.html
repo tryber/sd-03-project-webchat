@@ -65,7 +65,7 @@
         const publicMessagesArray = [...publicMessages]
         publicMessagesArray.forEach((message) => document.getElementById('messageWrapper').removeChild(message))
         }
-        if (user.id !== socket.id) onlineUser.append(privateMessageButton);
+        if (user.id !== socket.id) onlineList.append(privateMessageButton);
         onlineList.append(onlineUser);
       })
     });
