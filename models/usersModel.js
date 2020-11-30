@@ -1,5 +1,5 @@
 const { ObjectId } = require('mongodb');
-const { connection } = require('./connection');
+const connection = require('./connection');
 
 const updateNickname = async (id, nickname) => connection()
   .then((db) => db.collection('messages')

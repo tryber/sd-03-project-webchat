@@ -33,7 +33,7 @@ io.on('connection', async (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Lintening on ${PORT}`);
 });
