@@ -41,8 +41,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('message', (data) => {
-    const myDate = new Date();
-    const formattedDate = moment(myDate).format('DD-MM-YYYY HH:mm:ss');
+    const formattedDate = moment(new Date()).format('DD-MM-YYYY HH:mm:ss');
     const nickname = data.nickname
       ? data.nickname
       : onlineUsers.filter((user) => user.id === socket.id)[0].username;
@@ -52,13 +51,26 @@ io.on('connection', async (socket) => {
       chatMessage: data.chatMessage,
       date: formattedDate,
     };
-    console.log('usuarios online:', onlineUsers);
     messengerController.sendMessage(messageObject);
     const messageString = `${formattedDate} - ${nickname}: ${data.chatMessage}`;
     io.emit(
       'message',
       messageString,
     );
+  });
+
+  socket.on('privateMessage', (data) => {
+    const formattedDate = moment(new Date()).format('DD-MM-YYYY HH:mm:ss');
+    const nickname = data.nickname
+      ? data.nickname
+      : onlineUsers.filter((user) => user.id === socket.id)[0].username;
+
+    const recipientNickname = data.nickname
+      ? data.nickname
+      : onlineUsers.filter((user) => user.id === data.directMessage)[0].username;
+    const messageString = `${formattedDate} - ${nickname} privaetely to ${recipientNickname}: ${data.chatMessage}`;
+    io.to(data.directMessage).emit('privateMessage', messageString);
+    io.to(socket.id).emit('privateMessage', messageString);
   });
 
   socket.on('disconnect', async () => {
