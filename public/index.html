@@ -93,7 +93,12 @@
     }
 
     const publicButton = document.getElementById('public-chat-btn');
-    publicButton.onclick = () => directMessage = '';
+    publicButton.onclick = () => {
+      directMessage = '';
+      const privateMessages = document.getElementsByClassName('private-message');
+      const privateMessagesArray = [...privateMessages]
+      privateMessagesArray.forEach((message) => document.getElementById('messageWrapper').removeChild(message))
+    }
 
     const webchat = document.getElementById('webchat');
     webchat.onsubmit = (event) => {
