@@ -1,7 +1,7 @@
 const { connection } = require('./connection');
 
 const createMessage = async (chatMessage, nickname, timestamp) => connection()
-  .then((db) => db.collection('recipes').insertOne({ chatMessage, nickname, timestamp }))
+  .then((db) => db.collection('messages').insertOne({ chatMessage, nickname, timestamp }))
   .then(({ insertedId }) => ({
     message: {
       chatMessage,
@@ -11,6 +11,10 @@ const createMessage = async (chatMessage, nickname, timestamp) => connection()
     },
   }));
 
+const getAllMessages = async () => connection()
+  .then((db) => db.collection('messages').find({}).toArray());
+
 module.exports = {
   createMessage,
+  getAllMessages,
 };
