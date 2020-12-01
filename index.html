@@ -62,6 +62,8 @@
           messagesList.appendChild(li);
         });
 
+        socket.emit('logged-users', { nickname: userNickname });
+
         socket.on('online-users', (messages) => {
           messages.forEach((message) => {
             const li = document.createElement('li');
