@@ -11,7 +11,7 @@ sendButton.addEventListener('click', (e) => {
   const messageObj = {
     chatMessage: message,
     nickname,
-      room,
+    room,
   };
   socket.emit('message', messageObj);
   message = '';
@@ -41,8 +41,8 @@ nicknameSave.addEventListener('click', () => {
 socket.on('history', (messages) => {
   document.getElementById('messages').innerHTML = '';
   messages.forEach((message) => {
-		const [nick, chatMessage, sentOnDate, sentOnTime, messageRoom] = message.split(',');
-		console.log(messageRoom);
+    const [nick, chatMessage, sentOnDate, sentOnTime, messageRoom] = message.split(',');
+    console.log(messageRoom);
     createMessage(`${nick}: ${chatMessage} - ${sentOnDate} ${sentOnTime}`);
   });
 });
