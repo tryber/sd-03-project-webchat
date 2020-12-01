@@ -16,6 +16,11 @@
       <div>
         <ul id="usersList"></ul>
       </div>
+      <div>
+        <button id="privateButton" data-testid="private">Private Chat</button>
+        <button data-testid="public">Public Chat</button>
+      </div>
+
     </body>
     <script>
       window.onload = () => {
@@ -28,6 +33,7 @@
         const nicknameInput = document.getElementById('nicknameInput');
         const name = document.getElementById('name');
         const usersList = document.getElementById('usersList');
+        const privateButton = document.getElementById('privateButton');
 
         const userNickname = chance.name();
         name.innerText = userNickname;
@@ -47,6 +53,19 @@
           userNickname = newNickname;
           nicknameInput.value = '';
         });
+        
+        privateButton.addEventListener('click', () => {
+          const list = document.getElementById('usersList');
+          if (list.childNodes.length === 1) return;
+          list.removeChild(list.childNodes[0]);
+        });
+
+        // privateButton.addEventListener('click', (e) => {
+        //   e.preventDefault();
+        //   const nickname = name.innerText;
+        //   socket.emit('message', { chatMessage: messageInput.value, nickname: nickname });
+        //   messageInput.value = '';
+        // });
 
         socket.on('history', (fullMessage) => {
           const li = document.createElement('li');
@@ -67,7 +86,9 @@
             const li = document.createElement('li');
             li.setAttribute("data-testid", "online-user");
             li.textContent = message.nickname;
+            privateButton.setAttribute("data-testid", "private");
             usersList.appendChild(li);
+            usersList.appendChild(privateButton);
           })
         });
 
