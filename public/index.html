@@ -60,6 +60,7 @@
         nickname,
         room,
       };
+      console.log(nickname);
       socket.emit('message', messageObj);
       message = '';
     });
@@ -112,7 +113,10 @@
         span.setAttribute('data-testid', 'online-user');
         button.appendChild(span);
         span.textContent=onlineUser.nickname;
-        if (onlineUser.nickname === nickname) button.disabled = true;
+        if (onlineUser.nickname === nickname) {
+          button.disabled = true;
+          button.setAttribute('data-testid', 'none');
+        }
         button.addEventListener('click', () => {
           const friendId = onlineUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
           const myId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
