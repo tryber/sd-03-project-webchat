@@ -5,14 +5,16 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <body>
-      <ul id="name"></ul>
-      <form id="greeting">
-        <input id="nicknameInput" data-testid="nickname-box" autocomplete="off" /><button data-testid="nickname-save">Change</button>
-      </form>
+      <h2 id="name">Nickname</h2>
+      <input id="nicknameInput" data-testid="nickname-box" autocomplete="off" /><button data-testid="nickname-save" id="nickname-save">Change</button>
+
       <ul id="messages"></ul>
       <form id="form" action="">
         <input id="messageInput" data-testid="message-box" autocomplete="off" /><button data-testid="send-button" id="send-button">Send</button>
       </form>
+      <div>
+        <ul id="usersList"></ul>
+      </div>
     </body>
     <script>
       window.onload = () => {
@@ -21,48 +23,48 @@
         const sendButton = document.getElementById('send-button');
         const messageInput = document.getElementById('messageInput');
         const messagesList = document.getElementById('messages');
+        const nicknameSave = document.getElementById('nickname-save');
+        const nicknameInput = document.getElementById('nicknameInput');
+        const name = document.getElementById('name');
+        const usersList = document.getElementById('usersList');
 
         sendButton.addEventListener('click', (e) => {
           e.preventDefault();
-          socket.emit('message', { chatMassage: messageInput.value, nickname});
+          socket.emit('message', { chatMessage: messageInput.value });
           messageInput.value = '';
+        });
+
+        nicknameSave.addEventListener('click', (e) => {
+          e.preventDefault();
+          const newNickname = nicknameInput.value;
+          name.textContent = newNickname
+          socket.emit('changeNickname', { newNickname });
+          nicknameInput.value = '';
+        });
+
+        socket.on('history', (fullMessage) => {
+          const li = document.createElement('li');
+          li.setAttribute("data-testid", "message");
+          li.textContent = fullMessage;
+          messagesList.appendChild(li);
         });
 
         socket.on('message', (fullMessage) => {
           const li = document.createElement('li');
           li.setAttribute("data-testid", "message");
-          li.textContent = `${fullMessage}`;
+          li.textContent = fullMessage;
           messagesList.appendChild(li);
         });
+
+        socket.on('online-users', (messages) => {
+          messages.forEach((message) => {
+            const li = document.createElement('li');
+            li.setAttribute("data-testid", "online-user");
+            li.textContent = message.nickname;
+            usersList.appendChild(li);
+          })
+        });
       };
-
-
-
-    //   $(function () {
-    //     const socket = io();
-
-    //     $('#form').submit(function(e) {
-    //       e.preventDefault();
-    //       socket.emit('message', $('#messageInput').val());
-    //       $('#messageInput').val('');
-    //       return false;
-    //     });
-
-    //     $('#greeting').submit(function(e) {
-    //       e.preventDefault();
-    //       socket.emit('changeNickname', $('#nicknameInput').val());
-    //       $('#nicknameInput').val('');
-    //       return false;
-    //     });
-
-    //     socket.on('messageServer', function(fullMessage){
-    //       $('#messages').append($('<li>').text(fullMessage).attr("data-testid", "message"));
-    //     });
-
-    //     socket.on('nicknameServer', function(nickname){
-    //       $('#name').append($('<li>').text(`Hi, ${nickname}`).attr("data-testid", "nicknameText"));
-    //     });
-    //  });
     </script>
   </head>
 </html>

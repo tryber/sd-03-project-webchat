@@ -4,8 +4,7 @@ const path = require('path');
 const socketIo = require('socket.io');
 const moment = require('moment');
 const { uniqueNamesGenerator, names } = require('unique-names-generator');
-const { createMessage } = require('./models/messagesModel');
-const { updateNickname } = require('./models/usersModel');
+const { createMessage, getAllMessages } = require('./models/messagesModel');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,21 +15,33 @@ app.use('/', (req, res) => {
 });
 
 io.on('connection', async (socket) => {
-  const randomName = uniqueNamesGenerator({ dictionaries: [names] });
+  const messagesHistoric = await getAllMessages();
 
-  socket.on('changeNickname', (nickname) => {
-    io.emit('changeNicknameServer', nickname);
-    updateNickname(nickname);
+  messagesHistoric.forEach(({ chatMessage, nickname, timestamp }) => {
+    const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
+    socket.emit('history', fullMessage);
   });
+
+  const randomName = uniqueNamesGenerator({ dictionaries: [names] });
 
   socket.on('message', async ({ chatMessage, nickname = randomName }) => {
     const time = new Date();
     const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
+    await createMessage(chatMessage, nickname, timestamp);
     const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
     console.log(fullMessage);
 
     io.emit('message', fullMessage);
-    await createMessage(chatMessage, nickname, timestamp);
+  });
+
+  socket.on('changeNickname', (newNickname) => {
+    io.emit('changeNickname', newNickname);
+  });
+
+  socket.on('logged-users', ({ nickname }) => {
+    const usersList = [];
+    usersList.push({ socketId: socket.id, nickname });
+    io.emit('online-user', usersList);
   });
 });
 
