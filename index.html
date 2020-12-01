@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Webchat</title>
-    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <body>
       <ul id="name"></ul>
@@ -11,35 +11,58 @@
       </form>
       <ul id="messages"></ul>
       <form id="form" action="">
-        <input id="messageInput" data-testid="message-box" autocomplete="off" /><button data-testid="send-button">Send</button>
+        <input id="messageInput" data-testid="message-box" autocomplete="off" /><button data-testid="send-button" id="send-button">Send</button>
       </form>
     </body>
     <script>
-      $(function () {
+      window.onload = () => {
         const socket = io();
 
-        $('#form').submit(function(e) {
+        const sendButton = document.getElementById('send-button');
+        const messageInput = document.getElementById('messageInput');
+        const messagesList = document.getElementById('messages');
+
+        sendButton.addEventListener('click', (e) => {
           e.preventDefault();
-          socket.emit('message', $('#messageInput').val());
-          $('#messageInput').val('');
-          return false;
+          socket.emit('message', { chatMassage: messageInput.value, nickname});
+          messageInput.value = '';
         });
 
-        $('#greeting').submit(function(e) {
-          e.preventDefault();
-          socket.emit('changeNickname', $('#nicknameInput').val());
-          $('#nicknameInput').val('');
-          return false;
+        socket.on('message', (fullMessage) => {
+          const li = document.createElement('li');
+          li.setAttribute("data-testid", "message");
+          li.textContent = `${fullMessage}`;
+          messagesList.appendChild(li);
         });
+      };
 
-        socket.on('messageServer', function(fullMessage){
-          $('#messages').append($('<li>').text(fullMessage).attr("data-testid", "message"));
-        });
 
-        socket.on('nicknameServer', function(nickname){
-          $('#name').append($('<li>').text(`Hi, ${nickname}`).attr("data-testid", "nicknameText"));
-        });
-     });
+
+    //   $(function () {
+    //     const socket = io();
+
+    //     $('#form').submit(function(e) {
+    //       e.preventDefault();
+    //       socket.emit('message', $('#messageInput').val());
+    //       $('#messageInput').val('');
+    //       return false;
+    //     });
+
+    //     $('#greeting').submit(function(e) {
+    //       e.preventDefault();
+    //       socket.emit('changeNickname', $('#nicknameInput').val());
+    //       $('#nicknameInput').val('');
+    //       return false;
+    //     });
+
+    //     socket.on('messageServer', function(fullMessage){
+    //       $('#messages').append($('<li>').text(fullMessage).attr("data-testid", "message"));
+    //     });
+
+    //     socket.on('nicknameServer', function(nickname){
+    //       $('#name').append($('<li>').text(`Hi, ${nickname}`).attr("data-testid", "nicknameText"));
+    //     });
+    //  });
     </script>
   </head>
 </html>

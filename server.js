@@ -24,10 +24,10 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('message', async ({ chatMessage, nickname = randomName }) => {
-    console.log(chatMessage);
     const time = new Date();
     const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
     const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
+    console.log(fullMessage);
 
     io.emit('messageServer', fullMessage);
     await createMessage(chatMessage, nickname, timestamp);
