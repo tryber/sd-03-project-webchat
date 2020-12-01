@@ -1,5 +1,7 @@
 const caixaDeTexto = document.getElementById('caixa-de-texto');
 const nicknameBox = document.getElementById('nickname-box');
+const io = require('socket.io-client');
+
 let username = `user#${Math.round(Math.random() * 123)}`;
 nicknameBox.value = username;
 

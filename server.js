@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
     usersOnline.push({ user, socket: socket.id });
     // const userNameList = usersOnline.map(({ user: userField }) => userField);
     console.log('usuários online');
-    usersOnline.forEach((user) => console.log(user));
+    // usersOnline.forEach((userr) => console.log(userr));
     io.emit('userList', usersOnline);
   });
 
@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
 
   socket.on('private', (user, message) => {
     console.log(user);
-    const { socket: id, user: room } = usersOnline.find(
+    const { socket: id } = usersOnline.find(
       (userOn) => userOn.socket === user,
     );
     saveMessage(message).then(
