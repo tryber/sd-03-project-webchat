@@ -35,9 +35,22 @@ io.on('connection', async (socket) => {
     io.emit('changeNickname', newNickname);
   });
 
+  let usersList = [];
+
   socket.on('logged-users', ({ nickname }) => {
-    const usersList = [];
     usersList.push({ socketId: socket.id, nickname });
+    io.emit('online-users', usersList);
+  });
+
+  socket.on('changeNickname', ({ newNickname }) => {
+    usersList.filter(({ nickname }) => nickname !== newNickname);
+    usersList.push({ socketId: socket.id, nickname: newNickname });
+    io.emit('online-users', usersList);
+  });
+
+  socket.on('disconnect', () => {
+    usersList.filter(({ socketId }) => socketId !== socket.id);
+    usersList = [];
     io.emit('online-users', usersList);
   });
 });
