@@ -55,7 +55,7 @@
         });
         
         privateButton.addEventListener('click', () => {
-          const list = document.getElementById('usersList');
+          const list = document.getElementById('messages');
           if (list.childNodes.length === 1) return;
           list.removeChild(list.childNodes[0]);
         });
@@ -86,11 +86,19 @@
             const li = document.createElement('li');
             li.setAttribute("data-testid", "online-user");
             li.textContent = message.nickname;
-            privateButton.setAttribute("data-testid", "private");
+            // const privateButton = document.createElement('button');
+            // privateButton.setAttribute("data-testid", "private");
+            // privateButton.setAttribute("id", "private");
+            // privateButton.textContent = 'Private Chat';
+            // usersList.appendChild(li).appendChild(privateButton);
             usersList.appendChild(li);
-            usersList.appendChild(privateButton);
           })
         });
+        // const getPrivate = document.getElementById('private');
+
+        // getPrivate.addEventListener('click', (e) => {
+        //   e.preventDefault();
+        // });
 
         socket.emit('logged-users', { nickname: userNickname });
       };
