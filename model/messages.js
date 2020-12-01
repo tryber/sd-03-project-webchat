@@ -1,5 +1,6 @@
 const moment = require('moment');
-const connection = require('../services/db');
+// const connection = require('../services/db');
+const connection = require('../tests/helpers/db');
 
 async function saveMessage({ chatMessage, nickname }) {
   const date = moment().format('DD-MM-yyyy HH:mm:ss');
