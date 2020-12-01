@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
+const moment = require('moment');
 const { uniqueNamesGenerator, names } = require('unique-names-generator');
 const { createMessage } = require('./models/messagesModel');
 const { updateNickname } = require('./models/usersModel');
@@ -22,14 +23,14 @@ io.on('connection', async (socket) => {
     updateNickname(nickname);
   });
 
-  socket.on('message', (chatMessage, nickname = randomName) => {
-    console.log(nickname);
+  socket.on('message', async ({ chatMessage, nickname = randomName }) => {
+    console.log(chatMessage);
     const time = new Date();
-    const timestamp = `${time.toLocaleDateString()} ${time.toLocaleTimeString()}`;
+    const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
     const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
 
     io.emit('messageServer', fullMessage);
-    createMessage(chatMessage, nickname, timestamp);
+    await createMessage(chatMessage, nickname, timestamp);
   });
 });
 
