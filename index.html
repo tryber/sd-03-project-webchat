@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Webchat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+    <body>
+      <h2 id="name"></h2>
+      <input id="nicknameInput" data-testid="nickname-box" autocomplete="off" /><button data-testid="nickname-save" id="nickname-save">Change</button>
+
+      <ul id="messages"></ul>
+      <form id="form" action="">
+        <input id="messageInput" data-testid="message-box" autocomplete="off" /><button data-testid="send-button" id="send-button">Send</button>
+      </form>
+      <div>
+        <ul id="usersList"></ul>
+      </div>
+      <div>
+        <button id="privateButton" data-testid="private">Private Chat</button>
+        <button data-testid="public">Public Chat</button>
+      </div>
+
+    </body>
+    <script>
+      window.onload = () => {
+        const socket = io();
+
+        const sendButton = document.getElementById('send-button');
+        const messageInput = document.getElementById('messageInput');
+        const messagesList = document.getElementById('messages');
+        const nicknameSave = document.getElementById('nickname-save');
+        const nicknameInput = document.getElementById('nicknameInput');
+        const name = document.getElementById('name');
+        const usersList = document.getElementById('usersList');
+        // const privateButton = document.getElementById('privateButton');
+
+        const userNickname = chance.name();
+        name.innerText = userNickname;
+
+        sendButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          const nickname = name.innerText;
+          socket.emit('message', { chatMessage: messageInput.value, nickname: nickname });
+          messageInput.value = '';
+        });
+
+        nicknameSave.addEventListener('click', (e) => {
+          e.preventDefault();
+          const newNickname = nicknameInput.value;
+          name.textContent = newNickname
+          socket.emit('changeNickname', { newNickname });
+          userNickname = newNickname;
+          nicknameInput.value = '';
+        });
+
+        socket.on('history', (fullMessage) => {
+          const li = document.createElement('li');
+          li.setAttribute("data-testid", "message");
+          li.textContent = fullMessage;
+          messagesList.appendChild(li);
+        });
+
+        socket.on('message', (fullMessage) => {
+          const li = document.createElement('li');
+          li.setAttribute("data-testid", "message");
+          li.textContent = fullMessage;
+          messagesList.appendChild(li);
+        });
+
+        socket.on('online-users', (messages) => {
+          messages.forEach((message) => {
+            const li = document.createElement('li');
+            li.setAttribute("data-testid", "online-user");
+            li.textContent = message.nickname;
+            // const privateButton = document.createElement('button');
+            // privateButton.setAttribute("data-testid", "private");
+            // privateButton.setAttribute("id", "private");
+            // privateButton.textContent = 'Private Chat';
+            // usersList.appendChild(li).appendChild(privateButton);
+            usersList.appendChild(li)
+          })
+        });
+
+        // const getPrivate = document.getElementById('private');
+
+        // getPrivate.addEventListener('click', (e) => {
+        //   e.preventDefault();
+        // });
+
+        socket.emit('logged-users', { nickname: userNickname });
+      };
+    </script>
+  </head>
+</html>
