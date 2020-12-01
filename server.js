@@ -8,8 +8,7 @@ const messageController = require('./controllers/messageController');
 
 const httpPath = (appUsed, express) => {
   appUsed.use(bodyParser.json());
-  const PATH = path.join(__dirname, 'public')
-  appUsed.use('/', express.static(PATH, { extensions: ['html'] }));
+  appUsed.use('/', express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
   return appUsed;
 };
 
