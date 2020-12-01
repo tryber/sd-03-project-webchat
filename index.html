@@ -33,7 +33,7 @@
         const nicknameInput = document.getElementById('nicknameInput');
         const name = document.getElementById('name');
         const usersList = document.getElementById('usersList');
-        const privateButton = document.getElementById('privateButton');
+        // const privateButton = document.getElementById('privateButton');
 
         const userNickname = chance.name();
         name.innerText = userNickname;
@@ -53,19 +53,6 @@
           userNickname = newNickname;
           nicknameInput.value = '';
         });
-        
-        privateButton.addEventListener('click', () => {
-          const list = document.getElementById('messages');
-          if (list.childNodes.length === 1) return;
-          list.removeChild(list.childNodes[0]);
-        });
-
-        // privateButton.addEventListener('click', (e) => {
-        //   e.preventDefault();
-        //   const nickname = name.innerText;
-        //   socket.emit('message', { chatMessage: messageInput.value, nickname: nickname });
-        //   messageInput.value = '';
-        // });
 
         socket.on('history', (fullMessage) => {
           const li = document.createElement('li');
@@ -91,9 +78,10 @@
             // privateButton.setAttribute("id", "private");
             // privateButton.textContent = 'Private Chat';
             // usersList.appendChild(li).appendChild(privateButton);
-            usersList.appendChild(li);
+            usersList.appendChild(li)
           })
         });
+
         // const getPrivate = document.getElementById('private');
 
         // getPrivate.addEventListener('click', (e) => {
