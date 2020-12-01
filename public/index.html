@@ -48,7 +48,7 @@ function sendMessage(roomToSend = 'all') {
       socket.emit('message', { nickname: username, chatMessage });
     }
   }
-  console.log(messagesArray);
+  // console.log(messagesArray);
   caixaDeTexto.value = '';
   return undefined;
 }
@@ -84,7 +84,7 @@ function changeRoom(roomToConnect) {
   const ul = document.getElementById('mensagens');
   ul.innerHTML = '';
   room = roomToConnect;
-  console.log(messagesArray);
+  // console.log(messagesArray);
   messagesArray.forEach(({ message, room: roomToRender }) => {
     renderMessage(message, roomToRender);
   });
@@ -129,7 +129,7 @@ socket.on('userList', (users) => {
 
 socket.on('message', (message, senderId) => {
   let messageToSave;
-  console.log('senderId', senderId);
+  // console.log('senderId', senderId);
   const id = senderId || ['all'];
   if (id) {
     messageToSave = { message, room: senderId };
@@ -137,7 +137,7 @@ socket.on('message', (message, senderId) => {
     messageToSave = { message };
   }
   messagesArray.push(messageToSave);
-  console.log(messagesArray);
+  // console.log(messagesArray);
   renderMessage(message, senderId);
 });
 

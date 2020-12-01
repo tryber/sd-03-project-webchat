@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   socket.on('userOn', (user) => {
     usersOnline.push({ user, socket: socket.id });
     // const userNameList = usersOnline.map(({ user: userField }) => userField);
-    console.log('usuários online');
+    // console.log('usuários online');
     // usersOnline.forEach((userr) => console.log(userr));
     io.emit('userList', usersOnline);
   });
@@ -44,17 +44,17 @@ io.on('connection', (socket) => {
     );
     // const userNameList = usersOnline.map(({ user: userOnline, socket: userField }) => userField);
     io.emit('userList', usersOnline);
-    console.log('user has disconnected');
-    console.log(`remaingUsers:${usersOnline.length}`);
+    // console.log('user has disconnected');
+    // console.log(`remaingUsers:${usersOnline.length}`);
   });
 
   socket.on('message', (message) => {
-    console.log('message', message);
+    // console.log('message', message);
     saveMessage(message).then(io.emit('message', formatMessage(message)));
   });
 
   socket.on('private', (user, message) => {
-    console.log(user);
+    // console.log(user);
     const { socket: id } = usersOnline.find(
       (userOn) => userOn.socket === user,
     );
