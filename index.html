@@ -4,8 +4,9 @@
     <title>Webchat</title>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
     <body>
-      <h2 id="name">Nickname</h2>
+      <h2 id="name"></h2>
       <input id="nicknameInput" data-testid="nickname-box" autocomplete="off" /><button data-testid="nickname-save" id="nickname-save">Change</button>
 
       <ul id="messages"></ul>
@@ -28,9 +29,13 @@
         const name = document.getElementById('name');
         const usersList = document.getElementById('usersList');
 
+        const userNickname = chance.name();
+        name.innerText = userNickname;
+
         sendButton.addEventListener('click', (e) => {
           e.preventDefault();
-          socket.emit('message', { chatMessage: messageInput.value });
+          const nickname = name.innerText;
+          socket.emit('message', { chatMessage: messageInput.value, nickname: nickname });
           messageInput.value = '';
         });
 
@@ -39,6 +44,7 @@
           const newNickname = nicknameInput.value;
           name.textContent = newNickname
           socket.emit('changeNickname', { newNickname });
+          userNickname = newNickname;
           nicknameInput.value = '';
         });
 

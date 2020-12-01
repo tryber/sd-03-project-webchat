@@ -22,9 +22,7 @@ io.on('connection', async (socket) => {
     socket.emit('history', fullMessage);
   });
 
-  const randomName = uniqueNamesGenerator({ dictionaries: [names] });
-
-  socket.on('message', async ({ chatMessage, nickname = randomName }) => {
+  socket.on('message', async ({ chatMessage, nickname }) => {
     const time = new Date();
     const timestamp = moment(time).format('DD-MM-yyyy HH:mm:ss');
     await createMessage(chatMessage, nickname, timestamp);
@@ -34,14 +32,14 @@ io.on('connection', async (socket) => {
     io.emit('message', fullMessage);
   });
 
-  socket.on('changeNickname', (newNickname) => {
+  socket.on('changeNickname', ({ newNickname }) => {
     io.emit('changeNickname', newNickname);
   });
 
   socket.on('logged-users', ({ nickname }) => {
     const usersList = [];
     usersList.push({ socketId: socket.id, nickname });
-    io.emit('online-user', usersList);
+    io.emit('online-users', usersList);
   });
 });
 
