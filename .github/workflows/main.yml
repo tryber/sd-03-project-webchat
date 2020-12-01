@@ -25,7 +25,7 @@ jobs:
         uses: betrybe/jest-evaluator-action@fix-puppeteer-dep
         with:
           repository-test-name: 'betrybe/sd-0x-project-webchat-tests'
-          repository-test-branch: 'main'
+          repository-test-branch: 'teste'
           npm-start: true
         env:
           DB_URL: mongodb://mongodb:27017/webchat
