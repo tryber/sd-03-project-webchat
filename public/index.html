@@ -31,6 +31,7 @@
     <nav class="bg-light border-right" id="sidebar-wrapper">
       <input type="text" data-testid="nickname-box" id="nickname-box"/>
       <button type="button" data-testid="nickname-save" id="nickname-save">Salvar</button>
+      <button type="button" data-testid="public" id="public">Chat público</button>
       <div class="list-group list-group-flush" id="usersList">
       </div>
     </nav>
@@ -49,6 +50,7 @@
     const socket = io('http://localhost:3000');
     const sendButton = document.getElementById('send-button');
     let nickname = '';
+    let room = 'public';
 
     sendButton.addEventListener('click', (e) => {
       e.preventDefault();
@@ -56,6 +58,7 @@
       const messageObj = {
         chatMessage: message,
         nickname,
+        room,
       };
       socket.emit('message', messageObj);
       message = '';
@@ -68,6 +71,12 @@
       document.getElementById('messages').appendChild(li)
     }
 
+    const public = document.getElementById('public');
+    public.addEventListener('click', () => {
+      socket.emit('getHistory', room);
+      room = 'public';
+    });
+
     const nicknameSave = document.getElementById('nickname-save');
     const nicknameBox = document.getElementById('nickname-box');
 
@@ -78,26 +87,41 @@
     socket.on('history', (messages) => {
       document.getElementById('messages').innerHTML = '';
       messages.forEach((message) => {
-        createMessage(message);
+        const [nickname, chatMessage, sentOnDate, sentOnTime, messageRoom] = message.split(',');
+        createMessage(`${nickname}: ${chatMessage} - ${sentOnDate} ${sentOnTime}`);
       });
     });
 
     socket.on('message', (message) => {
-      createMessage(message);
+      const [nickname, chatMessage, sentOnDate, sentOnTime, messageRoom] = message.split(',');
+      if (messageRoom == room) {
+        console.log('cheguei aqui')
+        createMessage(`${nickname}: ${chatMessage} - ${sentOnDate} ${sentOnTime}`);
+      }
     });
 
     socket.on('getOnlineUsers', (onlineUsers) => {
       document.getElementById('usersList').innerHTML = '';
+      const myUser = onlineUsers.find(user => user.id === socket.id);
+      nickname = myUser.nickname;
       onlineUsers.forEach((onlineUser) => {
         const button = document.createElement('button');
         button.type="button";
-        button.textContent=onlineUser.nickname;
         button.classList="list-group-item list-group-item-action bg-light"
-        button.setAttribute('data-testid', 'online-user');
+        button.setAttribute('data-testid', 'private');
+        const span = document.createElement('span');
+        span.setAttribute('data-testid', 'online-user');
+        button.appendChild(span);
+        span.textContent=onlineUser.nickname;
+        if (onlineUser.nickname === nickname) button.disabled = true;
+        button.addEventListener('click', () => {
+          const friendId = onlineUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+          const myId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+          room = friendId + myId;
+          socket.emit('changeChat', room);
+        });
         document.getElementById('usersList').appendChild(button);
-      })
-      nickname = onlineUsers.find(user => user.id === socket.id).nickname;
-      console.log(nickname);
+      });
     });
   </script>
 </html>
