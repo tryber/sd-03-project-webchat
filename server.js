@@ -3,7 +3,6 @@ const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
 const moment = require('moment');
-const { uniqueNamesGenerator, names } = require('unique-names-generator');
 const { createMessage, getAllMessages } = require('./models/messagesModel');
 
 const app = express();
