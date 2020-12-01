@@ -22,8 +22,8 @@ const createMessage = (message) => {
   document.getElementById('messages').appendChild(li)
 };
 
-const public = document.getElementById('public');
-  public.addEventListener('click', () => {
+const publicElement = document.getElementById('public');
+  publicElement.addEventListener('click', () => {
   socket.emit('getHistory', room);
   room = 'public';
 });

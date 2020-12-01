@@ -6,9 +6,9 @@ const socketIo = require('socket.io');
 const dbConnection = require('./tests/helpers/db');
 const messageController = require('./controllers/messageController');
 
-const httpPath = (appUsed, express) => {
+const httpPath = (appUsed, expresser) => {
   appUsed.use(bodyParser.json());
-  appUsed.use('/', express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+  appUsed.use('/', expresser.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
   return appUsed;
 };
 
@@ -46,7 +46,7 @@ const leavePrivateConnection = async (room, socket) => {
   socket.emit('history', await messageController.getChatHistory());
 };
 
-const socket = (appParam) => {
+const socketFunction = (appParam) => {
   const httpServer = http.createServer(appParam);
   const io = socketIo(httpServer);
   io.on('connection', async (socket) => {
@@ -64,7 +64,7 @@ const socket = (appParam) => {
 const app = express();
 
 httpPath(app, express);
-const { httpServer } = socket(app, dbConnection);
+const { httpServer } = socketFunction(app, dbConnection);
 
 httpServer.listen(3000, () => {
   console.log('App ouvindo na porta 3000');
