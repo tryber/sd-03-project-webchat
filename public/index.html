@@ -32,7 +32,10 @@ const nicknameBox = document.getElementById('nickname-box');
 // const io = require('socket.io-client');
 
 let username = `user#${Math.round(Math.random() * 123)}`;
+// let username = ``;
+
 nicknameBox.value = username;
+nicknameBox.addEventListener('focus',() => nicknameBox.value = "")
 
 const socket = io();
 let room = 'all';
@@ -92,18 +95,20 @@ function changeRoom(roomToConnect) {
 
 function showONUser({ user: nickname, socket: socketToChange }) {
   const usersList = document.getElementById('usersOn');
-  const li = document.createElement('li');
+  const li = document.createElement('li'); 
+  const userName = document.createElement('span')
 
   const button = document.createElement('button');
   button.setAttribute('data-testid', 'private');
   button.innerText = 'priv';
   button.addEventListener('click', () => changeRoom(socketToChange));
 
-  li.setAttribute('data-testid', 'online-user');
+  userName.setAttribute('data-testid', 'online-user');
+  li.appendChild(userName)
   if (nickname !== username) {
     li.appendChild(button);
   }
-  li.appendChild(document.createTextNode(nickname));
+  userName.appendChild(document.createTextNode(nickname));
   usersList.appendChild(li);
   usersList.scrollTop = usersList.scrollHeight;
 }
