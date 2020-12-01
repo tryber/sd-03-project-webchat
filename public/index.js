@@ -1,3 +1,5 @@
+const io = require('socket.io');
+
 const socket = io('http://localhost:3000');
 const sendButton = document.getElementById('send-button');
 let nickname = '';
