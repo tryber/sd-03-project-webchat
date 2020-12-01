@@ -16,7 +16,6 @@ const saveMessage = async (message, room = 'public') => {
 };
 
 const getChatHistory = async (room = 'public') => {
-  console.log(room);
   const db = await connection();
   const chatRoom = await db.collection('messages').findOne(
     { room },

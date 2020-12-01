@@ -95,7 +95,6 @@
     socket.on('message', (message) => {
       const [nickname, chatMessage, sentOnDate, sentOnTime, messageRoom] = message.split(',');
       if (messageRoom == room) {
-        console.log('cheguei aqui')
         createMessage(`${nickname}: ${chatMessage} - ${sentOnDate} ${sentOnTime}`);
       }
     });

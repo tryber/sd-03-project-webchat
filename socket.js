@@ -36,11 +36,10 @@ const leavePrivateConnection = async (room, socket) => {
   socket.emit('history', await messageController.getChatHistory());
 };
 
-module.exports = (app, dbConnection) => {
+module.exports = (app) => {
   const httpServer = http.createServer(app);
   const io = socketIo(httpServer);
   io.on('connection', async (socket) => {
-    console.log('conectado');
     newUser(socket.id, io);
     socket.emit('history', await messageController.getChatHistory());
     socket.on('getHistory', (room) => leavePrivateConnection(room, socket));
@@ -49,6 +48,5 @@ module.exports = (app, dbConnection) => {
     socket.on('changeChat', (room) => createPrivateConnection(room, io, socket));
     socket.on('changeNickname', (nickname) => changeNickname(socket.id, nickname, io));
   });
-  console.log(dbConnection);
   return { io, httpServer };
 };
