@@ -29,7 +29,7 @@ io.on('connection', async (socket) => {
     const fullMessage = `${timestamp} - ${nickname}: ${chatMessage}`;
     console.log(fullMessage);
 
-    io.emit('messageServer', fullMessage);
+    io.emit('message', fullMessage);
     await createMessage(chatMessage, nickname, timestamp);
   });
 });
