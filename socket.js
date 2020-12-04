@@ -3,7 +3,9 @@ const messageWithDate = (nickname, chatMessage) => {
   const newDate = `${date.getUTCDate()}-${date.getMonth()}-${date.getFullYear()}`;
 
   return {
-    string: `(${date.toLocaleTimeString('pt-BR')} ${newDate}) ${nickname}: ${chatMessage}`,
+    string: `(${date.toLocaleTimeString(
+      'pt-BR',
+    )} ${newDate}) ${nickname}: ${chatMessage}`,
     date,
   };
 };
@@ -37,7 +39,7 @@ module.exports = (io, messageModel) => {
       const index2 = users.indexOf(user2);
 
       const usersArray = [users[index1], users[index2]];
-      console.log(usersArray)
+      console.log(usersArray);
 
       const messages = await messageModel.getPrivate(usersArray);
       console.log(messages);
