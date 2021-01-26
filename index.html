@@ -56,33 +56,33 @@
 
     socket.on('history', (messages) => messages.forEach(({ message }) => createMessage(message, chatList)));
 
-    // socket.on('allOnline', (users) => {
-    //   // Vai sempre ser emitido pelo server quando houver conexão e desconexão
-    //   return users.forEach(({ nickname }) => {
-    //     const li = document.createElement('li');
-    //     const btn = document.createElement('button');
-    //     btn.innerText = 'Iniciar chat';
-    //     btn.addEventListener('click', () => switchChat());
-    //     li.innerText = nickname;
-    //     li.setAttribute('data-testid', 'online-user');
-    //     onlineList.appendChild(btn);
-    //     onlineList.appendChild(li);
-    //   });
-    // });
+    socket.on('allOnline', (users) => {
+      // Vai sempre ser emitido pelo server quando houver conexão e desconexão
+      return users.forEach(({ nickname }) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.innerText = 'Iniciar chat';
+        btn.addEventListener('click', () => switchChat());
+        li.innerText = nickname;
+        li.setAttribute('data-testid', 'online-user');
+        onlineList.appendChild(btn);
+        onlineList.appendChild(li);
+      });
+    });
 
-    // socket.on('onlineUsers', (users) => {
-    //   onlineList.innerHTML = '';
-    //   return users.forEach(({ nickname: nick }) => {
-    //     const li = document.createElement('li');
-    //     const btn = document.createElement('button');
-    //     btn.innerText = 'Iniciar chat';
-    //     btn.addEventListener('click', () => switchChat());
-    //     li.innerText = nick;
-    //     li.setAttribute('data-testid', 'online-user');
-    //     onlineList.appendChild(btn);
-    //     onlineList.appendChild(li);
-    //   });
-    // });
+    socket.on('onlineUsers', (users) => {
+      onlineList.innerHTML = '';
+      return users.forEach(({ nickname: nick }) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.innerText = 'Iniciar chat';
+        btn.addEventListener('click', () => switchChat());
+        li.innerText = nick;
+        li.setAttribute('data-testid', 'online-user');
+        onlineList.appendChild(btn);
+        onlineList.appendChild(li);
+      });
+    });
 
     // adiciona os ouvidores de eventos
     sendButton.addEventListener('click', (event) => {

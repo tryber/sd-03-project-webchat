@@ -26,17 +26,17 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('nickname', async ({ prevNick, nickname }) => {
-    // if (prevNick) {
-    //   onlineUsers = onlineUsers.filter(({ nickname: nick }) => nick !== prevNick);
-    // }
-    // onlineUsers.push({ nickname, id: socket.id });
-    // io.emit('onlineUsers', onlineUsers);
+    if (prevNick) {
+      onlineUsers = onlineUsers.filter(({ nickname: nick }) => nick !== prevNick);
+    }
+    onlineUsers.push({ nickname, id: socket.id });
+    io.emit('onlineUsers', onlineUsers);
   });
 
   socket.on('disconnect', () => {
     // aki fazer o user ficar off
-    // onlineUsers = onlineUsers.filter(({ id }) => id !== socket.id);
-    // io.emit('onlineUsers', onlineUsers);
+    onlineUsers = onlineUsers.filter(({ id }) => id !== socket.id);
+    io.emit('onlineUsers', onlineUsers);
   });
 });
 
