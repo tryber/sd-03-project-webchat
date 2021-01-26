@@ -13,10 +13,10 @@ let onlineUsers = [];
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 
 io.on('connection', async (socket) => {
-  socket.broadcast.emit('allOnline', onlineUsers);
+  socket.emit('allOnline', onlineUsers);
   // pega o histórico de mensagens
   const messages = await retrievePublicMessages();
-  socket.broadcast.emit('history', messages);
+  socket.emit('history', messages);
 
   socket.on('message', async ({ chatMessage, nickname }) => {
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
