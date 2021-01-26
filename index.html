@@ -1,63 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Webchat</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
   <!--Pegar os elemtnos do html e salvar numa var pra manipular-->
   <ul class="chat" id="chat"></ul>
   <form>
-    <input
-      autocomplete="off"
-      id="chatInput"
-      class="chatInput"
-      data-testid="message-box"
-      type="text"
-    />
-    <button
-      class="sendButton"
-      data-testid="send-button"
-      id="sendButton"
-    >
-    Enviar
+    <input autocomplete="off" id="chatInput" class="chatInput" data-testid="message-box" type="text" />
+    <button class="sendButton" data-testid="send-button" id="sendButton">
+      Enviar
     </button>
-    <input
-      autocomplete="off"
-      id="nickInput"
-      class="nickInput"
-      data-testid="nickname-box"
-      type="text"
-    />
-    <button
-      class="nickButton"
-      data-testid="nickname-save"
-      id="nickButton"
-    >
-    Enviar
+    <input autocomplete="off" id="nickInput" class="nickInput" data-testid="nickname-box" type="text" />
+    <button class="nickButton" data-testid="nickname-save" id="nickButton">
+      Enviar
     </button>
   </form>
   <ul class="onlineList" id="onlineList"></ul>
-  <button
-    class="publicButton"
-    data-testid="public"
-    id="publicButton"
-  >
-    Publico
-  </button>
   <script>
     // Pegar todos os elementos e salvar
     const chatList = document.getElementById('chat');
     const onlineList = document.getElementById('onlineList');
     const sendButton = document.getElementById('sendButton');
     const nickButton = document.getElementById('nickButton');
-    const publicButton = document.getElementById('public');
     const socket = io();
 
     let nickname = '';
-    let private = false;
 
     // Cria uma mensagem e joga ela na lista
     const createMessage = (message, list) => {
@@ -65,13 +38,6 @@
       msg.textContent = message;
       msg.setAttribute('data-testid', 'message')
       list.appendChild(msg);
-    };
-
-    const switchChat = () => {
-      if (chatList.childNodes.length === 1) return;
-      chatList.removeChild(chatList.childNodes[0]);
-      private = !private;
-      socket.emit('switching');
     };
 
     const generateRndNick = () => {
@@ -86,59 +52,47 @@
       return nickname.join('');
     };
 
-    socket.on('message', (message) => {
-      if (!private) return createMessage(message, chatList);;
-    });
+    socket.on('message', (message) => createMessage(message, chatList));
 
-    socket.on('history', (messages) => {
-      if (!private) return messages.forEach(({ message }) => createMessage(message, chatList));;
-    });
+    socket.on('history', (messages) => messages.forEach(({ message }) => createMessage(message, chatList)));
 
-    // socket.on('privateMessage', (message) => {
-    //   if (!private) return;
-    //   return createMessage(message, chatList);
+    // socket.on('allOnline', (users) => {
+    //   // Vai sempre ser emitido pelo server quando houver conexão e desconexão
+    //   return users.forEach(({ nickname }) => {
+    //     const li = document.createElement('li');
+    //     const btn = document.createElement('button');
+    //     btn.innerText = 'Iniciar chat';
+    //     btn.addEventListener('click', () => switchChat());
+    //     li.innerText = nickname;
+    //     li.setAttribute('data-testid', 'online-user');
+    //     onlineList.appendChild(btn);
+    //     onlineList.appendChild(li);
+    //   });
     // });
 
-    // socket.on('privateHistory', (messages) => {
-    //   if (!private) return;
-    //   return messages.forEach(({ message }) => createMessage(message, chatList));
+    // socket.on('onlineUsers', (users) => {
+    //   onlineList.innerHTML = '';
+    //   return users.forEach(({ nickname: nick }) => {
+    //     const li = document.createElement('li');
+    //     const btn = document.createElement('button');
+    //     btn.innerText = 'Iniciar chat';
+    //     btn.addEventListener('click', () => switchChat());
+    //     li.innerText = nick;
+    //     li.setAttribute('data-testid', 'online-user');
+    //     onlineList.appendChild(btn);
+    //     onlineList.appendChild(li);
+    //   });
     // });
-
-    socket.on('allOnline', (users) => {
-      // Vai sempre ser emitido pelo server quando houver conexão e desconexão
-      return users.forEach(({ nickname }) => {
-        const li = document.createElement('li');
-        const btn = document.createElement('button');
-        btn.innerText = 'Iniciar chat';
-        btn.setAttribute('data-testid', 'private')
-        btn.addEventListener('click', () => switchChat());
-        li.innerText = nickname;
-        li.setAttribute('data-testid', 'online-user');
-        onlineList.appendChild(btn);
-        onlineList.appendChild(li);
-      });
-    });
-
-    socket.on('onlineUsers', (users) => {
-      onlineList.innerHTML = '';
-      return users.forEach(({ nickname: nick }) => {
-        const li = document.createElement('li');
-        const btn = document.createElement('button');
-        btn.innerText = 'Iniciar chat';
-        btn.setAttribute('data-testid', 'private')
-        btn.addEventListener('click', () => switchChat());
-        li.innerText = nick;
-        li.setAttribute('data-testid', 'online-user');
-        onlineList.appendChild(btn);
-        onlineList.appendChild(li);
-      });
-    });
 
     // adiciona os ouvidores de eventos
     sendButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      const chatMessage = document.getElementById('chatInput').value;
-      return socket.emit('message', { chatMessage, nickname });
+      chatField = document.getElementById('chatInput');
+      if (chatField.value) {
+        event.preventDefault();
+        socket.emit('message', { chatMessage: chatField.value, nickname });
+        return document.getElementById('chatInput').value = '';
+      }
+      return event.preventDefault();
     });
 
     nickButton.addEventListener('click', (event) => {
@@ -154,4 +108,5 @@
     };
   </script>
 </body>
+
 </html>
