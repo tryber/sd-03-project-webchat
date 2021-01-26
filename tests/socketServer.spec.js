@@ -51,6 +51,7 @@ describe('Crie um backend back-end que permite que várias pessoas se conectem s
       expect(message.includes(chatMessage)).toBeTruthy();
       done();
     });
+    done();
   });
 
   it('Será validado que toda mensagem que um cliente recebe contém as informações acerca de quem a enviou, data-hora do envio e o conteúdo da mensagem em si', (done) => {
