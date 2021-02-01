@@ -4,9 +4,9 @@ const saveMessages = async (req, res) => {
   try {
     const { message } = req.body;
 
-    await messagesServices.saveMessages({ message });
+    const save = await messagesServices.saveMessages({ message });
 
-    return res.status(204).end();
+    return res.status(200).json(save);
   } catch (error) {
     throw new Error(error.message);
   }
