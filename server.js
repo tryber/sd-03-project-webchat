@@ -4,7 +4,8 @@ const cors = require('cors');
 const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
-
+// Definindo porta padrão da aplicação
+const PORT = process.env.PORT || 3000;
 // inicializando app express
 const app = express();
 // inicializando servidor http
@@ -12,18 +13,17 @@ const http = require('http').createServer(app);
 // inicializando socket.io, passando informações do servidor e options de conexão
 const io = require('socket.io')(http, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: `http://localhost:${PORT}`,
     methods: ['GET', 'POST'],
   },
 });
 require('dotenv').config();
 
 const { messages } = require('./controllers');
-
-const PORT = process.env.PORT || 3000;
-
+// middleware para habilitar Cross-origin resource sharing
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 // rotas
@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
   // utilizando axios para obter histórico de mensagens
   axios({
     method: 'GET',
-    url: 'http://localhost:3000/msg',
+    url: `http://localhost:${PORT}/msg`,
   }).then(({ data }) => socket.emit('messages-history', data));
 
   socket.emit('online-users', onlineUsers);
@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
 
     axios({
       method: 'POST',
-      url: 'http://localhost:3000/msg',
+      url: `http://localhost:${PORT}/msg`,
       data: {
         message,
       },
