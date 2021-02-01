@@ -6,8 +6,8 @@ const save = async ({ message }) => {
     const insertMessage = await db
       .collection('messages')
       .insertOne({ message });
-
-    return insertMessage;
+    const { insertedId: _id } = insertMessage;
+    return { _id };
   } catch (error) {
     throw new Error(error.message);
   }
