@@ -18,7 +18,7 @@ const searchMessages = async () => {
     const db = await connect();
     const messages = await db.collection('messages').find({}).toArray();
 
-    return messages;
+    return [...messages];
   } catch (error) {
     throw new Error(error.message);
   }
