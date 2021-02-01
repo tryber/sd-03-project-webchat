@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
 
   socket.on('message', ({ chatMessage, nickname }) => {
     const message = `${moment(new Date()).format(
-      'DD-MM-yyyy hh:mm',
+      'DD-MM-yyyy hh:mm:ss',
     )} - ${nickname} -> ${chatMessage}`;
 
     axios({
