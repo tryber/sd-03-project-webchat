@@ -60,11 +60,11 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('new-online-list', onlineUsers);
   });
 
-  socket.on('message', async ({ chatMessage, nickname }) => {
+  socket.on('message', ({ chatMessage, nickname }) => {
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss');
     const message = `${date} - ${nickname} => ${chatMessage}`;
 
-    await axios({
+    axios({
       method: 'POST',
       url: `http://localhost:${PORT}/msg`,
       data: {
