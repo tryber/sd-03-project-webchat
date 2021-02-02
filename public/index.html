@@ -68,9 +68,9 @@
     });
 
     socket.on('messages-history', (allMsg) => {
-      allMsg.forEach(({ message }) => {
+      allMsg.forEach(({ date, nickname, message }) => {
         const li = document.createElement('li');
-        li.textContent = message;
+        li.textContent = `${date} - ${nickname} -> ${message}`;
         li.setAttribute('data-testid', 'message');
         document.getElementById('chat').appendChild(li);
       });

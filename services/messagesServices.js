@@ -1,8 +1,8 @@
 const { messagesModel } = require('../models');
 
-const saveMessages = async ({ message }) => {
+const saveMessages = async ({ message, nickname }) => {
   try {
-    const newMessage = await messagesModel.save({ message });
+    const newMessage = await messagesModel.save({ message, nickname });
     const { _id: id } = newMessage;
     return { status: 'success', insertedId: id };
   } catch (error) {
@@ -12,7 +12,7 @@ const saveMessages = async ({ message }) => {
 
 const getMessages = async () => {
   try {
-    return messagesModel.searchMessages();
+    return messagesModel.searchAllMessages();
   } catch (error) {
     throw new Error(error.message);
   }
