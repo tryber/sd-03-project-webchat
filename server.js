@@ -76,6 +76,16 @@ io.on('connection', (socket) => {
     socket.emit('message', message);
     socket.broadcast.emit('message', message);
   });
+
+  socket.on('private-chat', (user, nickname, chatMessage) => {
+    const message = `${moment(new Date()).format(
+      'DD-MM-yyyy hh:mm:ss',
+    )} - ${nickname} -> ${chatMessage}`;
+    const { socket: id } = onlineUsers.find(
+      (onlineUser) => onlineUser.socket === user,
+    );
+    io.to(id).to(socket.id).emit('message', message, [id, socket.id]);
+  });
 });
 
 http.listen(PORT, () => console.log(`Listening on port ${PORT}`));
