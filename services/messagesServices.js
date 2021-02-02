@@ -1,8 +1,8 @@
 const { messagesModel } = require('../models');
 
-const saveMessages = async ({ message, nickname }) => {
+const saveMessages = async ({ message, nickname, date }) => {
   try {
-    const newMessage = await messagesModel.save({ message, nickname });
+    const newMessage = await messagesModel.save({ message, nickname, date });
     const { _id: id } = newMessage;
     return { status: 'success', insertedId: id };
   } catch (error) {

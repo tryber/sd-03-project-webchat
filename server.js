@@ -61,9 +61,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('message', async ({ chatMessage, nickname }) => {
-    const message = `${moment(new Date()).format(
-      'DD-MM-yyyy hh:mm:ss',
-    )} - ${nickname} -> ${chatMessage}`;
+    const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss');
+    const message = `${date} - ${nickname} => ${chatMessage}`;
 
     await axios({
       method: 'POST',
@@ -71,6 +70,7 @@ io.on('connection', (socket) => {
       data: {
         message: chatMessage,
         nickname,
+        date,
       },
     });
 

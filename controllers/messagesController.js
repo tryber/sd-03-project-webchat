@@ -2,9 +2,9 @@ const { messagesServices } = require('../services');
 
 const saveMessages = async (req, res) => {
   try {
-    const { message, nickname } = req.body;
+    const { message, nickname, date } = req.body;
 
-    const save = await messagesServices.saveMessages({ message, nickname });
+    const save = await messagesServices.saveMessages({ message, nickname, date });
 
     return res.status(200).json(save);
   } catch (error) {

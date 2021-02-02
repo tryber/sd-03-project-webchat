@@ -1,11 +1,8 @@
-const moment = require('moment');
 const connect = require('./connection');
 
-const save = async ({ message, nickname }) => {
+const save = async ({ message, nickname, date }) => {
   try {
     const db = await connect();
-    const date = moment(new Date()).format('DD-MM-yyyy HH:mm:ss');
-    console.log(nickname);
     const insertMessage = await db
       .collection('messages')
       .insertOne({ message, nickname, date });
@@ -20,7 +17,7 @@ const searchAllMessages = async () => {
   try {
     const db = await connect();
     const messages = await db.collection('messages').find().toArray();
-    console.log(messages);
+
     return [...messages];
   } catch (error) {
     throw new Error(error.message);
