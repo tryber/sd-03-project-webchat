@@ -30,22 +30,6 @@
     const privateChatButton = document.getElementById('private-chat-btn');
     const chatMessage = document.getElementById('user-message');
 
-    nickname.addEventListener('keyup', () => {
-      if (nickname.value === '') {
-        saveUserName.disabled = true;
-      } else {
-        saveUserName.disabled = false;
-      }
-    });
-
-    chatMessage.addEventListener('keyup', () => {
-      if (chatMessage.value === '') {
-        sendChatMessage.disabled = true;
-      } else {
-        sendChatMessage.disabled = false;
-      }
-    });
-
     saveUserName.addEventListener('click', () => {
       const name = document.getElementById('name');
       name.textContent = `Name: ${nickname.value}`;
@@ -106,6 +90,22 @@
       li.textContent = message;
       li.setAttribute('data-testid', 'message');
       document.getElementById('chat').appendChild(li);
+    });
+
+    nickname.addEventListener('keyup', () => {
+      if (nickname.value === '') {
+        saveUserName.disabled = true;
+      } else {
+        saveUserName.disabled = false;
+      }
+    });
+
+    chatMessage.addEventListener('keyup', () => {
+      if (chatMessage.value === '') {
+        sendChatMessage.disabled = true;
+      } else {
+        sendChatMessage.disabled = false;
+      }
     });
 
     window.addEventListener('load', () => {
