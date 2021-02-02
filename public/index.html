@@ -24,22 +24,41 @@
   <script>
     const socket = io('http://localhost:3000');
 
+    const nickname = document.getElementById('username');
     const saveUserName = document.getElementById('user-save');
     const sendChatMessage = document.getElementById('send-msg');
     const privateChatButton = document.getElementById('private-chat-btn');
+    const chatMessage = document.getElementById('user-message');
+
+    nickname.addEventListener('keyup', () => {
+      if (nickname.value === '') {
+        saveUserName.disabled = true;
+      } else {
+        saveUserName.disabled = false;
+      }
+    });
+
+    chatMessage.addEventListener('keyup', () => {
+      if (chatMessage.value === '') {
+        sendChatMessage.disabled = true;
+      } else {
+        sendChatMessage.disabled = false;
+      }
+    });
 
     saveUserName.addEventListener('click', () => {
-      const nickname = document.getElementById('username').value;
       const name = document.getElementById('name');
-      name.textContent = `Name: ${nickname}`;
-
-      socket.emit('user-nickname', { nickname });
+      name.textContent = `Name: ${nickname.value}`;
+      socket.emit('user-nickname', { nickname: nickname.value });
+      nickname.value = '';
+      if (nickname.value === '') saveUserName.disabled = true;
     });
 
     sendChatMessage.addEventListener('click', () => {
-      const chatMessage = document.getElementById('user-message').value;
       const nickname = document.getElementById('name').textContent.split(' ')[1];
-      socket.emit('message', { chatMessage, nickname });
+      socket.emit('message', { chatMessage: chatMessage.value, nickname });
+      chatMessage.value = '';
+      if (chatMessage.value === '') sendChatMessage.disabled = true;
     });
 
     privateChatButton.addEventListener('click', () => {
@@ -87,6 +106,20 @@
       li.textContent = message;
       li.setAttribute('data-testid', 'message');
       document.getElementById('chat').appendChild(li);
+    });
+
+    window.addEventListener('load', () => {
+      if (nickname.value === '') {
+        saveUserName.disabled = true;
+      } else {
+        saveUserName.disabled = false;
+      }
+
+      if (chatMessage.value === '') {
+        sendChatMessage.disabled = true;
+      } else {
+        sendChatMessage.disabled = false;
+      }
     });
   </script>
 
