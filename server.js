@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
     // Existindo utiliza array.splice para retirar o usuário da lista
     if (index !== -1) onlineUsers.splice(index, 1);
     // emite aos demais usuários nova lista de usuários online
-    socket.broadcast.emit('new-online-list', onlineUsers);
+    socket.broadcast.emit('updated-online-list', onlineUsers);
   });
 
   socket.on('message', ({ chatMessage, nickname }) => {

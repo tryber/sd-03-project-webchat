@@ -36,6 +36,7 @@
       socket.emit('user-nickname', { nickname: nickname.value });
       nickname.value = '';
       if (nickname.value === '') saveUserName.disabled = true;
+      return;
     });
 
     sendChatMessage.addEventListener('click', () => {
@@ -43,6 +44,7 @@
       socket.emit('message', { chatMessage: chatMessage.value, nickname });
       chatMessage.value = '';
       if (chatMessage.value === '') sendChatMessage.disabled = true;
+      return;
     });
 
     privateChatButton.addEventListener('click', () => {
@@ -51,8 +53,8 @@
       list.removeChild(list.childNodes[0]);
     });
 
-    socket.on('messages-history', (allMsg) => {
-      allMsg.forEach(({ date, nickname, message }) => {
+    socket.on('messages-history', (messagesHistory) => {
+      messagesHistory.forEach(({ date, nickname, message }) => {
         const li = document.createElement('li');
         li.textContent = `${date} - ${nickname} => ${message}`;
         li.setAttribute('data-testid', 'message');
@@ -63,20 +65,30 @@
     socket.on('online-users', (data) => {
       data.forEach(({ name }) => {
         const li = document.createElement('li');
-        li.textContent = name;
-        li.setAttribute('data-testid', 'online-user');
-        document.getElementById('online-users').appendChild(li)
+      const button = document.createElement('button');
+      li.textContent = name;
+      button.textContent = 'Chat Privado'
+      li.setAttribute('data-testid', 'online-user');
+      button.setAttribute('id', 'private-chat-btn');
+      button.setAttribute('data-testid', 'private');
+      document.getElementById('online-users').appendChild(li)
+      document.getElementById('online-users').appendChild(button)
       });
     });
 
     socket.on('new-online-user', (name) => {
       const li = document.createElement('li');
+      const button = document.createElement('button');
       li.textContent = name;
+      button.textContent = 'Chat Privado'
       li.setAttribute('data-testid', 'online-user');
+      button.setAttribute('id', 'private-chat-btn');
+      button.setAttribute('data-testid', 'private');
       document.getElementById('online-users').appendChild(li)
+      document.getElementById('online-users').appendChild(button)
     });
 
-    socket.on('new-online-list', (data) => {
+    socket.on('updated-online-list', (data) => {
       document.getElementById('online-users').textContent = '';
       data.forEach(({ name }) => {
         const li = document.createElement('li');
