@@ -19,7 +19,7 @@ io.on('connection', async (socket) => {
 
   // checks to retrieve the correct messages
 
-  socket.emit('allOnline', onlineUsers);
+  socket.emit('onlineUsers', onlineUsers);
   // pega o histórico de mensagens
   const chatHistory = await retrieveMessages('public');
   socket.emit('history', chatHistory);

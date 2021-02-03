@@ -73,20 +73,6 @@
       console.log('mudei', room, chatList)
     };
 
-    socket.on('allOnline', (users) => {
-      // Vai sempre ser emitido pelo server quando houver conexão e desconexão
-      return users.forEach(({ nickname, id }) => {
-        const li = document.createElement('li');
-        const btn = document.createElement('button');
-        btn.innerText = 'Iniciar chat';
-        btn.addEventListener('click', () => switchChat(id));
-        li.innerText = nickname;
-        li.setAttribute('data-testid', 'online-user');
-        onlineList.appendChild(btn);
-        onlineList.appendChild(li);
-      });
-    });
-
     socket.on('onlineUsers', (users) => {
       onlineList.innerHTML = '';
       return users.forEach(({ nickname: nick, id }) => {
