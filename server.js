@@ -26,7 +26,9 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 // rotas
 app.post('/msg', messages.saveMessages);
+app.post('/msg-private', messages.savePrivateMessages);
 app.get('/msg', messages.getMessages);
+app.get('/msg-private', messages.getPrivateMessages);
 
 /* troquei o array por um objeto para facilitar localização do usuário
 e operação de atualização de informações */
@@ -62,24 +64,45 @@ io.on('connection', async (socket) => {
     socket.broadcast.emit('updated-online-list', onlineUsers);
   });
 
-  socket.on('message', ({ chatMessage, nickname }) => {
+  socket.on('message', async ({ chatMessage, nickname, receiver }) => {
+    let message;
     // criando timestamp usando momentJS
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss');
-    // formatando mensagem para o chat
-    const message = `${date} - ${nickname} => ${chatMessage}`;
 
-    axios({
-      method: 'POST',
-      url: `http://localhost:${PORT}/msg`,
-      data: {
-        message: chatMessage,
-        nickname,
-        date,
-      },
-    });
+    if (!receiver) {
+      // formatando mensagem para o chat
+      message = `${date} - ${nickname} => ${chatMessage}`;
 
-    socket.emit('message', message);
-    socket.broadcast.emit('message', message);
+      await axios({
+        method: 'POST',
+        url: `http://localhost:${PORT}/msg`,
+        data: {
+          message: chatMessage,
+          nickname,
+          date,
+        },
+      });
+
+      socket.emit('message', message);
+      socket.broadcast.emit('message', message);
+    } else {
+      // formatando mensagem para o chat
+      message = `${date} (private message) - ${nickname} => ${chatMessage}`;
+
+      await axios({
+        method: 'POST',
+        url: `http://localhost:${PORT}/msg-private`,
+        data: {
+          message: chatMessage,
+          nickname,
+          receiver,
+          date,
+        },
+      });
+
+      socket.emit('message', message);
+      socket.broadcast.emit('message', message);
+    }
   });
 
   socket.on('private-chat', (user, nickname, chatMessage) => {

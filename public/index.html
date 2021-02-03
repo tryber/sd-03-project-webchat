@@ -8,16 +8,29 @@
   </head>
 
   <body>
-    <input type="text" name="" id="username" data-testid="nickname-box">
-    <button id="user-save" data-testid="nickname-save">Salvar Apelido</button>
-    <h4 id="name"></h4>
-    <ul id="chat"></ul>
-    <input type="text" name="" id="user-message" data-testid="message-box">
-    <button id="send-msg" data-testid="send-button">Enviar</button>
+    <div>
+      <h4 id="name"></h4>
+    </div>
+    <div>
+      <input type="text" name="" id="username" data-testid="nickname-box">
+      <button id="user-save" data-testid="nickname-save">Salvar Apelido</button>
+    </div>
+    <div>
+      <input type="text" name="" id="user-message" data-testid="message-box">
+      <button id="send-msg" data-testid="send-button">Enviar</button>
+    </div>
+    <div id="public-chat-container">
+      <ul id="chat"></ul>
+    </div>
+    <div id="private-chat-container" hidden>
+      <ul id="private-chat"></ul>
+    </div>
     <div>
       <ul id="online-users"></ul>
     </div>
-    <button data-testid="public"> Chat Publico</button>
+    <div>
+      <button data-testid="public" id="public-chat-btn" disabled> Chat Publico</button>
+    </div>
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -26,10 +39,11 @@
     const nicknameInput = document.getElementById('username');
     const saveUserName = document.getElementById('user-save');
     const sendChatMessage = document.getElementById('send-msg');
-    const privateChatButton = document.getElementById('private-chat-btn');
     const chatMessage = document.getElementById('user-message');
+    const publicChatButton = document.getElementById('public-chat-btn');
 
     let nickname;
+    let chatMode = 'public';
 
     nicknameInput.addEventListener('keyup', () => {
       if (nicknameInput.value === '') {
@@ -64,6 +78,37 @@
       return;
     });
 
+    publicChatButton.addEventListener('click', () => {
+      const publicChat = document.getElementById('public-chat-container');
+      const privateChat = document.getElementById('private-chat-container');
+      const privateChatButtons = document.querySelectorAll('button.private-btn');
+      chatMode = 'public';
+      publicChat.removeAttribute('hidden');
+      privateChat.setAttribute('hidden', true);
+      publicChatButton.disabled = true;
+      [...privateChatButtons].map((button) => button.disabled = false);
+      return;
+    })
+
+    // função para criar botão de chat privado
+    const privateChatButton = (key) => {
+      const privateButton = document.createElement('button');
+      privateButton.textContent = 'Chat Privado'
+      privateButton.setAttribute('id', key);
+      privateButton.setAttribute('data-testid', 'private');
+      privateButton.setAttribute('class', 'private-btn');
+      privateButton.addEventListener('click', () => {
+        const publicChat = document.getElementById('public-chat-container');
+        const privateChat = document.getElementById('private-chat-container');
+        chatMode = 'private';
+        publicChat.setAttribute('hidden', true);
+        privateChat.removeAttribute('hidden');
+        publicChatButton.disabled = false;
+        privateButton.disabled = true;
+        return;
+      });
+      return privateButton;
+    }
     // eventos socket.io
 
     socket.on('connect', () => {
@@ -96,16 +141,8 @@
         li.appendChild(userContainer);
 
         if (key !== socket.id) {
-          const privateButton = document.createElement('button');
-          privateButton.textContent = 'Chat Privado'
-          privateButton.setAttribute('id', key);
-          privateButton.setAttribute('data-testid', 'private');
+          const privateButton = privateChatButton(key);
           li.appendChild(privateButton)
-          privateButton.addEventListener('click', () => {
-            const nickname = document.getElementById('name').textContent.split(' ')[1];
-            if (list.childNodes.length === 1) return;
-            list.removeChild(list.childNodes[0]);
-          });
         }
         document.getElementById('online-users').appendChild(li)
       });
@@ -125,16 +162,8 @@
         li.appendChild(userContainer);
 
         if (key !== socket.id) {
-          const privateButton = document.createElement('button');
-          privateButton.textContent = 'Chat Privado'
-          privateButton.setAttribute('id', key);
-          privateButton.setAttribute('data-testid', 'private');
+          const privateButton = privateChatButton(key);
           li.appendChild(privateButton)
-          privateButton.addEventListener('click', () => {
-            const nickname = document.getElementById('name').textContent.split(' ')[1];
-            if (list.childNodes.length === 1) return;
-            list.removeChild(list.childNodes[0]);
-          });
         }
         document.getElementById('online-users').appendChild(li)
       });
