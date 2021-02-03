@@ -17,7 +17,6 @@
     <div>
       <ul id="online-users"></ul>
     </div>
-    <!-- <button id="private-chat-btn" data-testid="private">Chat Privado</button> -->
     <button data-testid="public"> Chat Publico</button>
   </body>
   <script src="/socket.io/socket.io.js"></script>
@@ -71,6 +70,8 @@
       // quando o usuário conecta sem atualizar seu nickname
       if (!nickname) nickname = `Convidado_${socket.id}`;
       socket.emit('user-connection', nickname)
+      const name = document.getElementById('name');
+      name.textContent = `User: ${nickname}`;
     });
 
     socket.on('messages-history', (messagesHistory) => {
