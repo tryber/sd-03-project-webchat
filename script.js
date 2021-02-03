@@ -21,8 +21,8 @@ io.on('connection', async (socket) => {
 
   socket.emit('allOnline', onlineUsers);
   // pega o histórico de mensagens
-  const messages = await retrieveMessages('public');
-  socket.emit('history', messages);
+  const chatHistory = await retrieveMessages('public');
+  socket.emit('history', chatHistory);
 
   socket.on('changeRoom', async (room) => {
     socket.leaveAll();
@@ -34,9 +34,9 @@ io.on('connection', async (socket) => {
   socket.on('message', async (data) => {
     const { chatMessage, nickname, room } = data;
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
-    const user = onlineUsers.find((user) => user.nickname === nickname);
+    const client = onlineUsers.find((user) => user.nickname === nickname);
     const message = `${nickname} - ${time} - ${chatMessage}`;
-    console.log(onlineUsers, user);
+    console.log(onlineUsers, client);
     // BUG: this user object sometimes is undefined so this line breaks
     await registerMessage(message, nickname, room);
     io.to(room).emit('message', message);
@@ -44,10 +44,10 @@ io.on('connection', async (socket) => {
 
   socket.on('nickname', async (data) => {
     const { prevNick, nickname, room } = data;
-    console.log(data, room)
+    console.log(data, room);
     if (prevNick) {
       onlineUsers = onlineUsers.filter(
-        ({ nickname: nick }) => nick !== prevNick
+        ({ nickname: nick }) => nick !== prevNick,
       );
     }
     onlineUsers.push({ nickname, id: socket.id, room });
