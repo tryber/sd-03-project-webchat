@@ -86,7 +86,7 @@
     socket.on('message', (message) => {
       const li = document.createElement('li');
       li.textContent = message;
-      li.setAttribute('data-testid', 'message');
+      li.setAttribute("data-testid", "message");
       document.getElementById('chat').appendChild(li);
     });
   </script>
