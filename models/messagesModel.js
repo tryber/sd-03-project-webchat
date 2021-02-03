@@ -1,16 +1,14 @@
-const connect = require('./connection');
+const mongoose = require('mongoose');
 
-const saveMessages = async ({ message }) => connect()
-  .then((db) => db
-    .collection('messages')
-    .insertOne({ message }));
+const MessageSchema = new mongoose.Schema({
+  message: { type: String, require: true },
+  nick: { type: String, require: true },
+  date: {
+    type: String,
+  },
+  room: {
+    type: String,
+  },
+});
 
-const getPreviousMessages = async () => connect()
-  .then((db) => db
-    .collection('messages')
-    .find({}).toArray());
-
-module.exports = {
-  saveMessages,
-  getPreviousMessages,
-};
+module.exports = mongoose.model('Message', MessageSchema);
