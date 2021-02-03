@@ -22,15 +22,20 @@
     </button>
   </form>
   <ul class="onlineList" id="onlineList"></ul>
+  <button class="publicButton" data-testid="public" id="publicButton">
+    Chat publico
+  </button>
   <script>
     // Pegar todos os elementos e salvar
     const chatList = document.getElementById('chat');
     const onlineList = document.getElementById('onlineList');
     const sendButton = document.getElementById('sendButton');
     const nickButton = document.getElementById('nickButton');
+    const publicButton = document.getElementById('publicButton');
     const socket = io();
 
     let nickname = '';
+    let currentRoom = 'public';
 
     // Cria uma mensagem e joga ela na lista
     const createMessage = (message, list) => {
@@ -56,13 +61,25 @@
 
     socket.on('history', (messages) => messages.forEach(({ message }) => createMessage(message, chatList)));
 
+    socket.on('privMessages', (messages) => messages.forEach(({ message }) => createMessage(message, chatList)));
+
+    const switchChat = (room) => {
+      socket.emit('changeRoom', room);
+      // reset history and get private history
+      currentRoom = room;
+      while (chatList.firstChild) {
+        chatList.removeChild(chatList.firstChild);
+      }
+      console.log('mudei', room, chatList)
+    };
+
     socket.on('allOnline', (users) => {
       // Vai sempre ser emitido pelo server quando houver conexão e desconexão
-      return users.forEach(({ nickname }) => {
+      return users.forEach(({ nickname, id }) => {
         const li = document.createElement('li');
         const btn = document.createElement('button');
         btn.innerText = 'Iniciar chat';
-        btn.addEventListener('click', () => switchChat());
+        btn.addEventListener('click', () => switchChat(id));
         li.innerText = nickname;
         li.setAttribute('data-testid', 'online-user');
         onlineList.appendChild(btn);
@@ -72,11 +89,11 @@
 
     socket.on('onlineUsers', (users) => {
       onlineList.innerHTML = '';
-      return users.forEach(({ nickname: nick }) => {
+      return users.forEach(({ nickname: nick, id }) => {
         const li = document.createElement('li');
         const btn = document.createElement('button');
         btn.innerText = 'Iniciar chat';
-        btn.addEventListener('click', () => switchChat());
+        btn.addEventListener('click', () => switchChat(id));
         li.innerText = nick;
         li.setAttribute('data-testid', 'online-user');
         onlineList.appendChild(btn);
@@ -89,22 +106,27 @@
       chatField = document.getElementById('chatInput');
       if (chatField.value) {
         event.preventDefault();
-        socket.emit('message', { chatMessage: chatField.value, nickname });
+        socket.emit('message', { chatMessage: chatField.value, nickname, room: currentRoom });
         return document.getElementById('chatInput').value = '';
       }
       return event.preventDefault();
     });
 
     nickButton.addEventListener('click', (event) => {
-      event.preventDefault()
+      event.preventDefault();
       const newNick = document.getElementById('nickInput').value;
-      socket.emit('nickname', { prevNick: nickname, nickname: newNick });
+      socket.emit('nickname', { prevNick: nickname, nickname: newNick, room: currentRoom });
       nickname = newNick;
+    });
+
+    publicButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      switchChat('public')
     });
 
     window.onload = () => {
       nickname = generateRndNick();
-      socket.emit('nickname', { prevNick: null, nickname });
+      socket.emit('nickname', { prevNick: null, nickname, room: 'public' });
     };
   </script>
 </body>

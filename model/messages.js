@@ -1,12 +1,17 @@
 const connection = require('./connection');
 
-const registerMessage = async (message) => connection()
-  .then((db) => db.collection('messages').insertOne({ message }));
+// TODO: implement the room key on the DB
+const registerMessage = async (message, nickname, room) =>
+  connection().then((db) =>
+    db.collection('messages').insertOne({ message, nickname, room })
+  );
 
-const retrievePublicMessages = async () => connection()
-  .then((db) => db.collection('messages').find().toArray());
+const retrieveMessages = async (room) =>
+  connection().then((db) =>
+    db.collection('messages').find({ room }).toArray()
+  );
 
 module.exports = {
   registerMessage,
-  retrievePublicMessages,
+  retrieveMessages,
 };

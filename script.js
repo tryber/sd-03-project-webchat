@@ -5,31 +5,53 @@ const io = require('socket.io')(http);
 
 const {
   registerMessage,
-  retrievePublicMessages,
+  retrieveMessages,
 } = require('./model/messages');
 
 let onlineUsers = [];
 
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 
+// TODO: implement the join in room function
 io.on('connection', async (socket) => {
+  // place the user on the public room
+  socket.join('public');
+
+  // checks to retrieve the correct messages
+
   socket.emit('allOnline', onlineUsers);
   // pega o histórico de mensagens
-  const messages = await retrievePublicMessages();
+  const messages = await retrieveMessages('public');
   socket.emit('history', messages);
 
-  socket.on('message', async ({ chatMessage, nickname }) => {
-    const time = moment().format('DD-MM-YYYY hh:mm:ss');
-    const message = `${nickname} - ${time} - ${chatMessage}`;
-    await registerMessage(message);
-    io.emit('message', message);
+  socket.on('changeRoom', async (room) => {
+    socket.leaveAll();
+    socket.join(room);
+    const messages = await retrieveMessages(room);
+    io.to(room).emit('privMessages', messages);
   });
 
-  socket.on('nickname', async ({ prevNick, nickname }) => {
+  socket.on('message', async (data) => {
+    const { chatMessage, nickname, room } = data;
+    const time = moment().format('DD-MM-YYYY hh:mm:ss');
+    const user = onlineUsers.find((user) => user.nickname === nickname);
+    const message = `${nickname} - ${time} - ${chatMessage}`;
+    console.log(onlineUsers, user);
+    // BUG: this user object sometimes is undefined so this line breaks
+    await registerMessage(message, nickname, room);
+    io.to(room).emit('message', message);
+  });
+
+  socket.on('nickname', async (data) => {
+    const { prevNick, nickname, room } = data;
+    console.log(data, room)
     if (prevNick) {
-      onlineUsers = onlineUsers.filter(({ nickname: nick }) => nick !== prevNick);
+      onlineUsers = onlineUsers.filter(
+        ({ nickname: nick }) => nick !== prevNick
+      );
     }
-    onlineUsers.push({ nickname, id: socket.id });
+    onlineUsers.push({ nickname, id: socket.id, room });
+
     io.emit('onlineUsers', onlineUsers);
   });
 
