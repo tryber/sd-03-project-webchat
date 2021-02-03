@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const axios = require('axios');
@@ -22,46 +21,51 @@ require('dotenv').config();
 const { messages } = require('./controllers');
 // middleware para habilitar Cross-origin resource sharing
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 // rotas
 app.post('/msg', messages.saveMessages);
 app.get('/msg', messages.getMessages);
 
-const onlineUsers = [];
+/* troquei o array por um objeto para facilitar localização do usuário
+e operação de atualização de informações */
+const onlineUsers = {};
 
-io.on('connection', (socket) => {
-  // utilizando axios para obter histórico de mensagens
-  axios({
+io.on('connection', async (socket) => {
+  // utilizando axios para obter histórico de mensagens sem acionar diretamente o model
+  await axios({
     method: 'GET',
     url: `http://localhost:${PORT}/msg`,
   }).then(({ data }) => socket.emit('messages-history', data));
 
-  socket.emit('online-users', onlineUsers);
+  // evento de conexão do usuário
+  socket.on('user-connection', (user) => {
+    onlineUsers[socket.id] = user;
+    socket.emit('online-users', onlineUsers);
+  });
 
-  socket.on('user-nickname', ({ nickname: newUser }) => {
+  socket.on('update-nickname', (nickname) => {
     /* criando id do usuário utilizando o atributo id da instância do socket.io
     conforme: https://socket.io/docs/v3/server-socket-instance/#Socket-id */
-    onlineUsers.push({ name: newUser, id: socket.id });
+    onlineUsers[socket.id] = nickname;
     // informa ao novo usuário que ele está online
-    socket.emit('new-online-user', newUser);
+    socket.emit('updated-online-list', onlineUsers);
     // informa demais usuários que existe um novo usuário online
-    socket.broadcast.emit('new-online-user', newUser);
+    socket.broadcast.emit('updated-online-list', onlineUsers);
   });
 
   socket.on('disconnect', () => {
-    // procura id de usuário desconectado no array de usuários online
-    const index = onlineUsers.map(({ id }) => id).indexOf(socket.id);
-    // Existindo utiliza array.splice para retirar o usuário da lista
-    if (index !== -1) onlineUsers.splice(index, 1);
+    // deletando usuário desconectado
+    delete onlineUsers[socket.id];
     // emite aos demais usuários nova lista de usuários online
     socket.broadcast.emit('updated-online-list', onlineUsers);
   });
 
   socket.on('message', ({ chatMessage, nickname }) => {
+    // criando timestamp usando momentJS
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss');
+    // formatando mensagem para o chat
     const message = `${date} - ${nickname} => ${chatMessage}`;
 
     axios({
@@ -85,7 +89,7 @@ io.on('connection', (socket) => {
     const { socket: id } = onlineUsers.find(
       (onlineUser) => onlineUser.socket === user,
     );
-    io.to(id).to(socket.id).emit('message', message, [id, socket.id]);
+    io.to(socket.id).emit('message', message, [id, socket.id]);
   });
 });
 

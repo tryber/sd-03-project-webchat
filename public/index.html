@@ -17,95 +17,23 @@
     <div>
       <ul id="online-users"></ul>
     </div>
-    <button id="private-chat-btn" data-testid="private">Chat Privado</button>
+    <!-- <button id="private-chat-btn" data-testid="private">Chat Privado</button> -->
     <button data-testid="public"> Chat Publico</button>
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io('http://localhost:3000');
 
-    const nickname = document.getElementById('username');
+    const nicknameInput = document.getElementById('username');
     const saveUserName = document.getElementById('user-save');
     const sendChatMessage = document.getElementById('send-msg');
     const privateChatButton = document.getElementById('private-chat-btn');
     const chatMessage = document.getElementById('user-message');
 
-    saveUserName.addEventListener('click', () => {
-      const name = document.getElementById('name');
-      name.textContent = `Name: ${nickname.value}`;
-      socket.emit('user-nickname', { nickname: nickname.value });
-      nickname.value = '';
-      if (nickname.value === '') saveUserName.disabled = true;
-      return;
-    });
+    let nickname;
 
-    sendChatMessage.addEventListener('click', () => {
-      const nickname = document.getElementById('name').textContent.split(' ')[1];
-      socket.emit('message', { chatMessage: chatMessage.value, nickname });
-      chatMessage.value = '';
-      if (chatMessage.value === '') sendChatMessage.disabled = true;
-      return;
-    });
-
-    privateChatButton.addEventListener('click', () => {
-      const list = document.getElementById('chat');
-      if (list.childNodes.length === 1) return;
-      list.removeChild(list.childNodes[0]);
-    });
-
-    socket.on('messages-history', (messagesHistory) => {
-      messagesHistory.forEach(({ date, nickname, message }) => {
-        const li = document.createElement('li');
-        li.textContent = `${date} - ${nickname} => ${message}`;
-        li.setAttribute('data-testid', 'message');
-        document.getElementById('chat').appendChild(li);
-      });
-    });
-
-    socket.on('online-users', (data) => {
-      data.forEach(({ name }) => {
-        const li = document.createElement('li');
-      const button = document.createElement('button');
-      li.textContent = name;
-      button.textContent = 'Chat Privado'
-      li.setAttribute('data-testid', 'online-user');
-      button.setAttribute('id', 'private-chat-btn');
-      button.setAttribute('data-testid', 'private');
-      document.getElementById('online-users').appendChild(li)
-      document.getElementById('online-users').appendChild(button)
-      });
-    });
-
-    socket.on('new-online-user', (name) => {
-      const li = document.createElement('li');
-      const button = document.createElement('button');
-      li.textContent = name;
-      button.textContent = 'Chat Privado'
-      li.setAttribute('data-testid', 'online-user');
-      button.setAttribute('id', 'private-chat-btn');
-      button.setAttribute('data-testid', 'private');
-      document.getElementById('online-users').appendChild(li)
-      document.getElementById('online-users').appendChild(button)
-    });
-
-    socket.on('updated-online-list', (data) => {
-      document.getElementById('online-users').textContent = '';
-      data.forEach(({ name }) => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        document.getElementById('online-users').appendChild(li);
-      });
-    });
-
-    socket.on('message', (message) => {
-      const li = document.createElement('li');
-      li.textContent = message;
-      li.setAttribute('data-testid', 'message');
-      document.getElementById('chat').appendChild(li);
-    });
-
-    nickname.addEventListener('keyup', () => {
-      if (nickname.value === '') {
+    nicknameInput.addEventListener('keyup', () => {
+      if (nicknameInput.value === '') {
         saveUserName.disabled = true;
       } else {
         saveUserName.disabled = false;
@@ -120,8 +48,107 @@
       }
     });
 
+    saveUserName.addEventListener('click', () => {
+      const name = document.getElementById('name');
+      name.textContent = `User: ${nicknameInput.value}`;
+      socket.emit('update-nickname', nicknameInput.value);
+      nicknameInput.value = '';
+      if (nicknameInput.value === '') saveUserName.disabled = true;
+      return;
+    });
+
+    sendChatMessage.addEventListener('click', () => {
+      const nick = document.getElementById('name').textContent.split(' ')[1];
+      socket.emit('message', { chatMessage: chatMessage.value, nickname: nick });
+      chatMessage.value = '';
+      if (chatMessage.value === '') sendChatMessage.disabled = true;
+      return;
+    });
+
+    // eventos socket.io
+
+    socket.on('connect', () => {
+      // quando o usuário conecta sem atualizar seu nickname
+      if (!nickname) nickname = `Convidado_${socket.id}`;
+      socket.emit('user-connection', nickname)
+    });
+
+    socket.on('messages-history', (messagesHistory) => {
+      messagesHistory.forEach(({ date, nickname, message }) => {
+        const li = document.createElement('li');
+        li.textContent = `${date} - ${nickname} => ${message}`;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('chat').appendChild(li);
+      });
+    });
+
+    socket.on('online-users', (data) => {
+      Object.entries(data).forEach(([key, value]) => {
+        const li = document.createElement('li');
+        const userContainer = document.createElement('span');
+        if (typeof value === 'object') {
+          userContainer.textContent = nickname;
+        } else {
+          userContainer.textContent = value;
+        }
+        userContainer.setAttribute('data-testid', 'online-user');
+        li.appendChild(userContainer);
+
+        if (key !== socket.id) {
+          const privateButton = document.createElement('button');
+          privateButton.textContent = 'Chat Privado'
+          privateButton.setAttribute('id', key);
+          privateButton.setAttribute('data-testid', 'private');
+          li.appendChild(privateButton)
+          privateButton.addEventListener('click', () => {
+            const nickname = document.getElementById('name').textContent.split(' ')[1];
+            if (list.childNodes.length === 1) return;
+            list.removeChild(list.childNodes[0]);
+          });
+        }
+        document.getElementById('online-users').appendChild(li)
+      });
+    });
+
+    socket.on('updated-online-list', (data) => {
+      document.getElementById('online-users').textContent = '';
+      Object.entries(data).forEach(([key, value]) => {
+        const li = document.createElement('li');
+        const userContainer = document.createElement('span');
+        if (typeof value === 'object') {
+          userContainer.textContent = nickname;
+        } else {
+          userContainer.textContent = value;
+        }
+        userContainer.setAttribute('data-testid', 'online-user');
+        li.appendChild(userContainer);
+
+        if (key !== socket.id) {
+          const privateButton = document.createElement('button');
+          privateButton.textContent = 'Chat Privado'
+          privateButton.setAttribute('id', key);
+          privateButton.setAttribute('data-testid', 'private');
+          li.appendChild(privateButton)
+          privateButton.addEventListener('click', () => {
+            const nickname = document.getElementById('name').textContent.split(' ')[1];
+            if (list.childNodes.length === 1) return;
+            list.removeChild(list.childNodes[0]);
+          });
+        }
+        document.getElementById('online-users').appendChild(li)
+      });
+    });
+
+    socket.on('message', (message) => {
+      const li = document.createElement('li');
+      li.textContent = message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('chat').appendChild(li);
+    });
+
+
     window.addEventListener('load', () => {
-      if (nickname.value === '') {
+      if (nicknameInput.value === '') {
         saveUserName.disabled = true;
       } else {
         saveUserName.disabled = false;
