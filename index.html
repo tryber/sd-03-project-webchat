@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Chat - 2.0</title>
+
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  
+</head>
+<body>
+  <div>
+    <input type="text" id="nickname-box" data-testid="nickname-box" placeholder="Seu Nome" />
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar</button>
+    <br />
+    <span style="color: blue; font-size: 15px;">Mensagens</span>
+    <ul id="allMessages"></ul>
+    <div id="send-to" data-value="public"></div>
+    <input type="text" id="message-box" data-testid="message-box" />
+    <button type="submit" id="send-button" data-testid="send-button">Enviar</button><br>
+    <br />
+      <span>Lista de Usuários Online:</span>
+      <ul id="allUsers"></ul>
+  </div>
+</body>
+
+</script>
+
+</script>
+
+</html>
