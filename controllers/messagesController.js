@@ -35,7 +35,7 @@ const savePrivateMessages = async (req, res) => {
 
 const getPrivateMessages = async (req, res) => {
   try {
-    const { nickname, receiver } = req.body;
+    const { nickname, receiver } = req.query;
     const messages = await messagesServices.getPrivateMessages({
       nickname,
       receiver,

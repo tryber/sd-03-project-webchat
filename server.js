@@ -83,8 +83,8 @@ io.on('connection', async (socket) => {
         },
       });
 
-      socket.emit('message', message);
-      socket.broadcast.emit('message', message);
+      socket.emit('message', { message });
+      socket.broadcast.emit('message', { message });
     } else {
       // formatando mensagem para o chat
       message = `${date} (private message) - ${nickname} => ${chatMessage}`;
@@ -100,19 +100,16 @@ io.on('connection', async (socket) => {
         },
       });
 
-      socket.emit('message', message);
-      socket.broadcast.emit('message', message);
+      socket.emit('message', { message, receiver });
+      socket.broadcast.emit('message', { message, receiver });
     }
   });
 
-  socket.on('private-chat', (user, nickname, chatMessage) => {
-    const message = `${moment(new Date()).format(
-      'DD-MM-yyyy hh:mm:ss',
-    )} - ${nickname} -> ${chatMessage}`;
-    const { socket: id } = onlineUsers.find(
-      (onlineUser) => onlineUser.socket === user,
-    );
-    io.to(socket.id).emit('message', message, [id, socket.id]);
+  socket.on('private-chat', async ({ nickname, receiver }) => {
+    await axios({
+      method: 'GET',
+      url: `http://localhost:${PORT}/msg-private?nickname=${nickname}&receiver=${receiver}`,
+    }).then(({ data }) => socket.emit('private-history', data));
   });
 });
 

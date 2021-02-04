@@ -43,6 +43,7 @@
     const publicChatButton = document.getElementById('public-chat-btn');
 
     let nickname;
+    let receiver;
     let chatMode = 'public';
 
     nicknameInput.addEventListener('keyup', () => {
@@ -72,7 +73,7 @@
 
     sendChatMessage.addEventListener('click', () => {
       const nick = document.getElementById('name').textContent.split(' ')[1];
-      socket.emit('message', { chatMessage: chatMessage.value, nickname: nick });
+      socket.emit('message', { chatMessage: chatMessage.value, nickname: nick, receiver });
       chatMessage.value = '';
       if (chatMessage.value === '') sendChatMessage.disabled = true;
       return;
@@ -83,6 +84,7 @@
       const privateChat = document.getElementById('private-chat-container');
       const privateChatButtons = document.querySelectorAll('button.private-btn');
       chatMode = 'public';
+      receiver = undefined;
       publicChat.removeAttribute('hidden');
       privateChat.setAttribute('hidden', true);
       publicChatButton.disabled = true;
@@ -94,17 +96,19 @@
     const privateChatButton = (key) => {
       const privateButton = document.createElement('button');
       privateButton.textContent = 'Chat Privado'
-      privateButton.setAttribute('id', key);
+      privateButton.id = key;
       privateButton.setAttribute('data-testid', 'private');
       privateButton.setAttribute('class', 'private-btn');
       privateButton.addEventListener('click', () => {
         const publicChat = document.getElementById('public-chat-container');
         const privateChat = document.getElementById('private-chat-container');
         chatMode = 'private';
+        receiver = key;
         publicChat.setAttribute('hidden', true);
         privateChat.removeAttribute('hidden');
         publicChatButton.disabled = false;
         privateButton.disabled = true;
+        socket.emit('private-chat', { nickname, receiver})
         return;
       });
       return privateButton;
@@ -128,10 +132,19 @@
       });
     });
 
+    socket.on('private-history', (messagesHistory) => {
+      messagesHistory.forEach(({ date, nickname, message }) => {
+        const li = document.createElement('li');
+        li.textContent = `${date} - ${nickname} => ${message}`;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('private-chat').appendChild(li);
+      });
+    });
+
     socket.on('online-users', (data) => {
       Object.entries(data).forEach(([key, value]) => {
         const li = document.createElement('li');
-        const userContainer = document.createElement('span');
+        const userContainer = document.createElement('p');
         if (typeof value === 'object') {
           userContainer.textContent = nickname;
         } else {
@@ -152,7 +165,7 @@
       document.getElementById('online-users').textContent = '';
       Object.entries(data).forEach(([key, value]) => {
         const li = document.createElement('li');
-        const userContainer = document.createElement('span');
+        const userContainer = document.createElement('p');
         if (typeof value === 'object') {
           userContainer.textContent = nickname;
         } else {
@@ -169,11 +182,18 @@
       });
     });
 
-    socket.on('message', (message) => {
-      const li = document.createElement('li');
-      li.textContent = message;
-      li.setAttribute('data-testid', 'message');
-      document.getElementById('chat').appendChild(li);
+    socket.on('message', ({ message, receiver }) => {
+      if (!receiver) {
+        const li = document.createElement('li');
+        li.textContent = message;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('chat').appendChild(li);
+      } else {
+        const li = document.createElement('li');
+        li.textContent = message;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('private-chat').appendChild(li);
+      }
     });
 
 
