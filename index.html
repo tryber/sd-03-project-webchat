@@ -80,6 +80,7 @@
         const btn = document.createElement('button');
         btn.innerText = 'Iniciar chat';
         btn.addEventListener('click', () => switchChat(id));
+        btn.setAttribute('data-testid', 'private');
         li.innerText = nick;
         li.setAttribute('data-testid', 'online-user');
         onlineList.appendChild(btn);

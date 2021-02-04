@@ -36,8 +36,6 @@ io.on('connection', async (socket) => {
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
     const client = onlineUsers.find((user) => user.nickname === nickname);
     const message = `${time} - ${nickname}: ${chatMessage}`;
-    console.log(onlineUsers, client);
-    // BUG: this user object sometimes is undefined so this line breaks
     await registerMessage(message, nickname, room);
     io.to(room).emit('message', message);
   });
