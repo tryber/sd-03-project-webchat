@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.io - Client Demo</title>
+
+  <!-- Carrega o socket.io -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Configura interação com o servidor -->
+  
+</head>
+<body>
+  <div>
+    <span id="nickname"></span><br>
+    <input type="text" id="nickname-box" data-testid="nickname-box" />
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar Nickname</button>
+    <fieldset>
+      <span>Mensagens</span>
+      <ul id="allMessages"></ul>
+    </fieldset>
+    <div id="send-to" data-value="public"></div>
+    <input type="text" id="message-box" data-testid="message-box" />
+    <button type="submit" id="send-button" data-testid="send-button">Enviar</button><br>
+    <button type="button" id="public-chat-button" data-testid="public">Voltar para chat público</button>
+    <fieldset>
+      <span>Online</span>
+      <ul id="allUsers"></ul>
+    </fieldset>
+  </div>
+  <script>
+    const socket = io('http://localhost:3000');
+    const textInput = document.getElementById('message-box');
+    const sendButton = document.getElementById('send-button');
+    const publicChatButton = document.getElementById('public-chat-button');
+    const nickname = document.getElementById('nickname');
+    const nicknameSaveBtn = document.getElementById('nickname-save');
+    const nicknameTextBox = document.getElementById('nickname-box');
+
+    sendButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      const divValue = document.getElementById('send-to').getAttribute('data-value');
+
+      if (divValue === 'public') {
+        const messageObj = {
+          chatMessage: textInput.value,
+          nickname: nickname.textContent,
+        }
+        socket.emit('message', messageObj);
+      } else {
+        const messageObj = {
+          chatMessage: textInput.value,
+          nickname: nickname.textContent,
+          to: divValue,
+        };
+        socket.emit('private', messageObj);
+      }
+      textInput.value = '';
+    });
+    
+    socket.on('history', (messages) => {
+      document.getElementById('allMessages').innerHTML = '';
+      return messages.forEach(({ nickname, chatMessage }) => {
+        const li = document.createElement('li');
+        li.textContent = chatMessage;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('allMessages').appendChild(li);
+      });
+    });
+
+    socket.on('message', (message) => {
+      const li = document.createElement('li');
+      li.textContent = message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('allMessages').appendChild(li)
+    });
+    
+    socket.on('nickname', () =>{
+      nickname.textContent  = `Guest ${ Math.floor(((Math.random() * 1000) + 1)) }`;
+      socket.emit('nickname', nickname.textContent);
+    });
+
+    nicknameSaveBtn.addEventListener('click', () => {
+      nickname.textContent = nicknameTextBox.value;
+      socket.emit('nickname', nickname.textContent);
+      nicknameTextBox.value = '';
+    });
+
+    socket.on('private', (data) => {
+      const li = document.createElement('li');
+      li.textContent = data.message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('allMessages').appendChild(li)
+    });
+
+    publicChatButton.addEventListener('click', () => {
+      socket.emit('history');
+      const divValue = document.getElementById('send-to');
+      divValue.setAttribute('data-value', 'public');
+    })
+
+    socket.on('private-history', (messages) => {
+      if (messages.length === 0) return;
+      return messages.forEach(({ nickname, chatMessage }) => {
+        const li = document.createElement('li');
+        li.textContent = chatMessage;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('allMessages').appendChild(li);
+      });
+    })
+
+    socket.on('onlines', (data) => {
+      document.getElementById('allUsers').innerHTML = '';
+      return data.forEach(({ nickname, id }) => {
+        const li = document.createElement('li');
+        li.textContent = nickname;
+        li.setAttribute('data-testid', 'online-user');
+        li.setAttribute('value', id);
+        document.getElementById('allUsers').appendChild(li);
+
+        if (socket.id !== id) {
+          const button = document.createElement('button');
+          button.textContent = `DM`;
+          button.setAttribute('data-testid', 'private');
+  
+  
+          button.addEventListener('click', () => {
+            document.getElementById('allMessages').innerHTML = '';
+            socket.emit('private-history', id);
+            const div = document.getElementById('send-to');
+            div.setAttribute('data-value', id);
+          });
+          document.getElementById('allUsers').appendChild(button);
+        }
+      })
+    });
+  </script>
+</body>
+</html>
