@@ -3,10 +3,7 @@ const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-const {
-  registerMessage,
-  retrieveMessages,
-} = require('./model/messages');
+const { registerMessage, retrieveMessages } = require('./model/messages');
 
 let onlineUsers = [];
 
@@ -24,17 +21,18 @@ io.on('connection', async (socket) => {
   const chatHistory = await retrieveMessages('public');
   socket.emit('history', chatHistory);
 
-  socket.on('changeRoom', async (room) => {
-    socket.leaveAll();
-    socket.join(room);
-    const messages = await retrieveMessages(room);
-    io.to(room).emit('privMessages', messages);
+  socket.on('changeRoom', async ({ to, from, room }) => {
+    console.log(to, from, room);
+    // socket.leaveAll();
+    // socket.join(room);
+    const messages = await retrieveMessages();
+    io.to(room).emit('history', messages);
   });
 
   socket.on('message', async (data) => {
     const { chatMessage, nickname, room = 'public' } = data;
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
-    const client = onlineUsers.find((user) => user.nickname === nickname);
+    // const client = onlineUsers.find((user) => user.nickname === nickname);
     const message = `${time} - ${nickname}: ${chatMessage}`;
     await registerMessage(message, nickname, room);
     io.to(room).emit('message', message);

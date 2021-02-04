@@ -61,10 +61,8 @@
 
     socket.on('history', (messages) => messages.forEach(({ message }) => createMessage(message, chatList)));
 
-    socket.on('privMessages', (messages) => messages.forEach(({ message }) => createMessage(message, chatList)));
-
-    const switchChat = (room) => {
-      socket.emit('changeRoom', room);
+    const switchChat = (toSocket, fromNick) => {
+      socket.emit('changeRoom', { to: toSocket, from: fromNick, room: generateRndNick() });
       // reset history and get private history
       currentRoom = room;
       while (chatList.firstChild) {
