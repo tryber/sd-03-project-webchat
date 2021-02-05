@@ -45,6 +45,7 @@ io.on('connection', async (socket) => {
   socket.on('user-connection', (user) => {
     onlineUsers[socket.id] = user;
     socket.emit('online-users', onlineUsers);
+    socket.broadcast.emit('online-users', onlineUsers);
   });
 
   socket.on('update-nickname', (nickname) => {
@@ -52,16 +53,16 @@ io.on('connection', async (socket) => {
     conforme: https://socket.io/docs/v3/server-socket-instance/#Socket-id */
     onlineUsers[socket.id] = nickname;
     // informa ao novo usuário que ele está online
-    socket.emit('updated-online-list', onlineUsers);
+    socket.emit('online-users', onlineUsers);
     // informa demais usuários que existe um novo usuário online
-    socket.broadcast.emit('updated-online-list', onlineUsers);
+    socket.broadcast.emit('online-users', onlineUsers);
   });
 
   socket.on('disconnect', () => {
     // deletando usuário desconectado
     delete onlineUsers[socket.id];
     // emite aos demais usuários nova lista de usuários online
-    socket.broadcast.emit('updated-online-list', onlineUsers);
+    socket.emit('online-users', onlineUsers);
   });
 
   socket.on('message', async ({ chatMessage, nickname, receiver }) => {
@@ -83,8 +84,8 @@ io.on('connection', async (socket) => {
         },
       });
 
-      socket.emit('message', { message });
-      socket.broadcast.emit('message', { message });
+      socket.emit('message', message);
+      socket.broadcast.emit('message', message);
     } else {
       // formatando mensagem para o chat
       message = `${date} (private message) - ${nickname} => ${chatMessage}`;
@@ -100,12 +101,13 @@ io.on('connection', async (socket) => {
         },
       });
 
-      socket.emit('message', { message, receiver });
-      socket.broadcast.emit('message', { message, receiver });
+      socket.emit('message', message, receiver);
+      socket.broadcast.emit('message', message, receiver);
     }
   });
 
   socket.on('private-chat', async ({ nickname, receiver }) => {
+    console.log('sendo chamado');
     await axios({
       method: 'GET',
       url: `http://localhost:${PORT}/msg-private?nickname=${nickname}&receiver=${receiver}`,

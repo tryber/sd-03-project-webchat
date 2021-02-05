@@ -135,13 +135,15 @@
     socket.on('private-history', (messagesHistory) => {
       messagesHistory.forEach(({ date, nickname, message }) => {
         const li = document.createElement('li');
-        li.textContent = `${date} - ${nickname} => ${message}`;
+        li.textContent = `${date} (private message) - ${nickname} => ${chatMessage}`;
         li.setAttribute('data-testid', 'message');
         document.getElementById('private-chat').appendChild(li);
       });
     });
 
     socket.on('online-users', (data) => {
+      const onlineUsers = document.getElementById('online-users');
+      onlineUsers.textContent = '';
       Object.entries(data).forEach(([key, value]) => {
         const li = document.createElement('li');
         const userContainer = document.createElement('p');
@@ -157,32 +159,11 @@
           const privateButton = privateChatButton(key);
           li.appendChild(privateButton)
         }
-        document.getElementById('online-users').appendChild(li)
+        onlineUsers.appendChild(li)
       });
     });
 
-    socket.on('updated-online-list', (data) => {
-      document.getElementById('online-users').textContent = '';
-      Object.entries(data).forEach(([key, value]) => {
-        const li = document.createElement('li');
-        const userContainer = document.createElement('p');
-        if (typeof value === 'object') {
-          userContainer.textContent = nickname;
-        } else {
-          userContainer.textContent = value;
-        }
-        userContainer.setAttribute('data-testid', 'online-user');
-        li.appendChild(userContainer);
-
-        if (key !== socket.id) {
-          const privateButton = privateChatButton(key);
-          li.appendChild(privateButton)
-        }
-        document.getElementById('online-users').appendChild(li)
-      });
-    });
-
-    socket.on('message', ({ message, receiver }) => {
+    socket.on('message', (message, receiver) => {
       if (!receiver) {
         const li = document.createElement('li');
         li.textContent = message;
