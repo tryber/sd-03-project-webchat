@@ -46,7 +46,6 @@ io.on('connection', async (socket) => {
   socket.on('message', async (data) => {
     const { chatMessage, nickname, room = 'public' } = data;
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
-    // const client = onlineUsers.find((user) => user.nickname === nickname);
     const message = `${time} - ${nickname}: ${chatMessage}`;
     await registerMessage(message, room);
     io.to(room).emit('message', message);
