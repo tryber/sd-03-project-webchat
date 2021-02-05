@@ -36,6 +36,8 @@
     const socket = io();
 
     let nickname = '';
+    let receiver = '';
+    const privMessages = [];
     let currentRoom = 'public';
 
     // Cria uma mensagem e joga ela na lista
@@ -46,23 +48,31 @@
       list.appendChild(msg);
     };
 
+    const createPrivateChat = (sender) => {
+      chatList.innerHTML = '';
+      const correctChat = privMessages.filter((messages) => messages.from === sender);
+      console.log(correctChat)
+      correctChat.forEach(({ message }) => { if (message) return createMessage(message, chatList)});
+    };
+
     socket.on('newUser', (nick) => {
       nickname = nick
     });
+  
+    socket.on('privateMessage', (message) => {
+      privMessages.push(message);
+    });
 
     socket.on('message', (message) => {
-      if (message.includes(currentRoom)){
-        createMessage(message, chatList)
+      if (!receiver) {
+        createMessage(message, chatList);
       }
     });
 
     socket.on('history', (messages) => {
       chatList.innerHTML = '';
-      messages.forEach(({ message, room }) => {
-        console.log(currentRoom, room)
-        if (room === currentRoom) {
-          createMessage(message, chatList)
-        }
+      messages.forEach(({ message }) => {
+        createMessage(message, chatList);
       });
     });
 
@@ -82,7 +92,9 @@
             // const ownerId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
             // room = userId + ownerId;
             currentRoom = 'private';
-            socket.emit('changeRoom', currentRoom);
+            receiver = id;
+            createPrivateChat(nick);
+            // socket.emit('changeRoom', currentRoom);
           });
           // btn.removeAttribute('data-testid');
           // btn.disabled = true;
@@ -97,7 +109,12 @@
       chatField = document.getElementById('chatInput');
       if (chatField.value) {
         event.preventDefault();
-        socket.emit('message', { chatMessage: chatField.value, nickname, room: currentRoom });
+        if (receiver) {
+          createMessage(chatField.value, chatList);
+          socket.emit('message', { chatMessage: chatField.value, nickname, receiver })
+          return document.getElementById('chatInput').value = '';
+        }
+        socket.emit('message', { chatMessage: chatField.value, nickname });
         return document.getElementById('chatInput').value = '';
       }
       return event.preventDefault();
@@ -114,6 +131,7 @@
       event.preventDefault();
       socket.emit('changeRoom', 'public');
       currentRoom = 'public';
+      receiver = '';
     });
   </script>
 </body>

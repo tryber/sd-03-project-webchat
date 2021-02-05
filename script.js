@@ -36,19 +36,22 @@ io.on('connection', async (socket) => {
   const chatHistory = await retrieveMessages('public');
   socket.emit('history', chatHistory);
 
-  socket.on('changeRoom', async (room) => {
-  //   socket.leaveAll();
-  //   socket.join(room);
-    const messages = await retrieveMessages(room);
+  socket.on('changeRoom', async () => {
+    const messages = await retrieveMessages();
     socket.emit('history', messages);
   });
 
   socket.on('message', async (data) => {
-    const { chatMessage, nickname, room = 'public' } = data;
+    const { chatMessage, nickname, receiver } = data;
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
-    const message = `${room} - ${time} - ${nickname}: ${chatMessage}`;
-    await registerMessage(message, room);
-    io.emit('message', message);
+    const message = `${time} - ${nickname}: ${chatMessage}`;
+    if (receiver) {
+      return io
+        .to(receiver)
+        .emit('privateMessage', { message, from: nickname });
+    }
+    await registerMessage(message);
+    return io.emit('message', message);
   });
 
   socket.on('nickname', async (newNick) => {
