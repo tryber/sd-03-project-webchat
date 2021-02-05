@@ -75,7 +75,7 @@
           socket.emit('changeRoom', room);
         });
         if (nick === nickname) {
-          btn.removeAttribute('data-testid')
+          btn.setAttribute('data-testid', 'None');
         }
         li.appendChild(btn);
         onlineList.appendChild(li);
