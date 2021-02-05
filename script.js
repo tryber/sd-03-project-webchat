@@ -21,11 +21,11 @@ const generateRndNick = () => {
   return nickname.join('');
 };
 
-const newUser = (socket, io) => {
+const newUser = (socket, all) => {
   const user = { id: socket.id, nickname: generateRndNick(), room: 'public' };
   onlineUsers.push(user);
-  socket.emit('newUser', user.nickname)
-  io.emit('onlineUsers', onlineUsers);
+  socket.emit('newUser', user.nickname);
+  all.emit('onlineUsers', onlineUsers);
 };
 
 io.on('connection', async (socket) => {
@@ -58,7 +58,7 @@ io.on('connection', async (socket) => {
       if (user.id === socket.id) {
         newNickname.nickname = newNick;
       }
-      return user
+      return user;
     });
     io.emit('onlineUsers', onlineUsers);
   });
