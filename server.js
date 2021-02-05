@@ -62,7 +62,7 @@ io.on('connection', async (socket) => {
     // deletando usuário desconectado
     delete onlineUsers[socket.id];
     // emite aos demais usuários nova lista de usuários online
-    socket.emit('online-users', onlineUsers);
+    socket.broadcast.emit('online-users', onlineUsers);
   });
 
   socket.on('message', async ({ chatMessage, nickname, receiver }) => {
@@ -107,7 +107,6 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('private-chat', async ({ nickname, receiver }) => {
-    console.log('sendo chamado');
     await axios({
       method: 'GET',
       url: `http://localhost:${PORT}/msg-private?nickname=${nickname}&receiver=${receiver}`,
