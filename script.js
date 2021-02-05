@@ -22,7 +22,7 @@ const generateRndNick = () => {
 };
 
 const newUser = (socket, all) => {
-  const user = { id: socket.id, nickname: generateRndNick(), room: 'public' };
+  const user = { id: socket.id, nickname: generateRndNick() };
   onlineUsers.push(user);
   socket.emit('newUser', user.nickname);
   all.emit('onlineUsers', onlineUsers);
@@ -31,24 +31,24 @@ const newUser = (socket, all) => {
 io.on('connection', async (socket) => {
   newUser(socket, io);
   // place the user on the public room
-  socket.join('public');
+  // socket.join('public');
   // pega o histórico de mensagens
   const chatHistory = await retrieveMessages('public');
   socket.emit('history', chatHistory);
 
   socket.on('changeRoom', async (room) => {
-    socket.leaveAll();
-    socket.join(room);
+  //   socket.leaveAll();
+  //   socket.join(room);
     const messages = await retrieveMessages(room);
-    io.to(room).emit('history', messages);
+    socket.emit('history', messages);
   });
 
   socket.on('message', async (data) => {
     const { chatMessage, nickname, room = 'public' } = data;
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
-    const message = `${time} - ${nickname}: ${chatMessage}`;
+    const message = `${room} - ${time} - ${nickname}: ${chatMessage}`;
     await registerMessage(message, room);
-    io.to(room).emit('message', message);
+    io.emit('message', message);
   });
 
   socket.on('nickname', async (newNick) => {

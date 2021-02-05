@@ -50,11 +50,20 @@
       nickname = nick
     });
 
-    socket.on('message', (message) => createMessage(message, chatList));
+    socket.on('message', (message) => {
+      if (message.includes(currentRoom)){
+        createMessage(message, chatList)
+      }
+    });
 
     socket.on('history', (messages) => {
       chatList.innerHTML = '';
-      messages.forEach(({ message }) => createMessage(message, chatList));
+      messages.forEach(({ message, room }) => {
+        console.log(currentRoom, room)
+        if (room === currentRoom) {
+          createMessage(message, chatList)
+        }
+      });
     });
 
     socket.on('onlineUsers', (onlineUsers) => {
@@ -68,16 +77,15 @@
         btn.setAttribute('data-testid', 'private');
         btn.addEventListener('click', () => {
           // god bless henrique
-          const userId = id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
-          const ownerId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
-          room = userId + ownerId;
-          currentRoom = room;
-          socket.emit('changeRoom', room);
+          // const userId = id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+          // const ownerId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+          // room = userId + ownerId;
+          currentRoom = 'private';
+          socket.emit('changeRoom', currentRoom);
         });
         if (nick === nickname) {
-          // btn.setAttribute('data-testid', 'None');
           btn.removeAttribute('data-testid');
-          btn.disabled = true;
+          // btn.disabled = true;
         }
         li.appendChild(btn);
         onlineList.appendChild(li);
