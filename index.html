@@ -74,18 +74,18 @@
         const btn = document.createElement('button');
         li.setAttribute('data-testid', 'online-user');
         btn.innerText = nick;
-        btn.setAttribute('data-testid', 'private');
-        btn.addEventListener('click', () => {
-          // god bless henrique
-          // const userId = id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
-          // const ownerId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
-          // room = userId + ownerId;
-          currentRoom = 'private';
-          socket.emit('changeRoom', currentRoom);
-        });
-        if (nick === nickname) {
-          btn.removeAttribute('data-testid');
-          btn.disabled = true;
+        if (nick !== nickname) {
+          btn.setAttribute('data-testid', 'private');
+          btn.addEventListener('click', () => {
+            // god bless henrique
+            // const userId = id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+            // const ownerId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+            // room = userId + ownerId;
+            currentRoom = 'private';
+            socket.emit('changeRoom', currentRoom);
+          });
+          // btn.removeAttribute('data-testid');
+          // btn.disabled = true;
         }
         li.appendChild(btn);
         onlineList.appendChild(li);
