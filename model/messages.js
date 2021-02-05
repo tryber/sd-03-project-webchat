@@ -1,9 +1,9 @@
 const connection = require('./connection');
 
 // TODO: implement the room key on the DB
-const registerMessage = async (message, nickname, room) => connection()
+const registerMessage = async (message, room) => connection()
   .then(
-    (db) => db.collection('messages').insertOne({ message, nickname, room }),
+    (db) => db.collection('messages').insertOne({ message, room }),
   );
 
 const retrieveMessages = async (room) =>

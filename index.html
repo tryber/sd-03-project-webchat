@@ -26,6 +26,7 @@
     Chat publico
   </button>
   <script>
+    // Feito com a ajuda do henrique rezende deuso!
     // Pegar todos os elementos e salvar
     const chatList = document.getElementById('chat');
     const onlineList = document.getElementById('onlineList');
@@ -45,43 +46,38 @@
       list.appendChild(msg);
     };
 
-    const generateRndNick = () => {
-      // adaptado da primeira resposta deste link
-      // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
-      const nickname = [];
-      const chars = 'abcdefghijklmnopqrstuvwxyz';
-      const charsLen = 26;
-      for (let i = 0; i < 6; i += 1) {
-        nickname.push(chars.charAt(Math.floor(Math.random() * charsLen)));
-      }
-      return nickname.join('');
-    };
+    socket.on('newUser', (nick) => {
+      nickname = nick
+    });
 
     socket.on('message', (message) => createMessage(message, chatList));
 
-    socket.on('history', (messages) => messages.forEach(({ message }) => createMessage(message, chatList)));
+    socket.on('history', (messages) => {
+      chatList.innerHTML = '';
+      messages.forEach(({ message }) => createMessage(message, chatList));
+    });
 
-    const switchChat = (toSocket, fromNick) => {
-      socket.emit('changeRoom', { to: toSocket, from: fromNick, room: generateRndNick() });
-      // reset history and get private history
-      currentRoom = room;
-      while (chatList.firstChild) {
-        chatList.removeChild(chatList.firstChild);
-      }
-      console.log('mudei', room, chatList)
-    };
-
-    socket.on('onlineUsers', (users) => {
+    socket.on('onlineUsers', (onlineUsers) => {
       onlineList.innerHTML = '';
-      return users.forEach(({ nickname: nick, id }) => {
+      myUser = onlineUsers.find((user) => user.nickname === nickname);
+      return onlineUsers.forEach(({ nickname: nick, id }) => {
         const li = document.createElement('li');
         const btn = document.createElement('button');
-        btn.innerText = 'Iniciar chat';
-        btn.addEventListener('click', () => switchChat(id));
-        btn.setAttribute('data-testid', 'private');
-        li.innerText = nick;
         li.setAttribute('data-testid', 'online-user');
-        onlineList.appendChild(btn);
+        btn.innerText = nick;
+        btn.setAttribute('data-testid', 'private');
+        btn.addEventListener('click', () => {
+          // god bless henrique
+          const userId = id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+          const ownerId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+          room = userId + ownerId;
+          currentRoom = room;
+          socket.emit('changeRoom', room);
+        });
+        if (nick === nickname) {
+          btn.removeAttribute('data-testid')
+        }
+        li.appendChild(btn);
         onlineList.appendChild(li);
       });
     });
@@ -100,19 +96,15 @@
     nickButton.addEventListener('click', (event) => {
       event.preventDefault();
       const newNick = document.getElementById('nickInput').value;
-      socket.emit('nickname', { prevNick: nickname, nickname: newNick, room: currentRoom });
+      socket.emit('nickname', newNick);
       nickname = newNick;
     });
 
     publicButton.addEventListener('click', (event) => {
       event.preventDefault();
-      switchChat('public')
+      socket.emit('changeRoom', 'public');
+      currentRoom = 'public';
     });
-
-    window.onload = () => {
-      nickname = generateRndNick();
-      socket.emit('nickname', { prevNick: null, nickname, room: 'public' });
-    };
   </script>
 </body>
 
