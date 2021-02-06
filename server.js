@@ -65,7 +65,7 @@ io.on('connection', async (socket) => {
     socket.broadcast.emit('online-users', onlineUsers);
   });
 
-  socket.on('message', async ({ chatMessage, nickname, receiver }) => {
+  socket.on('message', ({ chatMessage, nickname, receiver }) => {
     let message;
     // criando timestamp usando momentJS
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss');
@@ -74,7 +74,7 @@ io.on('connection', async (socket) => {
       // formatando mensagem para o chat
       message = `${date} - ${nickname} => ${chatMessage}`;
 
-      await axios({
+      axios({
         method: 'POST',
         url: `http://localhost:${PORT}/msg`,
         data: {
