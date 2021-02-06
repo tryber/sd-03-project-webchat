@@ -5,10 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand  --detectOpenHandles --forceExit",
-    "start": "node server.js",
-    "debug": "nodemon server.js",
-    "lint": "eslint --no-inline-config --no-error-on-unmatched-pattern -c .eslintrc.json .",
-    "start2": "nodemon app.js"
+    "start": "node app.js",
+    "debug": "nodemon app.js",
+    "lint": "eslint --no-inline-config --no-error-on-unmatched-pattern -c .eslintrc.json ."
   },
   "keywords": [],
   "author": "",
