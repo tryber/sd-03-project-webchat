@@ -1,0 +1,67 @@
+body {
+  margin: 0 auto;
+  margin-top: 2rem;
+  width: 80%;
+}
+
+
+.send {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+  padding: 0;
+  width: 100%;
+}
+
+input.text {
+  height: 32px;
+  margin: 0;
+  padding: 5px;
+  width: 80%;
+}
+
+.btn {
+  background-color: #eee;
+  border: 0;
+  border: solid #eee;
+  height: 48px;
+  margin: 0 5px;
+  padding: 0;
+  width: 80px;
+}
+
+.btn:hover {
+  background-color: #00e4bc;
+}
+
+ul {
+  list-style-type: none;
+  margin: 1rem 0 3rem 0;
+  padding: 0;
+  width: 100%;
+  height: 75vh;
+  overflow: auto;
+}
+
+li {
+  padding: 5px 10px;
+}
+
+li:nth-child(odd) {
+  background-color: #eee;
+}
+
+.novo_usuario {
+  font-weight: 700;
+  border: 2px dotted black;
+}
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  height: 90vh;
+}
+
+.usersOn {
+  height: auto;
+}

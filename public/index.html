@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- <script defer src="script.js"></script> -->
+
+  <title>Web Chat com socketIO</title>
+</head>
+
+<body>
+  <div class="flex-container">
+    <input data-testid="nickname-box" id="nickname-box" autocomplete="off" placeholder="Quero ser chamado de ...">
+    <button id="nickname-save"  data-testid="nickname-save">Salvar</button>
+    <ul class="usersOn" id="usersOn"></ul>
+    <button id='all-rooms' data-testid="public">All Rooms</button>
+
+    <ul class="ul" id="mensagens"></ul>
+    <div class="send">
+      <input class="text" autofocus id="caixa-de-texto" data-testid="message-box" autocomplete="off" placeholder="Manda sua mensagem!">
+      <button class="btn" id="send-button" data-testid="send-button">Enviar</button>
+    </div>
+  </div>
+  <script>
+    const caixaDeTexto = document.getElementById('caixa-de-texto');
+const nicknameBox = document.getElementById('nickname-box');
+// const io = require('socket.io-client');
+
+let username = `user#${Math.round(Math.random() * 123)}`;
+// let username = ``;
+
+nicknameBox.value = username;
+nicknameBox.addEventListener('focus',() => nicknameBox.value = "")
+
+const socket = io();
+let room = 'all';
+const messagesArray = [];
+
+function sendMessage(roomToSend = 'all') {
+  const chatMessage = caixaDeTexto.value;
+
+  if (chatMessage.length > 0) {
+    if (roomToSend !== 'all') {
+      socket.emit('private', roomToSend, { nickname: username, chatMessage });
+    } else {
+      socket.emit('message', { nickname: username, chatMessage });
+    }
+  }
+  // console.log(messagesArray);
+  caixaDeTexto.value = '';
+  return undefined;
+}
+
+function cleanUpUsers() {
+  const usersList = document.getElementById('usersOn');
+  usersList.innerHTML = '';
+}
+
+function changeNickname() {
+  username = nicknameBox.value;
+  socket.emit('change-nick', username);
+}
+
+function createMessage(msg) {
+  const li = document.createElement('li');
+  li.classList.add('message');
+  li.setAttribute('data-testid', 'message');
+  li.appendChild(document.createTextNode(msg));
+  return li;
+}
+
+function renderMessage(msg, id = ['all']) {
+  if (id.includes(room)) {
+    const ul = document.getElementById('mensagens');
+    const message = createMessage(msg);
+    ul.appendChild(message);
+    ul.scrollTop = ul.scrollHeight;
+  }
+}
+
+function changeRoom(roomToConnect) {
+  const ul = document.getElementById('mensagens');
+  ul.innerHTML = '';
+  room = roomToConnect;
+  // console.log(messagesArray);
+  messagesArray.forEach(({ message, room: roomToRender }) => {
+    renderMessage(message, roomToRender);
+  });
+}
+
+function showONUser({ user: nickname, socket: socketToChange }) {
+  const usersList = document.getElementById('usersOn');
+  const li = document.createElement('li'); 
+  const userName = document.createElement('span')
+
+  const button = document.createElement('button');
+  button.setAttribute('data-testid', 'private');
+  button.innerText = 'priv';
+  button.addEventListener('click', () => changeRoom(socketToChange));
+
+  userName.setAttribute('data-testid', 'online-user');
+  li.appendChild(userName)
+  if (nickname !== username) {
+    li.appendChild(button);
+  }
+  userName.appendChild(document.createTextNode(nickname));
+  usersList.appendChild(li);
+  usersList.scrollTop = usersList.scrollHeight;
+}
+
+document.getElementById('send-button').addEventListener('click', () => sendMessage(room));
+document.getElementById('all-rooms').addEventListener('click', () => changeRoom('all'));
+document.getElementById('nickname-save').addEventListener('click', changeNickname);
+
+socket.on('connect', () => {
+  socket.emit('userOn', nicknameBox.value);
+});
+
+socket.on('disconnect', () => {
+  socket.emit('userOff', nicknameBox.value);
+});
+
+socket.on('userList', (users) => {
+  cleanUpUsers();
+  users.forEach((user) => {
+    showONUser(user);
+  });
+});
+
+socket.on('message', (message, senderId) => {
+  let messageToSave;
+  // console.log('senderId', senderId);
+  const id = senderId || ['all'];
+  if (id) {
+    messageToSave = { message, room: senderId };
+  } else {
+    messageToSave = { message };
+  }
+  messagesArray.push(messageToSave);
+  // console.log(messagesArray);
+  renderMessage(message, senderId);
+});
+
+socket.on('history', (messages) => {
+  messages.forEach((message) => {
+    const messageToSave = { message };
+    messagesArray.push(messageToSave);
+    renderMessage(message);
+  });
+});
+
+  </script>
+
+</body>
+
+</html>
