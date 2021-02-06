@@ -65,7 +65,7 @@ io.on('connection', async (socket) => {
     socket.broadcast.emit('online-users', onlineUsers);
   });
 
-  socket.on('message', ({ chatMessage, nickname, receiver }) => {
+  socket.on('message', ({ chatMessage, nickname }, receiver) => {
     let message;
     // criando timestamp usando momentJS
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss');

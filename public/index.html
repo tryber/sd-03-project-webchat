@@ -72,7 +72,7 @@
 
     sendChatMessage.addEventListener('click', () => {
       const nick = document.getElementById('name').textContent.split(' ')[1];
-      socket.emit('message', { chatMessage: chatMessage.value, nickname: nick, receiver });
+      socket.emit('message', { chatMessage: chatMessage.value, nickname: nick}, receiver);
       chatMessage.value = '';
       if (chatMessage.value === '') sendChatMessage.disabled = true;
       return;
