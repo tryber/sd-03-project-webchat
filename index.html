@@ -112,7 +112,7 @@
       if (chatField.value) {
         event.preventDefault();
         if (receiver) {
-          createMessage(chatField.value, chatList);
+          createMessage(`${nickname}: ${chatField.value}`, chatList);
           socket.emit('message', { chatMessage: chatField.value, nickname, receiver })
           return document.getElementById('chatInput').value = '';
         }
