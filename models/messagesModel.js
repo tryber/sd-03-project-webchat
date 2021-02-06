@@ -13,43 +13,6 @@ const save = async ({ message, nickname, date }) => {
   }
 };
 
-const savePrivateMessages = async ({
-  message,
-  nickname: sender,
-  receiver,
-  date,
-}) => {
-  try {
-    const db = await connect();
-    const insertMessage = await db
-      .collection('privateMessages')
-      .insertOne({ message, sender, receiver, date });
-    const { insertedId: _id } = insertMessage;
-    return { _id };
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
-
-const searchPrivateMessages = async ({ nickname: sender, receiver }) => {
-  try {
-    const db = await connect();
-    const messages = await db
-      .collection('messages')
-      .find(
-        {
-          $and: [{ sender: { $eq: sender } }, { receiver: { $eq: receiver } }],
-        },
-        { _id: 0 },
-      )
-      .toArray();
-
-    return [...messages];
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
-
 const searchAllMessages = async () => {
   try {
     const db = await connect();
@@ -63,7 +26,5 @@ const searchAllMessages = async () => {
 
 module.exports = {
   save,
-  savePrivateMessages,
-  searchPrivateMessages,
   searchAllMessages,
 };

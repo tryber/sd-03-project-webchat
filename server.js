@@ -26,9 +26,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 // rotas
 app.post('/msg', messages.saveMessages);
-app.post('/msg-private', messages.savePrivateMessages);
 app.get('/msg', messages.getMessages);
-app.get('/msg-private', messages.getPrivateMessages);
 
 /* troquei o array por um objeto para facilitar localização do usuário
 e operação de atualização de informações */
@@ -90,27 +88,8 @@ io.on('connection', async (socket) => {
       // formatando mensagem para o chat
       message = `${date} (private message) - ${nickname} => ${chatMessage}`;
 
-      await axios({
-        method: 'POST',
-        url: `http://localhost:${PORT}/msg-private`,
-        data: {
-          message: chatMessage,
-          nickname,
-          receiver,
-          date,
-        },
-      });
-
-      socket.emit('message', message, receiver);
-      socket.broadcast.emit('message', message, receiver);
+      io.to(receiver).emit('message', message, receiver);
     }
-  });
-
-  socket.on('private-chat', async ({ nickname, receiver }) => {
-    await axios({
-      method: 'GET',
-      url: `http://localhost:${PORT}/msg-private?nickname=${nickname}&receiver=${receiver}`,
-    }).then(({ data }) => socket.emit('private-history', data));
   });
 });
 
