@@ -44,7 +44,6 @@
 
     let nickname;
     let receiver;
-    let chatMode = 'public';
 
     nicknameInput.addEventListener('keyup', () => {
       if (nicknameInput.value === '') {
@@ -83,7 +82,6 @@
       const publicChat = document.getElementById('public-chat-container');
       const privateChat = document.getElementById('private-chat-container');
       const privateChatButtons = document.querySelectorAll('button.private-btn');
-      chatMode = 'public';
       receiver = undefined;
       publicChat.removeAttribute('hidden');
       privateChat.setAttribute('hidden', true);
@@ -102,13 +100,11 @@
       privateButton.addEventListener('click', () => {
         const publicChat = document.getElementById('public-chat-container');
         const privateChat = document.getElementById('private-chat-container');
-        chatMode = 'private';
         receiver = key;
         publicChat.setAttribute('hidden', true);
         privateChat.removeAttribute('hidden');
         publicChatButton.disabled = false;
         privateButton.disabled = true;
-        socket.emit('private-chat', { nickname, receiver})
         return;
       });
       return privateButton;
@@ -129,15 +125,6 @@
         li.textContent = `${date} - ${nickname} => ${message}`;
         li.setAttribute('data-testid', 'message');
         document.getElementById('chat').appendChild(li);
-      });
-    });
-
-    socket.on('private-history', (messagesHistory) => {
-      messagesHistory.forEach(({ date, nickname, message }) => {
-        const li = document.createElement('li');
-        li.textContent = `${date} (private message) - ${nickname} => ${chatMessage}`;
-        li.setAttribute('data-testid', 'message');
-        document.getElementById('private-chat').appendChild(li);
       });
     });
 
@@ -163,8 +150,8 @@
       });
     });
 
-    socket.on('message', (message, receiver) => {
-      if (!receiver) {
+    socket.on('message', (message, receiver, nickname) => {
+      if (!receiver && !nickname) {
         const li = document.createElement('li');
         li.textContent = message;
         li.setAttribute('data-testid', 'message');

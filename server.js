@@ -86,9 +86,9 @@ io.on('connection', async (socket) => {
       socket.broadcast.emit('message', message);
     } else {
       // formatando mensagem para o chat
-      message = `${date} (private message) - ${nickname} => ${chatMessage}`;
+      message = `${date} (private message to: ${receiver}) - ${nickname} => ${chatMessage}`;
 
-      io.to(receiver).emit('message', message, receiver);
+      io.to(receiver).to(socket.id).emit('message', message, receiver, nickname);
     }
   });
 });
