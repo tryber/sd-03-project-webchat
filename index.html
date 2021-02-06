@@ -51,7 +51,6 @@
     const createPrivateChat = (sender) => {
       chatList.innerHTML = '';
       const correctChat = privMessages.filter((messages) => messages.from === sender);
-      console.log(correctChat)
       correctChat.forEach(({ message }) => { if (message) return createMessage(message, chatList)});
     };
 
@@ -61,10 +60,13 @@
   
     socket.on('privateMessage', (message) => {
       privMessages.push(message);
+      if (currentRoom !== 'public') {
+        createPrivateChat(message.from);
+      }
     });
 
     socket.on('message', (message) => {
-      if (!receiver) {
+      if (currentRoom === 'public') {
         createMessage(message, chatList);
       }
     });
