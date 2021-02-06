@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Better than WhatsApp</title>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+  <div>
+    <section id="mensage-input"></section>
+  </div>
+    <input type="text" id="message-box" data-testid="message-box"/>
+    <button type="submit" id="send-button" data-testid="send-button">Enviar Mensagem</button>
+    <input type="text" id="nickname-box" data-testid="nickname-box" placeholder="nickname" />
+    <button type="submit" id="nickname-save" data-testid="nickname-save">salvar</button>
+  <div>
+    Usuários Online
+    <ul id='online-users'></ul>
+  </div>
+  </body>
+  <script>
+    const input = document.getElementById("message-box");
+    const nicknameBox = document.getElementById("nickname-box");
+    const submit = document.getElementById("send-button");
+    const nickname = document.getElementById("nickname-save");
+    const mensagemInput = document.getElementById('mensage-input');
+    const onlineUl = document.getElementById('online-users');
+
+    const socket = io("http://localhost:3000");
+    function setOnline({ nickname }) {
+      const li = document.createElement('li')
+      li.textContent = `${nickname}`
+      li.setAttribute('data-testid', 'online-user');
+      onlineUl.appendChild(li)
+    };
+
+    function message({ chatMessage, nickname }) {
+      const paragraph = document.createElement('p');
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
+        ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+      paragraph.textContent = `${nickname}: ${chatMessage} ${formattedDate}`;
+      paragraph.setAttribute('data-testid', 'message');
+      mensagemInput.appendChild(paragraph);
+      input.value = '';
+    };
+
+    const messageSet = (text) => {
+      const paragraph = document.createElement('p');
+      paragraph.setAttribute('data-testid', 'message');
+      paragraph.textContent = text;
+      mensagemInput.appendChild(paragraph);
+      input.value = '';
+    };
+
+    socket.on('history', (ChatMessages, id) => {
+      mensagemInput.innerHTML = '';
+      onlineUl.innerHTML = ''
+      socket.emit('online')
+      ChatMessages.forEach((messages) => message(messages))
+    });
+
+    socket.on('online', (users) => {
+      onlineUl.innerHTML = ''
+      return users.forEach((userOnline) => setOnline(userOnline))
+    });
+
+    socket.on('message', (msg) => messageSet(msg));
+    socket.on('newUser', (users) => {
+      onlineUl.innerHTML = ''
+      return users.forEach((userOnline) => setOnline(userOnline))
+    });
+
+    //  socket.on('newNickname', ({ chatMessage, nickname }) => {
+    //      document.getElementById('mensagem').appendChild(paragraph)
+    //      input.value = ''
+    //  });
+
+    submit.addEventListener("click", (e) => {
+      e.preventDefault();
+      const messageObj = {
+          chatMessage: input.value,
+          nickname: nicknameBox.value,
+        }
+
+      socket.emit("message", messageObj);
+    });
+
+    nickname.addEventListener("click", (e) => {
+      e.preventDefault();
+      const messageObj = {
+          chatMessage: input.value,
+          nickname: nicknameBox.value,
+        }
+
+      socket.emit("newNickname", messageObj);
+    });
+  </script>
+</html>
