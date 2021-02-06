@@ -18,15 +18,11 @@ const io = require('socket.io')(http, {
 });
 require('dotenv').config();
 
-const { messages } = require('./controllers');
+const { messages } = require('./services');
 // middleware para habilitar Cross-origin resource sharing
 app.use(cors());
 app.use(express.json());
 app.use('/', express.static(path.join(__dirname, 'public')));
-
-// rotas
-app.post('/msg', messages.saveMessages);
-app.get('/msg', messages.getMessages);
 
 /* troquei o array por um objeto para facilitar localização do usuário
 e operação de atualização de informações */
@@ -34,12 +30,9 @@ const onlineUsers = {};
 
 io.on('connection', async (socket) => {
   // utilizando axios para obter histórico de mensagens sem acionar diretamente o model
-  const messagesHistory = await axios({
-    method: 'GET',
-    url: `http://localhost:${PORT}/msg`,
-  });
+  const messagesHistory = await messages.getMessages();
 
-  socket.emit('messages-history', messagesHistory.data);
+  socket.emit('messages-history', messagesHistory);
 
   // evento de conexão do usuário
   socket.on('user-connection', async (user) => {
@@ -70,22 +63,16 @@ io.on('connection', async (socket) => {
       // formatando mensagem para o chat
       message = `${date} - ${nickname} => ${chatMessage}`;
 
-      await axios({
-        method: 'POST',
-        url: `http://localhost:${PORT}/msg`,
-        data: {
-          message: chatMessage,
-          nickname,
-          date,
-        },
-      });
+      await messages.saveMessages({ message: chatMessage, nickname, date });
 
       io.emit('message', message);
     } else {
       // formatando mensagem para o chat
       message = `${date} (private message to: ${receiver}) - ${nickname} => ${chatMessage}`;
 
-      io.to(receiver).to(socket.id).emit('message', message, receiver, nickname);
+      io.to(receiver)
+        .to(socket.id)
+        .emit('message', message, receiver, nickname);
     }
   });
 });
