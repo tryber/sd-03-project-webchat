@@ -112,11 +112,10 @@
     // eventos socket.io
 
     socket.on('connect', () => {
-      // quando o usuário conecta sem atualizar seu nickname
-      if (!nickname) nickname = `Convidado_${socket.id}`;
-      socket.emit('user-connection', nickname)
-      const name = document.getElementById('name');
-      name.textContent = `User: ${nickname}`;
+        if(!nickname) nickname = `Convidado_${socket.id}`;
+        socket.emit('user-connection', nickname);
+        const name = document.getElementById('name');
+        name.textContent = `User: ${nickname}`;
     });
 
     socket.on('messages-history', (messagesHistory) => {

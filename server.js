@@ -34,10 +34,12 @@ const onlineUsers = {};
 
 io.on('connection', async (socket) => {
   // utilizando axios para obter histórico de mensagens sem acionar diretamente o model
-  await axios({
+  const messagesHistory = await axios({
     method: 'GET',
     url: `http://localhost:${PORT}/msg`,
-  }).then(({ data }) => socket.emit('messages-history', data));
+  });
+
+  socket.emit('messages-history', messagesHistory.data);
 
   // evento de conexão do usuário
   socket.on('user-connection', (user) => {
