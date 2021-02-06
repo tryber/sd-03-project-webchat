@@ -37,21 +37,21 @@ io.on('connection', async (socket) => {
   // evento de conexão do usuário
   socket.on('user-connection', async (user) => {
     onlineUsers[socket.id] = user;
-    io.emit('online-users', onlineUsers);
+    return io.emit('online-users', onlineUsers);
   });
 
   socket.on('update-nickname', async (nickname) => {
     /* criando id do usuário utilizando o atributo id da instância do socket.io
     conforme: https://socket.io/docs/v3/server-socket-instance/#Socket-id */
     onlineUsers[socket.id] = nickname;
-    io.emit('online-users', onlineUsers);
+    return io.emit('online-users', onlineUsers);
   });
 
   socket.on('disconnect', async () => {
     // deletando usuário desconectado
     delete onlineUsers[socket.id];
     // emite nova lista de usuários online
-    io.emit('online-users', onlineUsers);
+    return io.emit('online-users', onlineUsers);
   });
 
   socket.on('message', async ({ chatMessage, nickname, receiver }) => {
@@ -65,15 +65,14 @@ io.on('connection', async (socket) => {
 
       await messages.saveMessages({ message: chatMessage, nickname, date });
 
-      io.emit('message', message);
-    } else {
-      // formatando mensagem para o chat
-      message = `${date} (private message to: ${receiver}) - ${nickname} => ${chatMessage}`;
-
-      io.to(receiver)
-        .to(socket.id)
-        .emit('message', message, receiver, nickname);
+      return io.emit('message', message);
     }
+    // formatando mensagem para o chat
+    message = `${date} (private message to: ${receiver}) - ${nickname} => ${chatMessage}`;
+
+    return io.to(receiver)
+      .to(socket.id)
+      .emit('message', message, receiver, nickname);
   });
 });
 

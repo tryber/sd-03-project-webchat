@@ -116,6 +116,7 @@
         socket.emit('user-connection', nickname);
         const name = document.getElementById('name');
         name.textContent = `User: ${nickname}`;
+        return;
     });
 
     socket.on('messages-history', (messagesHistory) => {
@@ -124,6 +125,7 @@
         li.textContent = `${date} - ${nickname} => ${message}`;
         li.setAttribute('data-testid', 'message');
         document.getElementById('chat').appendChild(li);
+        return;
       });
     });
 
@@ -145,7 +147,8 @@
           const privateButton = privateChatButton(key);
           li.appendChild(privateButton)
         }
-        onlineUsers.appendChild(li)
+        onlineUsers.appendChild(li);
+        return;
       });
     });
 
@@ -155,11 +158,13 @@
         li.textContent = message;
         li.setAttribute('data-testid', 'message');
         document.getElementById('chat').appendChild(li);
+        return;
       } else {
         const li = document.createElement('li');
         li.textContent = message;
         li.setAttribute('data-testid', 'message');
         document.getElementById('private-chat').appendChild(li);
+        return;
       }
     });
 
