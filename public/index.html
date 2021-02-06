@@ -86,7 +86,6 @@
       publicChat.removeAttribute('hidden');
       privateChat.setAttribute('hidden', true);
       publicChatButton.disabled = true;
-      [...privateChatButtons].map((button) => button.disabled = false);
       return;
     })
 
@@ -104,7 +103,6 @@
         publicChat.setAttribute('hidden', true);
         privateChat.removeAttribute('hidden');
         publicChatButton.disabled = false;
-        privateButton.disabled = true;
         return;
       });
       return privateButton;
@@ -112,11 +110,11 @@
     // eventos socket.io
 
     socket.on('connect', () => {
-        if(!nickname) nickname = `Convidado_${socket.id}`;
-        socket.emit('user-connection', nickname);
-        const name = document.getElementById('name');
-        name.textContent = `User: ${nickname}`;
-        return;
+      if (!nickname) nickname = `Convidado_${socket.id}`;
+      socket.emit('user-connection', nickname);
+      const name = document.getElementById('name');
+      name.textContent = `User: ${nickname}`;
+      return;
     });
 
     socket.on('messages-history', (messagesHistory) => {
@@ -125,7 +123,6 @@
         li.textContent = `${date} - ${nickname} => ${message}`;
         li.setAttribute('data-testid', 'message');
         document.getElementById('chat').appendChild(li);
-        return;
       });
     });
 
@@ -148,7 +145,6 @@
           li.appendChild(privateButton)
         }
         onlineUsers.appendChild(li);
-        return;
       });
     });
 

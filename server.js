@@ -67,7 +67,7 @@ io.on('connection', async (socket) => {
       return io.emit('message', message);
     }
     // formatando mensagem para o chat
-    message = `${date} (private message to: ${receiver}) - ${nickname} => ${chatMessage}`;
+    message = `${date} (private message from: ${nickname} => ${chatMessage}`;
 
     return io.to(receiver)
       .to(socket.id)
