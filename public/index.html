@@ -22,12 +22,6 @@
     <div>
       <ul id="chat"></ul>
     </div>
-    <!-- <div id="public-chat-container">
-      <ul id="chat"></ul>
-    </div>
-    <div id="private-chat-container" hidden>
-      <ul id="private-chat"></ul>
-    </div> -->
     <div>
       <ul id="online-users"></ul>
     </div>
@@ -88,11 +82,7 @@
     });
 
     publicChatButton.addEventListener('click', () => {
-      //const publicChat = document.getElementById('public-chat-container');
-      //const privateChat = document.getElementById('private-chat-container');
       receiver = undefined;
-      //publicChat.removeAttribute('hidden');
-      //privateChat.setAttribute('hidden', true);
       chatMode = 'public';
       publicChatButton.disabled = true;
       chatList.innerHTML = '';
@@ -101,8 +91,8 @@
         li.textContent = message;
         li.setAttribute('data-testid', 'message');
         document.getElementById('chat').appendChild(li);
+        return false;
       });
-      return;
     })
 
     // função para criar botão de chat privado
@@ -113,11 +103,7 @@
       privateButton.setAttribute('data-testid', 'private');
       privateButton.setAttribute('class', 'private-btn');
       privateButton.addEventListener('click', () => {
-        //const publicChat = document.getElementById('public-chat-container');
-        //const privateChat = document.getElementById('private-chat-container');
         receiver = key;
-        //publicChat.setAttribute('hidden', true);
-        //privateChat.removeAttribute('hidden');
         chatMode = 'private';
         publicChatButton.disabled = false;
         chatList.innerHTML = '';
@@ -127,7 +113,7 @@
           li.setAttribute('data-testid', 'message');
           document.getElementById('chat').appendChild(li);
         });
-        return;
+        return false;
       });
       return privateButton;
     }
