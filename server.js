@@ -42,30 +42,26 @@ io.on('connection', async (socket) => {
   socket.emit('messages-history', messagesHistory.data);
 
   // evento de conexão do usuário
-  socket.on('user-connection', (user) => {
+  socket.on('user-connection', async (user) => {
     onlineUsers[socket.id] = user;
-    socket.emit('online-users', onlineUsers);
-    socket.broadcast.emit('online-users', onlineUsers);
+    io.emit('online-users', onlineUsers);
   });
 
-  socket.on('update-nickname', (nickname) => {
+  socket.on('update-nickname', async (nickname) => {
     /* criando id do usuário utilizando o atributo id da instância do socket.io
     conforme: https://socket.io/docs/v3/server-socket-instance/#Socket-id */
     onlineUsers[socket.id] = nickname;
-    // informa ao novo usuário que ele está online
-    socket.emit('online-users', onlineUsers);
-    // informa demais usuários que existe um novo usuário online
-    socket.broadcast.emit('online-users', onlineUsers);
+    io.emit('online-users', onlineUsers);
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     // deletando usuário desconectado
     delete onlineUsers[socket.id];
-    // emite aos demais usuários nova lista de usuários online
-    socket.broadcast.emit('online-users', onlineUsers);
+    // emite nova lista de usuários online
+    io.emit('online-users', onlineUsers);
   });
 
-  socket.on('message', ({ chatMessage, nickname, receiver }) => {
+  socket.on('message', async ({ chatMessage, nickname, receiver }) => {
     let message;
     // criando timestamp usando momentJS
     const date = moment(new Date()).format('DD-MM-yyyy hh:mm:ss');
@@ -74,7 +70,7 @@ io.on('connection', async (socket) => {
       // formatando mensagem para o chat
       message = `${date} - ${nickname} => ${chatMessage}`;
 
-      axios({
+      await axios({
         method: 'POST',
         url: `http://localhost:${PORT}/msg`,
         data: {
@@ -84,8 +80,7 @@ io.on('connection', async (socket) => {
         },
       });
 
-      socket.emit('message', message);
-      socket.broadcast.emit('message', message);
+      io.emit('message', message);
     } else {
       // formatando mensagem para o chat
       message = `${date} (private message to: ${receiver}) - ${nickname} => ${chatMessage}`;
