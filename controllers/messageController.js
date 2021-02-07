@@ -22,18 +22,18 @@ const newMessage = (io) => async ({ nickname, msgChat }) => {
     ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
     ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
   `;
-  const msg = `${nickname}: ${msgChat} ${formattedDate}`;
+  const msgFormated = `${nickname}: ${msgChat} ${formattedDate}`;
 
-  io.emit('message', msg);
+  io.emit('message', msgFormated);
 
   const chatRoom = await messagesService.getChatRoomByNumber(1);
 
   if (!chatRoom) {
-    await messagesService.createChatRoomAndSaveMessage({ nickname, msg: msg }, 1);
+    await messagesService.createChatRoomAndSaveMessage({ nickname, msg: msgFormated }, 1);
     return;
   }
 
-  await messagesService.saveMessage({ nickname, msg: msg }, 1);
+  await messagesService.saveMessage({ nickname, msg: msgFormated }, 1);
 };
 
 const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
