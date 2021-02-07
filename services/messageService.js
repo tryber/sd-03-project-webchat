@@ -1,4 +1,4 @@
-const messagesModel = require('../models/messagesModel'); 
+const messagesModel = require('../models/messagesModel');
 
 const saveMessage = async (msgObj, room) => {
   const newMessage = await messagesModel.saveMsgBase(msgObj, room);
@@ -16,10 +16,10 @@ const createChatRoomAndSaveMessage = async (msgObj, room) => {
 };
 
 const createPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
-  const saveMessage = await messagesModel.createPrivateChatRoomAndSaveMessage(
+  const saveMessage1 = await messagesModel.createPrivateChatRoomAndSaveMessage(
     id1, id2, msgObj,
   );
-  return saveMessage;
+  return saveMessage1;
 };
 
 const getPrivateMessages = async (id1, id2) => {

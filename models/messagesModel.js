@@ -1,4 +1,4 @@
-const connection = require('../tests/helpers/db'); //faz o conexao com BD
+const connection = require('../tests/helpers/db');
 
 const saveMsgBase = async (msgObj, room) => {
   const db = await connection();
