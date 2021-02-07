@@ -16,13 +16,13 @@ const getPrivateMessages = async (id1, id2) => {
   return privateMessages.messagesArray;
 };
 
-const newMessage = (io) => async ({ nickname, msg }) => {
+const newMessage = (io) => async ({ nickname, msgChat }) => {
   const currentDate = new Date();
   const formattedDate = `
     ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
     ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
   `;
-  const msg = `${nickname}: ${msg} ${formattedDate}`;
+  const msg = `${nickname}: ${msgChat} ${formattedDate}`;
 
   io.emit('message', msg);
 
