@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webchat</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="/">
+        <img src="/speech-bubble.svg" width="35px" height="35px" alt="Chat logo" />
+        Webchat
+      </a>
+    </nav>
+    <div class="container">
+      <ul class="chat list-group" id="chat"></ul>
+
+      <div class="btn-group-lg md-t-10" role="group" aria-label="Usuários">
+        <ul class="list-group mb-3" id="onlineList"></ul>
+      </div>
+      <button class="btn btn-success" data-testid="public" id="publicButton">Chat publico</button>
+      <form>
+        <input
+          autocomplete="off"
+          id="chatInput"
+          class="chatInput"
+          data-testid="message-box"
+          type="text"
+          placeholder="Insira sua mensagem aqui"
+        />
+        <button class="btn btn-dark" data-testid="send-button" id="sendButton">Enviar</button>
+        <input
+          autocomplete="off"
+          id="nickInput"
+          class="nickInput"
+          data-testid="nickname-box"
+          type="text"
+          placeholder="Nickname"
+        />
+        <button class="btn btn-dark" data-testid="nickname-save" id="nickButton">Enviar</button>
+      </form>
+    </div>
+    <script>
+      // Feito com a ajuda do Henrique Rezend e do Lul maravilhoso.
+      // Pegar todos os elementos que vamos usar
+
+      const chatList = document.getElementById('chat');
+      const onlineList = document.getElementById('onlineList');
+      const sendButton = document.getElementById('sendButton');
+      const nickButton = document.getElementById('nickButton');
+      const publicButton = document.getElementById('publicButton');
+      const socket = io();
+
+      // nick do usuário
+      let nickname = '';
+      // caso chat privado, nick de quem vai receber
+      let receiver = '';
+      // array com todas as mensagens
+      let allmsgs = [];
+      // array com mensagens privadas
+      let privMessages = [];
+      // sala atual
+      let currentRoom = 'public';
+
+      // Cria uma mensagem e joga ela na lista
+      const createMessage = (message, list) => {
+        const msg = document.createElement('li');
+        msg.textContent = message;
+        msg.setAttribute('data-testid', 'message');
+        msg.classList.add('list-group-item');
+        list.appendChild(msg);
+      };
+
+      //cria o chat privado:
+      const createPrivateChat = (sender) => {
+        //limpa o elemento de chat
+        chatList.innerHTML = '';
+        //pega todas as mensagens enviadas entre o usuário e o receptor
+        const correctChat = privMessages.filter((messages) => messages.from === sender);
+        //para cada mensagem que não for nula, renderize:
+        correctChat.forEach(({ message }) => {
+          if (message) return createMessage(message, chatList);
+        });
+      };
+
+      //quando um usuário entra, ele recebe um nome aleatório do back-end
+      socket.on('newUser', (nick) => {
+        nickname = nick;
+      });
+
+      //quando um usuário manda uma mensagem privada, enviamos essa mensagem para o array de mensagens privadas
+      socket.on('privateMessage', (message) => {
+        privMessages.push(message);
+      });
+
+      //com mensagens normais, adicionaos ao array de mensagens globais
+      //para usarmos depois na transação de sala
+      socket.on('message', (message) => {
+        // se a mensagem não tiver receptor,
+        //salve a mensagem no banco
+        if (!receiver) {
+          allmsgs[0].push(message);
+          createMessage(message, chatList);
+        }
+      });
+
+      //quando um usuário de conecta, recebe o histórico de mensagens vindas do banco de dados:
+      socket.on('history', (messages) => {
+        //salvamos todas as mensagens aqui para transitar entre chats
+        allmsgs.push(messages);
+        //limpamos o chat:
+        chatList.innerHTML = '';
+        //para cada mensage, a renderizamos:
+        messages.forEach(({ message }) => {
+          createMessage(message, chatList);
+        });
+      });
+
+      //para cada usuário que entra, apagamos a lista de usuários online e
+      socket.on('onlineUsers', (onlineUsers) => {
+        //limpamos a lista
+        onlineList.innerHTML = '';
+        //para cada usuário online, criamos um elemento de lista e botão com data-testid
+        //tanto para mensagem normal, quanto para mensagens privadas:
+        return onlineUsers.forEach(({ nickname: nick, id }) => {
+          const li = document.createElement('li');
+          const btn = document.createElement('button');
+          li.setAttribute('data-testid', 'online-user');
+          li.classList.add('list-group-item');
+          btn.innerText = nick;
+          btn.classList.add('btn');
+          btn.classList.add('btn-primary');
+          if (nick !== nickname) {
+            btn.setAttribute('data-testid', 'private');
+            //quando clickar no nome de outro usuário, começamos a sessão privada
+            btn.addEventListener('click', () => {
+              //setamos a sala atual
+              currentRoom = 'private';
+              // a id do receptor
+              receiver = id;
+              // criamos o chat
+              createPrivateChat(nick);
+            });
+          }
+          //renderizamos o botão/lista
+          li.appendChild(btn);
+          onlineList.appendChild(li);
+        });
+      });
+
+      // adiciona os ouvidores de eventos
+      sendButton.addEventListener('click', (event) => {
+        chatField = document.getElementById('chatInput');
+        if (chatField.value) {
+          event.preventDefault();
+          if (receiver) {
+            createMessage(chatField.value, chatList);
+            socket.emit('message', { chatMessage: chatField.value, nickname, receiver });
+            return (document.getElementById('chatInput').value = '');
+          }
+          socket.emit('message', { chatMessage: chatField.value, nickname });
+          return (document.getElementById('chatInput').value = '');
+        }
+        return event.preventDefault();
+      });
+
+      nickButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        const newNick = document.getElementById('nickInput').value;
+        socket.emit('nickname', newNick);
+        nickname = newNick;
+      });
+      // beeeem simples de explicar
+      publicButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        socket.emit('changeRoom', 'public');
+        currentRoom = 'public';
+        receiver = '';
+        chatList.innerHTML = '';
+        allmsgs.forEach((msg) => createMessage(msg, chatList));
+      });
+    </script>
+  </body>
+</html>
