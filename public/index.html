@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Chat - 2.0</title>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div>
+    <h3 id="nickname"></h3>
+    <br />
+    <input type="text" id="nickname-box" data-testid="nickname-box" placeholder="Seu Nome" />
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar</button>
+    <br />
+    <span style="color: blue; font-size: 15px;">Mensagens</span>
+    <ul id="ulMsg"></ul>
+    <div id="content" data-value="public"></div>
+    <input type="text" id="message-box" data-testid="message-box" />
+    <button type="submit" id="send-button" data-testid="send-button">Enviar</button>
+    <br />
+    <button type="button" id="btnPublic" data-testid="public">Voltar para chat público</button>
+    <br />
+      <span>Lista de Usuários Online:</span>
+      <ul id="online-user"></ul>
+  </div>
+</body>
+
+<script>
+
+  const inputMsg = document.getElementById("message-box");
+  const inputNickName = document.getElementById("nickname-box");
+  const btnEnviar = document.getElementById("send-button");
+  const btnNickName = document.getElementById("nickname-save");
+  const usersOnline = document.getElementById("online-user");
+  const btnPublic = document.getElementById("btnPublic");
+  const contentPublic = document.getElementById("content");
+
+  btnEnviar.addEventListener('click', (e) => {
+      e.preventDefault();
+      const content = contentPublic.getAttribute('data-value');
+
+      if (content === 'public') {
+        const messageObj = {
+          chatMessage: inputMsg.value,
+          nickname: inputNickName.value,
+        }
+        socket.emit('message', messageObj);
+      } else {
+        const messageObj = {
+          chatMessage: inputMsg.value,
+          nickname: inputNickName.value,
+          to: content,
+        };
+        socket.emit('private', messageObj);
+      }
+    });
+
+  socket.on('history', (msg) => {
+    ulMsg.innerHTML = '';
+    return msg.forEach(({ nickname, chatMessage }) => {
+      const li = document.createElement('li');
+      li.textContent = chatMessage;
+      li.setAttribute('data-testid', 'message');
+      ulMsg.appendChild(li);
+    });
+  });
+
+  socket.on('message', (text) => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    li.setAttribute('data-testid', 'message');
+    ulMsg.appendChild(li)
+  });
+
+  socket.on('nickname', () => {
+    nickname.textContent  = `Guest ${ Math.floor(((Math.random() * 1000) + 1)) }`;
+    socket.emit('nickname', nickname.textContent);
+  });
+
+  btnNickName.addEventListener('click', () => {
+    nickname.textContent = inputNickName.value;
+    socket.emit('nickname', nickname.textContent);
+    inputNickName.value = '';
+  });
+
+  socket.on('private', (text) => {
+    const li = document.createElement('li');
+    li.textContent = text.message;
+    li.setAttribute('data-testid', 'message');
+    document.getElementById('ulMsg').appendChild(li)
+  });
+
+  btnPublic.addEventListener('click', () => {
+    socket.emit('history');
+    contentPublic.setAttribute('data-value', 'public');
+  });
+
+  socket.on('private-history', (msg) => {
+    if (msg.length === 0) return;
+    return msg.forEach(({ nickname, chatMessage }) => {
+      const li = document.createElement('li');
+      li.textContent = chatMessage;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('ulMsg').appendChild(li);
+    });
+  });
+
+  socket.on('onlines', (users) => {
+    usersOnline.innerHTML = '';
+    return users.forEach(({ nickname, id }) => {
+      const li = document.createElement('li');
+      li.textContent = nickname;
+      li.setAttribute('data-testid', 'online-user');
+      li.setAttribute('value', id);
+      usersOnline.appendChild(li);
+
+      if (socket.id !== id) { //SE NAO FOR EU (?)
+        const button = document.createElement('button');
+        button.textContent = `Private`;
+        button.setAttribute('data-testid', 'private');
+
+        button.addEventListener('click', () => {
+          usersOnline.innerHTML = '';
+          socket.emit('private-history', id);
+          contentPublic.setAttribute('data-value', id);
+        });
+        usersOnline.appendChild(button);
+      }
+    })
+  });
+
+</script>
+
+</html>
