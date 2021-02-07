@@ -11,8 +11,6 @@ const app = express();
 
 const httpServer = http.createServer(app);
 
-const io = socketIo(httpServer);
-
 const PUBLIC_PATH = path.join(__dirname, 'public');
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 app.use(bodyParser.json());
@@ -67,6 +65,8 @@ const getPrivateMessages = (socket) => async (id) => {
   socket.join('room1');
   socket.emit('private-history', getMessages);
 };
+
+const io = socketIo(httpServer);
 
 io.on('connection', async (socket) => {
   console.log('new connection');
