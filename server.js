@@ -15,24 +15,9 @@ const io = socketIo(httpServer);
 
 const PUBLIC_PATH = path.join(__dirname, 'public');
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
-app.use(cors());
 app.use(bodyParser.json());
 
-io.on('connection', async (socket) => {
-  console.log('new connection');
-  socket.on('nickname', usersOnlines(socket.id, io));
-  socket.on('disconnect', usersDisconnection(socket.id, io));
-  socket.emit('nickname', emitNickName);
-  socket.on('private', privateMessage(io, socket));
-  socket.emit('history', await controllers.messageController.getAllMessages());
-  socket.on('history', getAllMessages(socket));
-  socket.on('private-history', getPrivateMessages(socket));
-  socket.on('message', controllers.messageController.newMessage(io));
-});
-
 httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));
-
-// FUNÇOES:
 
 const usersOnlines = (socketId, io) => (nickName) => {
   console.log(aryUsersOnline);
@@ -82,3 +67,15 @@ const getPrivateMessages = (socket) => async (id) => {
   socket.join('room1');
   socket.emit('private-history', getMessages);
 };
+
+io.on('connection', async (socket) => {
+  console.log('new connection');
+  socket.on('nickname', usersOnlines(socket.id, io));
+  socket.on('disconnect', usersDisconnection(socket.id, io));
+  socket.emit('nickname', emitNickName);
+  socket.on('private', privateMessage(io, socket));
+  socket.emit('history', await controllers.messageController.getAllMessages());
+  socket.on('history', getAllMessages(socket));
+  socket.on('private-history', getPrivateMessages(socket));
+  socket.on('message', controllers.messageController.newMessage(io));
+});
