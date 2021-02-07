@@ -4,11 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Webchat</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <script src="/socket.io/socket.io.js"></script>
   </head>
 
   <body>
-    <ul class="chat" id="chat"></ul>
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="/">
+        <img src="/speech-bubble.svg" width="35px" height="35px" alt="Chat logo"/>
+        Webchat
+      </a>
+    </nav>
+    <div class="container">
+    <ul class="chat list-group" id="chat"></ul>
+
+    <div class="btn-group-lg md-t-10" role="group" aria-label="Usuários">
+    <ul class="list-group mb-3" id="onlineList"></ul>
+  </div>
+    <button class="btn btn-success" data-testid="public" id="publicButton">Chat publico</button>
     <form>
       <input
         autocomplete="off"
@@ -16,19 +29,20 @@
         class="chatInput"
         data-testid="message-box"
         type="text"
+        placeholder="Insira sua mensagem aqui"
       />
-      <button class="sendButton" data-testid="send-button" id="sendButton">Enviar</button>
+      <button class="btn btn-dark" data-testid="send-button" id="sendButton">Enviar</button>
       <input
         autocomplete="off"
         id="nickInput"
         class="nickInput"
         data-testid="nickname-box"
         type="text"
+        placeholder="Nickname"
       />
-      <button class="nickButton" data-testid="nickname-save" id="nickButton">Enviar</button>
+      <button class="btn btn-dark" data-testid="nickname-save" id="nickButton">Enviar</button>
     </form>
-    <ul class="onlineList" id="onlineList"></ul>
-    <button class="publicButton" data-testid="public" id="publicButton">Chat publico</button>
+  </div>
     <script>
       // Feito com a ajuda do Henrique Rezend e do Lul maravilhoso.
       // Pegar todos os elementos que vamos usar
@@ -56,6 +70,7 @@
         const msg = document.createElement('li');
         msg.textContent = message;
         msg.setAttribute('data-testid', 'message');
+        msg.classList.add('list-group-item')
         list.appendChild(msg);
       };
 
@@ -114,7 +129,10 @@
           const li = document.createElement('li');
           const btn = document.createElement('button');
           li.setAttribute('data-testid', 'online-user');
+          li.classList.add('list-group-item')
           btn.innerText = nick;
+          btn.classList.add('btn')
+          btn.classList.add('btn-primary')
           if (nick !== nickname) {
             btn.setAttribute('data-testid', 'private');
             //quando clickar no nome de outro usuário, começamos a sessão privada
@@ -155,7 +173,7 @@
         socket.emit('nickname', newNick);
         nickname = newNick;
       });
-
+      // beeeem simples de explicar
       publicButton.addEventListener('click', (event) => {
         event.preventDefault();
         socket.emit('changeRoom', 'public');

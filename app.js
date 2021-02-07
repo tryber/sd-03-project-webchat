@@ -1,5 +1,6 @@
 const moment = require('moment');
 const app = require('express')();
+const express = require('express');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const faker = require('faker');
@@ -10,6 +11,7 @@ const { registerMessage, retrieveMessages } = require('./models/messages');
 let onlineUsers = [];
 
 // Temos apenas um endpoint para servir o index.html
+app.use(express.static('public'));
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/index.html`));
 
 // função para criar novo usuário com nome aleatório, guardar ele na array e emitir para os sockets
