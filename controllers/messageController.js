@@ -1,7 +1,7 @@
-const messagesService = require('../services/messageService');
+const messageService = require('../services/messageService');
 
 const getAllMessages = async () => {
-  const chatRoom = await messagesService.getChatRoomByNumber(1);
+  const chatRoom = await messageService.getChatRoomByNumber(1);
 
   if (chatRoom === null) return [];
 
@@ -9,7 +9,7 @@ const getAllMessages = async () => {
 };
 
 const getPrivateMessages = async (id1, id2) => {
-  const privateMessages = await messagesService.getPrivateMessages(id1, id2);
+  const privateMessages = await messageService.getPrivateMessages(id1, id2);
 
   if (privateMessages === null) return [];
 
@@ -25,14 +25,14 @@ const newMessage = (io) => async ({ nickname, chatMessage }) => {
   const message = `${nickname}: ${chatMessage} ${formattedDate}`;
   io.emit('message', message);
 
-  const chatRoom = await messagesService.getChatRoomByNumber(1);
+  const chatRoom = await messageService.getChatRoomByNumber(1);
 
   if (!chatRoom) {
-    await messagesService.createChatRoomAndSaveMessage({ nickname, chatMessage: message }, 1);
+    await messageService.createChatRoomAndSaveMessage({ nickname, chatMessage: message }, 1);
     return;
   }
 
-  await messagesService.saveMessage({ nickname, chatMessage: message }, 1);
+  await messageService.saveMessage({ nickname, chatMessage: message }, 1);
 };
 
 const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
@@ -43,16 +43,16 @@ const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
   `;
   const message = `${nickname}: ${chatMessage} ${formattedDate}`;
 
-  const privateChatRoom = await messagesService.getPrivateMessages(id1, id2);
+  const privateChatRoom = await messageService.getPrivateMessages(id1, id2);
 
   if (!privateChatRoom) {
-    await messagesService.createPrivateChatRoomAndSaveMessage(
+    await messageService.createPrivateChatRoomAndSaveMessage(
       id1, id2, { nickname, chatMessage: message },
     );
     return;
   }
 
-  await messagesService.savePrivateMessage(id1, id2, { nickname, chatMessage: message });
+  await messageService.savePrivateMessage(id1, id2, { nickname, chatMessage: message });
 };
 
 module.exports = {
