@@ -18,7 +18,7 @@
       <p>Mensagens:</p>
       <ul id="ulMsg"></ul>
     </fieldset>
-    <div id="send-to" data-value="public"></div>
+    <div id="containerSent" data-value="public"></div>
     <input type="text" id="message-box" data-testid="message-box" />
     <button type="submit" id="send-button" data-testid="send-button">Enviar</button><br>
     <button type="button" id="public-chat-button" data-testid="public">Voltar para chat público</button>
@@ -29,12 +29,14 @@
   </div>
   <script>
     const socket = io('http://localhost:3000');
-    const inputMsg = document.getElementById('message-box');
+    const nickname = document.getElementById('nickname');
     const btnEnviar = document.getElementById('send-button');
     const btnChatPublic = document.getElementById('public-chat-button');
-    const nickname = document.getElementById('nickname');
     const btnSaveNickname = document.getElementById('nickname-save');
     const inputNickname = document.getElementById('nickname-box');
+    const inputMsg = document.getElementById('message-box');
+    const ulMsgAdd = document.getElementById('ulMsg');
+    const divSent = document.getElementById('send-to');
 
     socket.on('nickname', () =>{
       nickname.textContent  = `Guest ${ Math.floor(((Math.random() * 1000) + 1)) }`;
@@ -47,20 +49,20 @@
       inputNickname.value = '';
     });
 
-    socket.on('message', (message) => {
+    socket.on('message', (msg) => {
       const li = document.createElement('li');
-      li.textContent = message;
+      li.textContent = msg;
       li.setAttribute('data-testid', 'message');
-      document.getElementById('ulMsg').appendChild(li)
+      ulMsgAdd.appendChild(li)
     });
 
-    socket.on('history', (messages) => {
-      document.getElementById('ulMsg').innerHTML = '';
-      return messages.forEach(({ nickname, chatMessage }) => {
+    socket.on('history', (msgs) => {
+      ulMsgAdd.innerHTML = '';
+      return msgs.forEach(({ nickname, chatMessage }) => {
         const li = document.createElement('li');
         li.textContent = chatMessage;
         li.setAttribute('data-testid', 'message');
-        document.getElementById('ulMsg').appendChild(li);
+        ulMsgAdd.appendChild(li);
       });
     });
 
@@ -68,28 +70,28 @@
       const li = document.createElement('li');
       li.textContent = data.message;
       li.setAttribute('data-testid', 'message');
-      document.getElementById('ulMsg').appendChild(li)
+      ulMsgAdd.appendChild(li)
     });
 
     btnChatPublic.addEventListener('click', () => {
       socket.emit('history');
-      const divValue = document.getElementById('send-to');
+      const divValue = containerSend;
       divValue.setAttribute('data-value', 'public');
     })
 
-    socket.on('private-history', (messages) => {
-      if (messages.length === 0) return;
-      return messages.forEach(({ nickname, chatMessage }) => {
+    socket.on('private-history', (msgs) => {
+      if (msgs.length === 0) return;
+      return msgs.forEach(({ nickname, chatMessage }) => {
         const li = document.createElement('li');
         li.textContent = chatMessage;
         li.setAttribute('data-testid', 'message');
-        document.getElementById('ulMsg').appendChild(li);
+        ulMsgAdd.appendChild(li);
       });
     })
 
-    socket.on('onlines', (data) => {
+    socket.on('onlines', (infos) => {
       document.getElementById('ulUsers').innerHTML = '';
-      return data.forEach(({ nickname, id }) => {
+      return infos.forEach(({ nickname, id }) => {
         const li = document.createElement('li');
         li.textContent = nickname;
         li.setAttribute('data-testid', 'online-user');
@@ -103,9 +105,9 @@
   
   
           button.addEventListener('click', () => {
-            document.getElementById('ulMsg').innerHTML = '';
+            ulMsgAdd.innerHTML = '';
             socket.emit('private-history', id);
-            const div = document.getElementById('send-to');
+            const div = containerSend;
             div.setAttribute('data-value', id);
           });
           document.getElementById('ulUsers').appendChild(button);
@@ -115,21 +117,21 @@
 
     btnEnviar.addEventListener('click', (e) => {
       e.preventDefault();
-      const divValue = document.getElementById('send-to').getAttribute('data-value');
+      const div = containerSend.getAttribute('data-value');
 
-      if (divValue === 'public') {
-        const messageObj = {
+      if (div === 'public') {
+        const msgObj = {
           chatMessage: inputMsg.value,
           nickname: nickname.textContent,
         }
-        socket.emit('message', messageObj);
+        socket.emit('message', msgObj);
       } else {
-        const messageObj = {
+        const msgObj = {
           chatMessage: inputMsg.value,
           nickname: nickname.textContent,
-          to: divValue,
+          to: div,
         };
-        socket.emit('private', messageObj);
+        socket.emit('private', msgObj);
       }
       inputMsg.value = '';
     });
