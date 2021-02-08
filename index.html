@@ -36,6 +36,7 @@
     const socket = io();
 
     let nickname = '';
+    let myId = '';
     let receiver = '';
     const privMessages = [];
     let currentRoom = 'public';
@@ -50,7 +51,10 @@
 
     const createPrivateChat = (sender) => {
       chatList.innerHTML = '';
-      const correctChat = privMessages.filter((messages) => messages.from === sender);
+      const correctChat = privMessages.filter((messages) => {
+        return (messages.from === sender || messages.to === myId)
+          && (messages.from === nickname || messages.to === myId);
+      });
       correctChat.forEach(({ message }) => { if (message) return createMessage(message, chatList)});
     };
 
@@ -81,6 +85,7 @@
     socket.on('onlineUsers', (onlineUsers) => {
       onlineList.innerHTML = '';
       myUser = onlineUsers.find((user) => user.nickname === nickname);
+      myId = myUser.id;
       return onlineUsers.forEach(({ nickname: nick, id }) => {
         const li = document.createElement('li');
         const btn = document.createElement('button');

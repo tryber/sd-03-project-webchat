@@ -46,9 +46,10 @@ io.on('connection', async (socket) => {
     const time = moment().format('DD-MM-YYYY hh:mm:ss');
     const message = `${time} - ${nickname}: ${chatMessage}`;
     if (receiver) {
+      socket.emit('privateMessage', { message, from: nickname, to: receiver });
       return io
         .to(receiver)
-        .emit('privateMessage', { message, from: nickname });
+        .emit('privateMessage', { message, from: nickname, to: receiver });
     }
     await registerMessage(message);
     return io.emit('message', message);
