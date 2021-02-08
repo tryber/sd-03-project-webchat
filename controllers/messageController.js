@@ -16,24 +16,23 @@ const getPrivateMessages = async (id1, id2) => {
   return privateMessages.messagesArray;
 };
 
-const newMessage = (io) => async ({ nickname, msgChat }) => {
+const newMessage = (io) => async ({ nickname, chatMessage }) => {
   const currentDate = new Date();
   const formattedDate = `
     ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
     ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
   `;
-  const msgFormated = `${nickname}: ${msgChat} ${formattedDate}`;
-
-  io.emit('message', msgFormated);
+  const message = `${nickname}: ${chatMessage} ${formattedDate}`;
+  io.emit('message', message);
 
   const chatRoom = await messagesService.getChatRoomByNumber(1);
 
   if (!chatRoom) {
-    await messagesService.createChatRoomAndSaveMessage({ nickname, msgChat: msgFormated }, 1);
+    await messagesService.createChatRoomAndSaveMessage({ nickname, chatMessage: message }, 1);
     return;
   }
 
-  await messagesService.saveMessage({ nickname, msg: msgFormated }, 1);
+  await messagesService.saveMessage({ nickname, chatMessage: message }, 1);
 };
 
 const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
