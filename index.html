@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webchat</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <!--Pegar os elemtnos do html e salvar numa var pra manipular-->
+  <ul class="chat" id="chat"></ul>
+  <form>
+    <input autocomplete="off" id="chatInput" class="chatInput" data-testid="message-box" type="text" />
+    <button class="sendButton" data-testid="send-button" id="sendButton">
+      Enviar
+    </button>
+    <input autocomplete="off" id="nickInput" class="nickInput" data-testid="nickname-box" type="text" />
+    <button class="nickButton" data-testid="nickname-save" id="nickButton">
+      Enviar
+    </button>
+  </form>
+  <ul class="onlineList" id="onlineList"></ul>
+  <button class="publicButton" data-testid="public" id="publicButton">
+    Chat publico
+  </button>
+  <script>
+    // Feito com a ajuda do henrique rezende deuso!
+    // Pegar todos os elementos e salvar
+    const chatList = document.getElementById('chat');
+    const onlineList = document.getElementById('onlineList');
+    const sendButton = document.getElementById('sendButton');
+    const nickButton = document.getElementById('nickButton');
+    const publicButton = document.getElementById('publicButton');
+    const socket = io();
+
+    let nickname = '';
+    let myId = '';
+    let receiver = '';
+    const privMessages = [];
+    let currentRoom = 'public';
+
+    // Cria uma mensagem e joga ela na lista
+    const createMessage = (message, list) => {
+      const msg = document.createElement('li');
+      msg.textContent = message;
+      msg.setAttribute('data-testid', 'message')
+      list.appendChild(msg);
+    };
+
+    const createPrivateChat = (sender) => {
+      chatList.innerHTML = '';
+      privMessages.forEach(({ message }) => {
+        if (message) return createMessage(message, chatList);
+      });
+    };
+
+    socket.on('newUser', (nick) => {
+      nickname = nick
+    });
+  
+    socket.on('privateMessage', (message) => {
+      privMessages.push(message);
+      if (currentRoom !== 'public') {
+        createPrivateChat(message.from);
+      }
+    });
+
+    socket.on('message', (message) => {
+      if (currentRoom === 'public') {
+        createMessage(message, chatList);
+      }
+    });
+
+    socket.on('history', (messages) => {
+      chatList.innerHTML = '';
+      messages.forEach(({ message }) => {
+        createMessage(message, chatList);
+      });
+    });
+
+    socket.on('onlineUsers', (onlineUsers) => {
+      onlineList.innerHTML = '';
+      myUser = onlineUsers.find((user) => user.nickname === nickname);
+      myId = myUser.id;
+      return onlineUsers.forEach(({ nickname: nick, id }) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        li.setAttribute('data-testid', 'online-user');
+        btn.innerText = nick;
+        if (nick !== nickname) {
+          btn.setAttribute('data-testid', 'private');
+          btn.addEventListener('click', () => {
+            // god bless henrique
+            // const userId = id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+            // const ownerId = myUser.id.split('').reduce((acc, word) => acc + parseInt(word.charCodeAt(0)), 0);
+            // room = userId + ownerId;
+            currentRoom = 'private';
+            receiver = id;
+            createPrivateChat(nick);
+            // socket.emit('changeRoom', currentRoom);
+          });
+          // btn.removeAttribute('data-testid');
+          // btn.disabled = true;
+        }
+        li.appendChild(btn);
+        onlineList.appendChild(li);
+      });
+    });
+
+    // adiciona os ouvidores de eventos
+    sendButton.addEventListener('click', (event) => {
+      chatField = document.getElementById('chatInput');
+      if (chatField.value) {
+        event.preventDefault();
+        if (receiver) {
+          createMessage(`${nickname}: ${chatField.value}`, chatList);
+          socket.emit('message', { chatMessage: chatField.value, nickname, receiver })
+          return document.getElementById('chatInput').value = '';
+        }
+        socket.emit('message', { chatMessage: chatField.value, nickname });
+        return document.getElementById('chatInput').value = '';
+      }
+      return event.preventDefault();
+    });
+
+    nickButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const newNick = document.getElementById('nickInput').value;
+      socket.emit('nickname', newNick);
+      nickname = newNick;
+    });
+
+    publicButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      socket.emit('changeRoom', 'public');
+      currentRoom = 'public';
+      receiver = '';
+    });
+  </script>
+</body>
+
+</html>

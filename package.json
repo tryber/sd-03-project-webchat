@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand  --detectOpenHandles --forceExit",
-    "start": "node server.js",
-    "debug": "nodemon server.js",
+    "start": "node script.js",
+    "debug": "nodemon script.js",
     "lint": "eslint --no-inline-config --no-error-on-unmatched-pattern -c .eslintrc.json ."
   },
   "keywords": [],
@@ -14,9 +14,10 @@
   "license": "ISC",
   "dependencies": {
     "@types/jest": "^26.0.14",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
     "express": "^4.17.1",
     "faker": "^5.1.0",
     "jest": "^26.5.2",
@@ -33,10 +34,12 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.0.4",
     "@testing-library/user-event": "^12.1.7",
+    "cheerio": "^1.0.0-rc.5",
     "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.1",
     "jest-puppeteer": "^4.4.0",
-    "jsdom": "^16.4.0"
+    "jsdom": "^16.4.0",
+    "nodemon": "^2.0.6"
   }
 }
