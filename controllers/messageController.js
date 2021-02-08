@@ -1,6 +1,7 @@
 const services = require('../services/messagesService');
 
-const newMessage = (io) => async ({ nickname, chatMessage }) => {
+// Fonte formato de data: https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
+const emitNewMessage = (io) => async ({ nickname, chatMessage }) => {
   const currentDate = new Date();
   const formattedDate = `
     ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
@@ -33,7 +34,7 @@ const getPrivateMessages = async (id1, id2) => {
   return returnPrivateMessages.messagesArray;
 };
 
-const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
+const saveMsgPrivate = async (id1, id2, { nickname, chatMessage }) => {
   const currentDate = new Date();
   const formattedDate = `
     ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
@@ -54,8 +55,8 @@ const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
 };
 
 module.exports = {
-  newMessage,
+  emitNewMessage,
   getAllMessages,
   getPrivateMessages,
-  savePrivateMessage,
+  saveMsgPrivate,
 };

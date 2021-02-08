@@ -47,7 +47,7 @@ const privateMessage = (io, socket) => async (data) => {
 
   const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
 
-  await controllers.messageController.savePrivateMessage(
+  await controllers.messageController.saveMsgPrivate(
     socket.id, data.to, { nickname, chatMessage: message },
   );
 
@@ -71,7 +71,7 @@ io.on('connection', async (socket) => {
   socket.emit('history', await controllers.messageController.getAllMessages());
   socket.emit('nickname', nickNameFunction());
   socket.on('history', getAllMessages(socket));
-  socket.on('message', controllers.messageController.newMessage(io));
+  socket.on('message', controllers.messageController.emitNewMessage(io));
   socket.on('nickname', usersOnlines(socket.id, io));
   socket.on('disconnect', usersDisconnection(socket.id, io));
   socket.on('private', privateMessage(io, socket));
