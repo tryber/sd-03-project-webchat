@@ -8,18 +8,7 @@ const getChatRoomByNumber = async (room) => {
   return chatRoom;
 };
 
-const saveMessageOnDb = async (msgObj, room) => {
-  const db = await connection();
-  const saveMessage = await db.collection('messages').findOneAndUpdate(
-    { chatRoom: room },
-    {
-      $push: { messagesArray: { ...msgObj, sendOn: new Date() } },
-    },
-  );
-  return saveMessage.value;
-};
-
-const createChatRoomAndSaveMessage = async (msgObj, room) => {
+const newChatRoomAndSaveMessage = async (msgObj, room) => {
   const db = await connection();
   const createdChatRoom = await db.collection('messages').insertOne(
     {
@@ -34,6 +23,17 @@ const createChatRoomAndSaveMessage = async (msgObj, room) => {
   return createdChatRoom.ops[0];
 };
 
+const saveMessageOnDb = async (msgObj, room) => {
+  const db = await connection();
+  const saveMessage = await db.collection('messages').findOneAndUpdate(
+    { chatRoom: room },
+    {
+      $push: { messagesArray: { ...msgObj, sendOn: new Date() } },
+    },
+  );
+  return saveMessage.value;
+};
+
 const createPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
   const db = await connection();
   const savedMessage = await db.collection('messages').insertOne({
@@ -42,30 +42,6 @@ const createPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
     messagesArray: [{ ...msgObj, sendOn: new Date() }],
   });
   return savedMessage;
-};
-
-const getPrivateMessages = async (id2, id1) => {
-  console.log(id1, id2);
-  const db = await connection();
-  const privateMessages = await db.collection('messages').findOne(
-    {
-      $or: [
-        {
-          $and: [
-            { id1 },
-            { id2 },
-          ],
-        },
-        {
-          $and: [
-            { id1: id2 },
-            { id2: id1 },
-          ],
-        },
-      ],
-    },
-  );
-  return privateMessages;
 };
 
 const savePrivateMessage = async (id1, id2, msgObj) => {
@@ -94,10 +70,34 @@ const savePrivateMessage = async (id1, id2, msgObj) => {
   return saveMessage.value;
 };
 
+const getPrivateMessages = async (id2, id1) => {
+  console.log(id1, id2);
+  const db = await connection();
+  const privateMessages = await db.collection('messages').findOne(
+    {
+      $or: [
+        {
+          $and: [
+            { id1 },
+            { id2 },
+          ],
+        },
+        {
+          $and: [
+            { id1: id2 },
+            { id2: id1 },
+          ],
+        },
+      ],
+    },
+  );
+  return privateMessages;
+};
+
 module.exports = {
   saveMessageOnDb,
   getChatRoomByNumber,
-  createChatRoomAndSaveMessage,
+  newChatRoomAndSaveMessage,
   getPrivateMessages,
   savePrivateMessage,
   createPrivateChatRoomAndSaveMessage,

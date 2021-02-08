@@ -1,5 +1,11 @@
 const models = require('../models/messagesModel');
 
+const getChatRoomByNumber = async (room) => {
+  const chatRoom = await models.getChatRoomByNumber(room);
+
+  return chatRoom;
+};
+
 const saveMessage = async (msgObj, room) => {
   const newMessage = await models.saveMessageOnDb(msgObj, room);
   return newMessage;
@@ -10,14 +16,8 @@ const savePrivateMessage = async (id1, id2, msgObj) => {
   return savedMessage;
 };
 
-const getChatRoomByNumber = async (room) => {
-  const chatRoom = await models.getChatRoomByNumber(room);
-
-  return chatRoom;
-};
-
-const createChatRoomAndSaveMessage = async (msgObj, room) => {
-  const createdChatRoom = await models.createChatRoomAndSaveMessage(msgObj, room);
+const newChatRoomAndSaveMessage = async (msgObj, room) => {
+  const createdChatRoom = await models.newChatRoomAndSaveMessage(msgObj, room);
   return createdChatRoom;
 };
 
@@ -36,7 +36,7 @@ const getPrivateMessages = async (id1, id2) => {
 module.exports = {
   saveMessage,
   getChatRoomByNumber,
-  createChatRoomAndSaveMessage,
+  newChatRoomAndSaveMessage,
   getPrivateMessages,
   createPrivateChatRoomAndSaveMessage,
   savePrivateMessage,
