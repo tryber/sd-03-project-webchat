@@ -8,7 +8,6 @@ const controllers = require('./controllers/index');
 let aryUsersOnline = [];
 
 const usersOnlines = (socketId, io) => (nickName) => {
-  console.log(aryUsersOnline);
   if (aryUsersOnline.some((user) => user.id === socketId)) {
     const newUsersOnline = aryUsersOnline.map((user) => {
       if (user.id === socketId) return { id: socketId, nickname: nickName };
@@ -68,7 +67,6 @@ app.use(bodyParser.json());
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
 io.on('connection', async (socket) => {
-  console.log('new connection');
   socket.on('nickname', usersOnlines(socket.id, io));
   socket.on('disconnect', usersDisconnection(socket.id, io));
   socket.emit('nickname', emitNickName());
