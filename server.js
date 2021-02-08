@@ -78,4 +78,6 @@ io.on('connection', async (socket) => {
   socket.on('private-history', getPrivateMessages(socket));
 });
 
-httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));
+httpServer.listen(3000, () => {
+  console.log(`Ouvindo na porta 3000`);
+});
