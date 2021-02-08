@@ -1,5 +1,16 @@
 const connection = require('../tests/helpers/db');
 
+const saveMessageOnDb = async (msgObj, room) => {
+  const db = await connection();
+  const saveMessage = await db.collection('messages').findOneAndUpdate(
+    { chatRoom: room },
+    {
+      $push: { messagesArray: { ...msgObj, sendOn: new Date() } },
+    },
+  );
+  return saveMessage.value;
+};
+
 const getChatRoomByNumber = async (room) => {
   const db = await connection();
   const chatRoom = await db.collection('messages').findOne(
@@ -21,17 +32,6 @@ const createChatRoomAndSaveMessage = async (msgObj, room) => {
   );
 
   return createdChatRoom.ops[0];
-};
-
-const saveMessageOnDb = async (msgObj, room) => {
-  const db = await connection();
-  const saveMessage = await db.collection('messages').findOneAndUpdate(
-    { chatRoom: room },
-    {
-      $push: { messagesArray: { ...msgObj, sendOn: new Date() } },
-    },
-  );
-  return saveMessage.value;
 };
 
 const createPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
@@ -66,6 +66,32 @@ const getPrivateMessages = async (id2, id1) => {
     },
   );
   return privateMessages;
+};
+
+const savePrivateMessage = async (id1, id2, msgObj) => {
+  const db = await connection();
+  const saveMessage = await db.collection('messages').findOneAndUpdate(
+    {
+      $or: [
+        {
+          $and: [
+            { id1 },
+            { id2 },
+          ],
+        },
+        {
+          $and: [
+            { id1: id2 },
+            { id2: id1 },
+          ],
+        },
+      ],
+    },
+    {
+      $push: { messagesArray: { ...msgObj, sendOn: new Date() } },
+    },
+  );
+  return saveMessage.value;
 };
 
 module.exports = {
