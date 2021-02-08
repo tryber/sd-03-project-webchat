@@ -1,4 +1,4 @@
-const messagesModel = require('../models/messagesModel'); 
+const messagesModel = require('../models/messagesModel');
 
 const saveMessage = async (messageObj, room) => {
   const newMessage = await messagesModel.saveMessageOnDb(messageObj, room);
