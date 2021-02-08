@@ -21,8 +21,8 @@ const newChatRoomAndSaveMessage = async (msgObj, room) => {
   return createdChatRoom;
 };
 
-const createPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
-  const savedMessage = await models.createPrivateChatRoomAndSaveMessage(
+const newPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
+  const savedMessage = await models.newPrivateChatRoomAndSaveMessage(
     id1, id2, msgObj,
   );
   return savedMessage;
@@ -38,6 +38,6 @@ module.exports = {
   getChatRoomByNumber,
   newChatRoomAndSaveMessage,
   getPrivateMessages,
-  createPrivateChatRoomAndSaveMessage,
+  newPrivateChatRoomAndSaveMessage,
   savePrivateMessage,
 };

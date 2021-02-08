@@ -34,7 +34,7 @@ const newChatRoomAndSaveMessage = async (msgObj, room) => {
   return createdChatRoom.ops[0];
 };
 
-const createPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
+const newPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
   const db = await connection();
   const savedMessage = await db.collection('messages').insertOne({
     id1,
@@ -100,5 +100,5 @@ module.exports = {
   newChatRoomAndSaveMessage,
   getPrivateMessages,
   savePrivateMessage,
-  createPrivateChatRoomAndSaveMessage,
+  newPrivateChatRoomAndSaveMessage,
 };

@@ -45,7 +45,7 @@ const saveMsgPrivate = async (id1, id2, { nickname, chatMessage }) => {
   const privateChatRoom = await services.getPrivateMessages(id1, id2);
 
   if (!privateChatRoom) {
-    await services.createPrivateChatRoomAndSaveMessage(
+    await services.newPrivateChatRoomAndSaveMessage(
       id1, id2, { nickname, chatMessage: message },
     );
     return;
