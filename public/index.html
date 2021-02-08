@@ -10,7 +10,7 @@
 
 </head>
 <body>
-  <div style="background-color:aquamarine;" border: 1px solid; margin: 0 auto; width: 600px;>
+  <div>
     <span id="nickname"></span><br>
     <input type="text" id="nickname-box" data-testid="nickname-box" />
     <button type="button" id="nickname-save" data-testid="nickname-save">Salvar Nickname</button>
@@ -77,7 +77,7 @@
       socket.emit('history');
       const divValue = document.getElementById('container');
       divValue.setAttribute('data-value', 'public');
-    });
+    })
 
     socket.on('private-history', (messages) => {
       if (messages.length === 0) return;
@@ -87,7 +87,7 @@
         li.setAttribute('data-testid', 'message');
         document.getElementById('ulMsg').appendChild(li);
       });
-    });
+    })
 
     socket.on('onlines', (data) => {
       document.getElementById('ulUsers').innerHTML = '';
