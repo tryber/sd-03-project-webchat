@@ -1,11 +1,11 @@
-const connection = require('../tests/helpers/db');
+const connection = require('../tests/helpers/db'); //faz o conexao com BD
 
-const saveMsgBase = async (msgObj, room) => {
+const saveMessageOnDb = async (messageObj, room) => {
   const db = await connection();
   const saveMessage = await db.collection('messages').findOneAndUpdate(
     { chatRoom: room },
     {
-      $push: { messagesArray: { ...msgObj, sendOn: new Date() } },
+      $push: { messagesArray: { ...messageObj, sendOn: new Date() } },
     },
   );
   return saveMessage.value;
@@ -19,12 +19,12 @@ const getChatRoomByNumber = async (room) => {
   return chatRoom;
 };
 
-const createChatRoomAndSaveMessage = async (msgObj, room) => {
+const createChatRoomAndSaveMessage = async (messageObj, room) => {
   const db = await connection();
   const createdChatRoom = await db.collection('messages').insertOne(
     {
       messagesArray: [{
-        ...msgObj,
+        ...messageObj,
         sendOn: new Date(),
       }],
       chatRoom: room,
@@ -34,19 +34,20 @@ const createChatRoomAndSaveMessage = async (msgObj, room) => {
   return createdChatRoom.ops[0];
 };
 
-const createPrivateChatRoomAndSaveMessage = async (id1, id2, msgObj) => {
+const createPrivateChatRoomAndSaveMessage = async (id1, id2, messageObj) => {
   const db = await connection();
   const savedMessage = await db.collection('messages').insertOne({
     id1,
     id2,
-    messagesArray: [{ ...msgObj, sendOn: new Date() }],
+    messagesArray: [{ ...messageObj, sendOn: new Date() }],
   });
   return savedMessage;
 };
 
 const getPrivateMessages = async (id2, id1) => {
+  console.log(id1, id2);
   const db = await connection();
-  const privateMessagesDb = await db.collection('messages').findOne(
+  const privateMessages = await db.collection('messages').findOne(
     {
       $or: [
         {
@@ -64,10 +65,10 @@ const getPrivateMessages = async (id2, id1) => {
       ],
     },
   );
-  return privateMessagesDb;
+  return privateMessages;
 };
 
-const savePrivateMessage = async (id1, id2, msgObj) => {
+const savePrivateMessage = async (id1, id2, messageObj) => {
   const db = await connection();
   const saveMessage = await db.collection('messages').findOneAndUpdate(
     {
@@ -87,14 +88,14 @@ const savePrivateMessage = async (id1, id2, msgObj) => {
       ],
     },
     {
-      $push: { messagesArray: { ...msgObj, sendOn: new Date() } },
+      $push: { messagesArray: { ...messageObj, sendOn: new Date() } },
     },
   );
   return saveMessage.value;
 };
 
 module.exports = {
-  saveMsgBase,
+  saveMessageOnDb,
   getChatRoomByNumber,
   createChatRoomAndSaveMessage,
   getPrivateMessages,

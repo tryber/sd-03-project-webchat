@@ -3,26 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Chat - 2.0</title>
+  <title>Web Chat 2.0</title>
 
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 
 </head>
 <body>
   <div>
     <span id="nickname"></span><br>
     <input type="text" id="nickname-box" data-testid="nickname-box" />
-    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar Nome</button>
+    <button type="button" id="nickname-save" data-testid="nickname-save">Salvar Nickname</button>
     <fieldset>
-      <span>Mensagens:</span>
+      <span>Mensagens</span>
       <ul id="allMessages"></ul>
     </fieldset>
     <div id="send-to" data-value="public"></div>
     <input type="text" id="message-box" data-testid="message-box" />
     <button type="submit" id="send-button" data-testid="send-button">Enviar</button><br>
-    <button type="button" id="public-chat-button" data-testid="public">Voltar (Chat público)</button>
+    <button type="button" id="public-chat-button" data-testid="public">Voltar para chat público</button>
     <fieldset>
-      <span>Online:</span>
+      <span>Online</span>
       <ul id="allUsers"></ul>
     </fieldset>
   </div>
@@ -30,10 +31,10 @@
     const socket = io('http://localhost:3000');
     const inputTxt = document.getElementById('message-box');
     const sendButton = document.getElementById('send-button');
-    const publicButton = document.getElementById('public-chat-button');
+    const publicChatButton = document.getElementById('public-chat-button');
     const nickname = document.getElementById('nickname');
-    const btnSaveNick = document.getElementById('nickname-save');
-    const boxTextNick = document.getElementById('nickname-box');
+    const nicknameSaveBtn = document.getElementById('nickname-save');
+    const nicknameTextBox = document.getElementById('nickname-box');
 
     sendButton.addEventListener('click', (e) => {
       e.preventDefault();
@@ -78,10 +79,11 @@
       socket.emit('nickname', nickname.textContent);
     });
 
-    btnSaveNick.addEventListener('click', () => {
-      nickname.textContent = boxTextNick.value;
+
+    nicknameSaveBtn.addEventListener('click', () => {
+      nickname.textContent = nicknameTextBox.value;
       socket.emit('nickname', nickname.textContent);
-      boxTextNick.value = '';
+      nicknameTextBox.value = '';
     });
 
     socket.on('private', (data) => {
@@ -91,7 +93,7 @@
       document.getElementById('allMessages').appendChild(li)
     });
 
-    publicButton.addEventListener('click', () => {
+    publicChatButton.addEventListener('click', () => {
       socket.emit('history');
       const divValue = document.getElementById('send-to');
       divValue.setAttribute('data-value', 'public');

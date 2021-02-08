@@ -5,37 +5,40 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const controllers = require('./controllers/index');
 
-let aryUsersOnline = [];
+let onlines = [];
 
-const usersOnlines = (socketId, io) => (nickName) => {
-  if (aryUsersOnline.some((user) => user.id === socketId)) {
-    const newUsersOnline = aryUsersOnline.map((user) => {
+const handleUsersOnlines = (socketId, io) => (nickName) => {
+  if (onlines.some((user) => user.id === socketId)) {
+    const newOnlines = onlines.map((user) => {
       if (user.id === socketId) return { id: socketId, nickname: nickName };
       return user;
     }, []);
-    aryUsersOnline = newUsersOnline;
+    onlines = newOnlines;
   } else {
-    aryUsersOnline.push({ id: socketId, nickname: nickName });
+    onlines.push({ id: socketId, nickname: nickName });
   }
-  return io.emit('onlines', aryUsersOnline);
+  return io.emit('onlines', onlines);
 };
 
-const usersDisconnection = (socketId, io) => () => {
-  const newOnline = aryUsersOnline.filter((user) => user.id !== socketId);
-  aryUsersOnline = newOnline;
-  return io.emit('onlines', aryUsersOnline);
+const handleUsersDisconnection = (socketId, io) => () => {
+  const newOnline = onlines.filter((user) => user.id !== socketId);
+  onlines = newOnline;
+  return io.emit('onlines', onlines);
 };
 
-const emitNickName = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
+const handleNickName = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
 
-const privateMessage = (io, socket) => async (data) => {
+const handlePrivateMessage = (io, socket) => async (data) => {
   const currentDate = new Date();
   const formattedDate = `
     ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
     ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
   `;
-  const { nickname } = aryUsersOnline.find((user) => user.id === data.to);
+
+  const { nickname } = onlines.find((user) => user.id === data.to);
+
   const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
+
   await controllers.messageController.savePrivateMessage(
     socket.id, data.to, { nickname, chatMessage: message },
   );
@@ -49,9 +52,9 @@ const getAllMessages = (socket) => async () => {
 };
 
 const getPrivateMessages = (socket) => async (id) => {
-  const getMessages = await controllers.messageController.getPrivateMessages(id, socket.id);
+  const privateMessages = await controllers.messageController.getPrivateMessages(id, socket.id);
   socket.join('room1');
-  socket.emit('private-history', getMessages);
+  socket.emit('private-history', privateMessages);
 };
 
 const app = express();
@@ -67,14 +70,14 @@ app.use(bodyParser.json());
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
 io.on('connection', async (socket) => {
-  socket.on('nickname', usersOnlines(socket.id, io));
-  socket.on('disconnect', usersDisconnection(socket.id, io));
-  socket.emit('nickname', emitNickName());
-  socket.on('private', privateMessage(io, socket));
   socket.emit('history', await controllers.messageController.getAllMessages());
   socket.on('history', getAllMessages(socket));
-  socket.on('private-history', getPrivateMessages(socket));
+  socket.emit('nickname', handleNickName());
   socket.on('message', controllers.messageController.newMessage(io));
+  socket.on('nickname', handleUsersOnlines(socket.id, io));
+  socket.on('disconnect', handleUsersDisconnection(socket.id, io));
+  socket.on('private', handlePrivateMessage(io, socket));
+  socket.on('private-history', getPrivateMessages(socket));
 });
 
 httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));
