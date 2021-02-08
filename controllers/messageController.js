@@ -29,7 +29,7 @@ const newMessage = (io) => async ({ nickname, msgChat }) => {
   const chatRoom = await messagesService.getChatRoomByNumber(1);
 
   if (!chatRoom) {
-    await messagesService.createChatRoomAndSaveMessage({ nickname, msg: msgFormated }, 1);
+    await messagesService.createChatRoomAndSaveMessage({ nickname, msgChat: msgFormated }, 1);
     return;
   }
 
