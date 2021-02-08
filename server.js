@@ -63,7 +63,7 @@ const httpServer = http.createServer(app);
 
 const io = socketIo(httpServer);
 
-const PUBLIC_PATH = path.join(__dirname, 'public');
+const PUBLIC_PATH = path.join(__dirname, 'publicHTML');
 
 app.use(bodyParser.json());
 
