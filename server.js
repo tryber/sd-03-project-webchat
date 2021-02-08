@@ -35,11 +35,8 @@ const privateMessage = (io, socket) => async (data) => {
     ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
     ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
   `;
-
   const { nickname } = aryUsersOnline.find((user) => user.id === data.to);
-
   const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
-
   await controllers.messageController.savePrivateMessage(
     socket.id, data.to, { nickname, chatMessage: message },
   );
