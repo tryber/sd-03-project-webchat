@@ -27,7 +27,7 @@ const usersDisconnection = (socketId, io) => () => {
   return io.emit('onlines', aryUsersOnline);
 };
 
-const emitNickName = `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
+const emitNickName = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
 
 const privateMessage = (io, socket) => async (event) => {
   const newDate = new Date();
@@ -72,7 +72,7 @@ io.on('connection', async (socket) => {
   console.log('new connection');
   socket.on('nickname', usersOnlines(socket.id, io));
   socket.on('disconnect', usersDisconnection(socket.id, io));
-  socket.emit('nickname', emitNickName);
+  socket.emit('nickname', emitNickName());
   socket.on('private', privateMessage(io, socket));
   socket.emit('history', await controllers.messageController.getAllMessages());
   socket.on('history', getAllMessages(socket));
