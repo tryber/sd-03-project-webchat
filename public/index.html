@@ -4,18 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web - Chat 2.0</title>
-
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-
 </head>
 <body>
-  <div>
+  <div style="background-color:aquamarine; border: 1px solid; margin: 0 auto; width: 600px;">
     <span id="nickname"></span><br>
     <input type="text" id="nickname-box" data-testid="nickname-box" />
     <button type="button" id="nickname-save" data-testid="nickname-save">Salvar Nickname</button>
     <fieldset>
-      <p>Mensagens:</p>
+      <p style="color:brown;">Mensagens:</p>
       <ul id="ulMsg"></ul>
     </fieldset>
     <div id="container" data-value="public"></div>
@@ -79,9 +77,9 @@
       divValue.setAttribute('data-value', 'public');
     })
 
-    socket.on('private-history', (messages) => {
-      if (messages.length === 0) return;
-      return messages.forEach(({ nickname, chatMessage }) => {
+    socket.on('private-history', (msg) => {
+      if (msg.length === 0) return;
+      return msg.forEach(({ nickname, chatMessage }) => {
         const li = document.createElement('li');
         li.textContent = chatMessage;
         li.setAttribute('data-testid', 'message');
