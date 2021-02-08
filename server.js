@@ -81,3 +81,13 @@ io.on('connection', async (socket) => {
 httpServer.listen(3000, () => {
   console.log('Ouvindo na porta 3000');
 });
+
+// VIDEOS
+// https://www.youtube.com/watch?v=-jXfKDYJJvo&ab_channel=Rocketseat
+// https://www.youtube.com/watch?v=qZUDuBcbJ9A&ab_channel=DevPleno
+// https://www.youtube.com/watch?v=bQ7NNSyGV2U&ab_channel=FilipeDeschamps
+
+// ARTIGOS
+// https://devpleno.com/socket-io-parte1/
+// https://tableless.com.br/criando-uma-aplicacao-de-chat-simples-com-nodejs-e-socket-io/
+// https://king.host/blog/2018/11/chats-com-socketio-no-nodejs/
