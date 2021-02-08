@@ -5,45 +5,23 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const controllers = require('./controllers/index');
 
-let onlines = [];
+let aryUsersOnline = [];
+
+// Fonte Math.random:
+// https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+const nickNameFunction = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
 
 const usersOnlines = (socketId, io) => (nickName) => {
-  if (onlines.some((user) => user.id === socketId)) {
-    const newOnlines = onlines.map((user) => {
+  if (aryUsersOnline.some((user) => user.id === socketId)) {
+    const newOnlines = aryUsersOnline.map((user) => {
       if (user.id === socketId) return { id: socketId, nickname: nickName };
       return user;
     }, []);
-    onlines = newOnlines;
+    aryUsersOnline = newOnlines;
   } else {
-    onlines.push({ id: socketId, nickname: nickName });
+    aryUsersOnline.push({ id: socketId, nickname: nickName });
   }
-  return io.emit('onlines', onlines);
-};
-
-const usersDisconnection = (socketId, io) => () => {
-  const newOnline = onlines.filter((user) => user.id !== socketId);
-  onlines = newOnline;
-  return io.emit('onlines', onlines);
-};
-
-const nickNameFunction = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
-
-const handlePrivateMessage = (io, socket) => async (data) => {
-  const currentDate = new Date();
-  const formattedDate = `
-    ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
-    ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
-  `;
-
-  const { nickname } = onlines.find((user) => user.id === data.to);
-
-  const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
-
-  await controllers.messageController.savePrivateMessage(
-    socket.id, data.to, { nickname, chatMessage: message },
-  );
-
-  io.in('room1').emit('private', { from: data.nickname, to: nickname, message });
+  return io.emit('onlines', aryUsersOnline);
 };
 
 const getAllMessages = (socket) => async () => {
@@ -57,16 +35,36 @@ const getPrivateMessages = (socket) => async (id) => {
   socket.emit('private-history', privateMessages);
 };
 
+// Fonte formato de data: https://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
+const privateMessage = (io, socket) => async (data) => {
+  const currentDate = new Date();
+  const formattedDate = `
+    ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
+    ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
+  `;
+
+  const { nickname } = aryUsersOnline.find((user) => user.id === data.to);
+
+  const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
+
+  await controllers.messageController.savePrivateMessage(
+    socket.id, data.to, { nickname, chatMessage: message },
+  );
+
+  io.in('room1').emit('private', { from: data.nickname, to: nickname, message });
+};
+
+const usersDisconnection = (socketId, io) => () => {
+  const newOnline = aryUsersOnline.filter((user) => user.id !== socketId);
+  aryUsersOnline = newOnline;
+  return io.emit('onlines', aryUsersOnline);
+};
+
 const app = express();
-
 const httpServer = http.createServer(app);
-
 const io = socketIo(httpServer);
-
 const PUBLIC_PATH = path.join(__dirname, 'public');
-
 app.use(bodyParser.json());
-
 app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
 io.on('connection', async (socket) => {
@@ -76,7 +74,7 @@ io.on('connection', async (socket) => {
   socket.on('message', controllers.messageController.newMessage(io));
   socket.on('nickname', usersOnlines(socket.id, io));
   socket.on('disconnect', usersDisconnection(socket.id, io));
-  socket.on('private', handlePrivateMessage(io, socket));
+  socket.on('private', privateMessage(io, socket));
   socket.on('private-history', getPrivateMessages(socket));
 });
 
