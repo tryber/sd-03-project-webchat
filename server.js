@@ -28,7 +28,6 @@ e operação de atualização de informações */
 const onlineUsers = {};
 
 io.on('connection', async (socket) => {
-  // utilizando axios para obter histórico de mensagens sem acionar diretamente o model
   const messagesHistory = await messages.getMessages();
 
   socket.emit('messages-history', messagesHistory);
