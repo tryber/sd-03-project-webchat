@@ -7,16 +7,6 @@ const controllers = require('./controllers/index');
 
 let aryUsersOnline = [];
 
-const app = express();
-
-const httpServer = http.createServer(app);
-
-const PUBLIC_PATH = path.join(__dirname, 'public');
-app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
-app.use(bodyParser.json());
-
-httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));
-
 const usersOnlines = (socketId, io) => (nickName) => {
   console.log(aryUsersOnline);
   if (aryUsersOnline.some((user) => user.id === socketId)) {
@@ -66,7 +56,17 @@ const getPrivateMessages = (socket) => async (id) => {
   socket.emit('private-history', getMessages);
 };
 
+const app = express();
+
+const httpServer = http.createServer(app);
+
 const io = socketIo(httpServer);
+
+const PUBLIC_PATH = path.join(__dirname, 'publicHTML');
+
+app.use(bodyParser.json());
+
+app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
 
 io.on('connection', async (socket) => {
   console.log('new connection');
@@ -79,3 +79,5 @@ io.on('connection', async (socket) => {
   socket.on('private-history', getPrivateMessages(socket));
   socket.on('message', controllers.messageController.newMessage(io));
 });
+
+httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));
