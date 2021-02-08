@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bate-papo Trybol</title>
+  </head>
+
+  <body>
+    <div>
+      <h4 id="name"></h4>
+    </div>
+    <div>
+      <input type="text" name="" id="username" data-testid="nickname-box">
+      <button id="user-save" data-testid="nickname-save">Salvar Apelido</button>
+    </div>
+    <div>
+      <input type="text" name="" id="user-message" data-testid="message-box">
+      <button id="send-msg" data-testid="send-button">Enviar</button>
+    </div>
+    <div>
+      <ul id="chat"></ul>
+    </div>
+    <div>
+      <ul id="online-users"></ul>
+    </div>
+    <div>
+      <button data-testid="public" id="public-chat-btn" disabled> Chat Publico</button>
+    </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:3000');
+
+    const nicknameInput = document.getElementById('username');
+    const saveUserName = document.getElementById('user-save');
+    const sendChatMessage = document.getElementById('send-msg');
+    const chatMessage = document.getElementById('user-message');
+    const chatList = document.getElementById('chat');
+    const publicChatButton = document.getElementById('public-chat-btn');
+
+    let nickname;
+    let receiver;
+    let chatMode = 'public';
+    const chats = {
+      public: [],
+      private: [],
+    };
+
+    nicknameInput.addEventListener('keyup', () => {
+      if (nicknameInput.value === '') {
+        saveUserName.disabled = true;
+      } else {
+        saveUserName.disabled = false;
+      }
+    });
+
+    chatMessage.addEventListener('keyup', () => {
+      if (chatMessage.value === '') {
+        sendChatMessage.disabled = true;
+      } else {
+        sendChatMessage.disabled = false;
+      }
+    });
+
+    saveUserName.addEventListener('click', () => {
+      const name = document.getElementById('name');
+      name.textContent = `User: ${nicknameInput.value}`;
+      socket.emit('update-nickname', nicknameInput.value);
+      nicknameInput.value = '';
+      if (nicknameInput.value === '') saveUserName.disabled = true;
+      return;
+    });
+
+    sendChatMessage.addEventListener('click', () => {
+      const nick = document.getElementById('name').textContent.split(' ')[1];
+      socket.emit('message', { chatMessage: chatMessage.value, nickname: nick, receiver });
+      chatMessage.value = '';
+      if (chatMessage.value === '') sendChatMessage.disabled = true;
+      return;
+    });
+
+    publicChatButton.addEventListener('click', () => {
+      receiver = undefined;
+      chatMode = 'public';
+      publicChatButton.disabled = true;
+      chatList.innerHTML = '';
+      chats.public.forEach((message) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('chat').appendChild(li);
+        return false;
+      });
+    })
+
+    // função para criar botão de chat privado
+    const privateChatButton = (key) => {
+      const privateButton = document.createElement('button');
+      privateButton.textContent = 'Chat Privado'
+      privateButton.id = key;
+      privateButton.setAttribute('data-testid', 'private');
+      privateButton.setAttribute('class', 'private-btn');
+      privateButton.addEventListener('click', () => {
+        receiver = key;
+        chatMode = 'private';
+        publicChatButton.disabled = false;
+        chatList.innerHTML = '';
+        chats.private.forEach((message) => {
+          const li = document.createElement('li');
+          li.textContent = message;
+          li.setAttribute('data-testid', 'message');
+          document.getElementById('chat').appendChild(li);
+        });
+        return false;
+      });
+      return privateButton;
+    }
+    // eventos socket.io
+
+    socket.on('connect', () => {
+      if (!nickname) nickname = `Convidado_${socket.id}`;
+      socket.emit('user-connection', nickname);
+      const name = document.getElementById('name');
+      name.textContent = `User: ${nickname}`;
+      return;
+    });
+
+    socket.on('messages-history', (messagesHistory) => {
+      messagesHistory.forEach(({ date, nickname, message }) => {
+        const li = document.createElement('li');
+        const formattedMessage = `${date} - ${nickname} => ${message}`;
+        li.textContent = formattedMessage;
+        li.setAttribute('data-testid', 'message');
+        document.getElementById('chat').appendChild(li);
+        chats.public.push(formattedMessage);
+      });
+    });
+
+    socket.on('online-users', (data) => {
+      const onlineUsers = document.getElementById('online-users');
+      onlineUsers.textContent = '';
+      Object.entries(data).forEach(([key, value]) => {
+        const li = document.createElement('li');
+        const userContainer = document.createElement('p');
+        if (typeof value === 'object') {
+          userContainer.textContent = nickname;
+        } else {
+          userContainer.textContent = value;
+        }
+        userContainer.setAttribute('data-testid', 'online-user');
+        li.appendChild(userContainer);
+
+        if (key !== socket.id) {
+          const privateButton = privateChatButton(key);
+          li.appendChild(privateButton)
+        }
+        onlineUsers.appendChild(li);
+      });
+    });
+
+    socket.on('message', (message, receiver, nickname) => {
+      if (!receiver && !nickname && chatMode === 'public') {
+      const li = document.createElement('li');
+      li.textContent = message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('chat').appendChild(li);
+      return chats.public.push(message);
+    } else if (!receiver && !nickname && chatMode !== 'public') {
+      return chats.public.push(message);
+    } else if (receiver && nickname && chatMode === 'private') {
+      const li = document.createElement('li');
+      li.textContent = message;
+      li.setAttribute('data-testid', 'message');
+      document.getElementById('chat').appendChild(li);
+      return chats.private.push(message);
+    } else if (receiver && nickname && chatMode !== 'private') {
+      return chats.private.push(message);
+    } else {
+      return;
+    }
+    });
+
+
+    window.addEventListener('load', () => {
+      if (nicknameInput.value === '') {
+        saveUserName.disabled = true;
+      } else {
+        saveUserName.disabled = false;
+      }
+
+      if (chatMessage.value === '') {
+        sendChatMessage.disabled = true;
+      } else {
+        sendChatMessage.disabled = false;
+      }
+    });
+  </script>
+
+</html>
