@@ -51,11 +51,9 @@
 
     const createPrivateChat = (sender) => {
       chatList.innerHTML = '';
-      const correctChat = privMessages.filter((messages) => {
-        return (messages.from === sender || messages.to === myId)
-          && (messages.from === nickname || messages.to === myId);
+      privMessages.forEach(({ message }) => {
+        if (message) return createMessage(message, chatList);
       });
-      correctChat.forEach(({ message }) => { if (message) return createMessage(message, chatList)});
     };
 
     socket.on('newUser', (nick) => {
