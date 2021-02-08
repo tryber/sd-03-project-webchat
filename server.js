@@ -29,7 +29,7 @@ const getAllMessages = (socket) => async () => {
   socket.emit('history', allMessages);
 };
 
-const getPrivateMessages = (socket) => async (id) => {
+const getMsgPrivate = (socket) => async (id) => {
   const privateMessages = await controllers.messageController.getPrivateMessages(id, socket.id);
   socket.join('room1');
   socket.emit('private-history', privateMessages);
@@ -75,7 +75,7 @@ io.on('connection', async (socket) => {
   socket.on('nickname', usersOnlines(socket.id, io));
   socket.on('disconnect', usersDisconnection(socket.id, io));
   socket.on('private', privateMessage(io, socket));
-  socket.on('private-history', getPrivateMessages(socket));
+  socket.on('private-history', getMsgPrivate(socket));
 });
 
 httpServer.listen(3000, () => console.log('HTTP listening on port 3000'));
