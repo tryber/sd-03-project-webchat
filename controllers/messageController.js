@@ -11,7 +11,7 @@ const emitNewMessage = (io) => async ({ nickname, chatMessage }) => {
   io.emit('message', message);
   const chatRoom = await services.getChatRoomByNumber(1);
   if (!chatRoom) {
-    await services.createChatRoomAndSaveMessage({ nickname, chatMessage: message }, 1);
+    await services.newChatRoomAndSaveMessage({ nickname, chatMessage: message }, 1);
     return;
   }
 
