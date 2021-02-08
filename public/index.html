@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Chat 2.0</title>
+  <title>Web - Chat 2.0</title>
 
   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -29,7 +29,7 @@
   </div>
   <script>
     const socket = io('http://localhost:3000');
-    const inputTxt = document.getElementById('message-box');
+    const textInput = document.getElementById('message-box');
     const sendButton = document.getElementById('send-button');
     const publicChatButton = document.getElementById('public-chat-button');
     const nickname = document.getElementById('nickname');
@@ -42,19 +42,19 @@
 
       if (divValue === 'public') {
         const messageObj = {
-          chatMessage: inputTxt.value,
+          chatMessage: textInput.value,
           nickname: nickname.textContent,
         }
         socket.emit('message', messageObj);
       } else {
         const messageObj = {
-          chatMessage: inputTxt.value,
+          chatMessage: textInput.value,
           nickname: nickname.textContent,
           to: divValue,
         };
         socket.emit('private', messageObj);
       }
-      inputTxt.value = '';
+      textInput.value = '';
     });
 
     socket.on('history', (messages) => {
