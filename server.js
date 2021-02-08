@@ -29,20 +29,22 @@ const usersDisconnection = (socketId, io) => () => {
 
 const emitNickName = () => () => `Guest ${Math.floor(((Math.random() * 1000) + 1))}`;
 
-const privateMessage = (io, socket) => async (event) => {
-  const newDate = new Date();
-  const dateOk = `
-    ${newDate.getDate()}-${newDate.getMonth() + 1}-${newDate.getFullYear()}
-    ${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}
+const privateMessage = (io, socket) => async (data) => {
+  const currentDate = new Date();
+  const formattedDate = `
+    ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}
+    ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
   `;
 
-  const { nickname } = aryUsersOnline.find((user) => user.id === event.to);
-  const message = `[Private message to ${nickname}] ${event.nickname}: ${event.chatMessage} ${dateOk}`;
+  const { nickname } = onlines.find((user) => user.id === data.to);
+
+  const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
 
   await controllers.messageController.savePrivateMessage(
-    socket.id, event.to, { nickname, chatMessage: message },
+    socket.id, data.to, { nickname, chatMessage: message },
   );
-  io.in('room1').emit('private', { from: event.nickname, to: nickname, message });
+
+  io.in('room1').emit('private', { from: data.nickname, to: nickname, message });
 };
 
 const getAllMessages = (socket) => async () => {
