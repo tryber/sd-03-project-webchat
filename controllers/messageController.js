@@ -8,9 +8,7 @@ const newMessage = (io) => async ({ nickname, chatMessage }) => {
   `;
   const message = `${nickname}: ${chatMessage} ${formattedDate}`;
   io.emit('message', message);
-
   const chatRoom = await services.getChatRoomByNumber(1);
-
   if (!chatRoom) {
     await services.createChatRoomAndSaveMessage({ nickname, chatMessage: message }, 1);
     return;
@@ -28,11 +26,11 @@ const getAllMessages = async () => {
 };
 
 const getPrivateMessages = async (id1, id2) => {
-  const privateMessages = await services.getPrivateMessages(id1, id2);
+  const returnPrivateMessages = await services.getPrivateMessages(id1, id2);
 
-  if (privateMessages === null) return [];
+  if (returnPrivateMessages === null) return [];
 
-  return privateMessages.messagesArray;
+  return returnPrivateMessages.messagesArray;
 };
 
 const savePrivateMessage = async (id1, id2, { nickname, chatMessage }) => {
