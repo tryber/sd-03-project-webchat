@@ -36,7 +36,7 @@ const privateMessage = (io, socket) => async (data) => {
     ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}
   `;
 
-  const { nickname } = onlines.find((user) => user.id === data.to);
+  const { nickname } = aryUsersOnline.find((user) => user.id === data.to);
 
   const message = `[Privado para ${nickname}] ${data.nickname}: ${data.chatMessage} ${formattedDate}`;
 
