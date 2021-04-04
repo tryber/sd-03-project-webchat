@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO - trybe</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font: 13px Helvetica, Arial;
+      }
+      form {
+        background: #000;
+        padding: 3px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+      form input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: 0.5%;
+      }
+      form button {
+        width: 9%;
+        background: rgb(130, 224, 255);
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+      }
+      #messagens {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #messagens li {
+        padding: 5px 10px;
+      }
+      #messagens li:nth-child(odd) {
+        background: #eee;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <body>
+    <div>
+      <input type="text" name="" id="nickname", data-testid="nickname-box">
+      <button 
+      type="button"  
+      data-testid="nickname-save"
+      id='sendButton'
+      > Save name
+    </button>
+  </div>
+  <button 
+    type="button"  
+    data-testid="public"
+    id='public'
+    > Go to Public
+  </button>
+  <h3>Chating with: 
+    <h3 id='chat'></h3>
+  </h3>
+    <div id='usersOnline'>
+    </div>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="messageInput" autocomplete="off" data-testid="message-box" />
+      <button
+       data-testid="send-button" data-testid="public"
+       id="public-btn"
+      >Send</button>
+      <button data-testid="send-button" 
+      data-testid="private"
+      id="private-btn"
+  
+      >Send</button>
+    </form>
+
+    <script>
+
+const messageInput = document.getElementById('messageInput');
+const messages = document.getElementById('messages');
+const sendButton = document.getElementById('sendButton');
+const nicknameElement = document.getElementById('nickname');
+const usersOnlineElement = document.getElementById('usersOnline');
+const chattingWithElement = document.getElementById('chat');
+
+const publicChatButton = document.getElementById('public-btn');
+
+publicChatButton.onclick = () =>{
+  messages.innerHTML = '';
+  socket.emit('getHistory')
+}
+
+const createChatMessage = (message) => {
+  const li = document.createElement('li');
+
+  li.setAttribute('data-testid', 'message');
+  li.innerHTML = `
+    <p className='message'>${message}</p>
+  `;
+
+  messages.appendChild(li);
+};
+
+const socket = io(); 
+
+socket.on('history', (messages) => {
+  console.log(messages)
+  messages.forEach((message) => createChatMessage(message));
+});
+
+let nickname = `Guest ${Math.random().toString().split('.')[1]}`
+// nicknameElement.value = '';
+
+socket.emit('userConn', nickname)
+
+
+sendButton.onclick = () => {
+  nickname = nicknameElement.value;
+
+  socket.emit('userChangeName', nickname)
+};
+
+const general = document.querySelector('form');
+
+general.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const message = {
+    chatMessage: messageInput.value,
+    nickname,
+  };
+  socket.emit('message', message);
+  messageInput.value = '';
+});
+
+const private = document.getElementById('private-btn');
+
+private.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const message = {
+    message: messageInput.value,
+    nickname,
+  };
+  socket.emit('private', message);
+  messageInput.value = '';
+});
+
+socket.on('message', (message) => createChatMessage(message));
+
+socket.on('usersOnline', (users) => {
+  const ul = document.createElement('ul');
+  users.forEach(({ nickname, id }) => {
+
+    const p = document.createElement('li');
+    p.setAttribute('data-testid','online-user');
+    p.innerText = nickname;
+    
+    const li = document.createElement('li');
+
+    li.appendChild(p);
+    const btn = document.createElement('button');
+    btn.setAttribute('data-testid', 'private');
+    btn.innerText = 'Chat with me';
+    btn.onclick = () => {
+      chattingWithElement.innerText = nickname;
+      // clear pub_history and create private history
+      messages.innerHTML = '';
+      socket.emit('getPVHistory', nickname)
+    }
+    btn.disabled = id !== socket.id
+    li.appendChild(btn)
+    ul.appendChild(li) 
+  })
+  usersOnlineElement.innerHTML = '';
+  usersOnlineElement.appendChild(ul);
+})
+
+socket.on('privateHistory', (history) =>{
+  history.forEach(message => createChatMessage(message))
+})
+/* socket.on('disconnect', () => nickname); */
+    </script>
+  </body>
+</html>
