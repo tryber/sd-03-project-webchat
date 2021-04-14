@@ -1,0 +1,81 @@
+const path = require('path');
+const http = require('http');
+const express = require('express');
+const bodyParser = require('body-parser');
+const socketIo = require('socket.io');
+const moment = require('moment');
+const messages = require('./models/messagesModel');
+const messengerController = require('./controllers/messengerController');
+
+const PUBLIC_PATH = path.join(__dirname, 'public');
+
+const app = express();
+
+const httpServer = http.createServer(app);
+
+app.use(bodyParser.json());
+
+app.get('/', (req, res) => {
+  res.sendFile(`${__dirname}/public/index.html`);
+});
+
+app.use('/', express.static(PUBLIC_PATH, { extensions: ['html'] }));
+
+const io = socketIo(httpServer);
+
+let onlineUsers = [];
+
+io.on('connection', async (socket) => {
+  const history = await messages.getAll();
+  socket.emit('messageHistory', history);
+  onlineUsers.push({ username: socket.id, id: socket.id });
+  io.emit('refreshOnline', onlineUsers);
+
+  socket.on('usernameUpdate', async (data) => {
+    const { newUsername } = data;
+    const index = onlineUsers.findIndex((user) => user.id === socket.id);
+    onlineUsers[index].username = newUsername;
+    io.emit('refreshOnline', onlineUsers);
+  });
+
+  socket.on('message', (data) => {
+    const formattedDate = moment(new Date()).format('DD-MM-YYYY HH:mm:ss');
+    const nickname = data.nickname
+      ? data.nickname
+      : onlineUsers.filter((user) => user.id === socket.id)[0].username;
+    const messageObject = {
+      id: socket.id,
+      nickname,
+      chatMessage: data.chatMessage,
+      date: formattedDate,
+    };
+    messengerController.sendMessage(messageObject);
+    const messageString = `${formattedDate} - ${nickname}: ${data.chatMessage}`;
+    io.emit(
+      'message',
+      messageString,
+    );
+  });
+
+  socket.on('privateMessage', (data) => {
+    const formattedDate = moment(new Date()).format('DD-MM-YYYY HH:mm:ss');
+    const nickname = data.nickname
+      ? data.nickname
+      : onlineUsers.filter((user) => user.id === socket.id)[0].username;
+
+    const recipientNickname = data.nickname
+      ? data.nickname
+      : onlineUsers.filter((user) => user.id === data.directMessage)[0].username;
+    const messageString = `${formattedDate} - ${nickname} privaetely to ${recipientNickname}: ${data.chatMessage}`;
+    io.to(data.directMessage).emit('privateMessage', messageString);
+    io.to(socket.id).emit('privateMessage', messageString);
+  });
+
+  socket.on('disconnect', async () => {
+    socket.disconnect();
+    onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
+    io.emit('refreshOnline', onlineUsers);
+  });
+});
+
+httpServer.listen(3000, () => console.log('HTTP listening on 3000'));

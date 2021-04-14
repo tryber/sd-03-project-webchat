@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensagens Sem Nexo</title>
+
+  <!-- Carrega o socket.io -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+  <!-- Carrega o moment.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+
+</head>
+
+<body>
+
+  <section>
+    <div id="messageWrapper">
+      <p>Bem vindo ao MSN</p>
+    </div>
+    <form id="usernameUpdate">
+      <input type="text" name="username" id="username" placeholder="username" data-testid="nickname-box">
+      <button type="submit" data-testid="nickname-save">Save new username</button>
+    </form>
+    <form id="webchat">
+      <input type="text" name="message" id="message" placeholder="message" data-testid="message-box">
+      <button type="submit" data-testid="send-button">Send</button>
+      <button id=public-chat-btn type="button" data-testid="public">Public</button>
+    </form>
+    <div id="onlineListWrapper">
+      <ul id="onlineList"></ul>
+    </div>
+  </section>
+
+  <script type="text/javascript">
+    const socket = io('http://localhost:3000');
+    let directMessage = '';
+
+    socket.on('messageHistory', (history) => {
+      const stringfiedMessages = history.map((message) => {
+        const { nickname, chatMessage, date } = message;
+        return `${date} - ${nickname}: ${chatMessage}`
+      })
+      stringfiedMessages.map((message) => renderPublicMessage(message));
+    });
+
+    socket.on('refreshOnline', (users) => {
+      const onlineList = document.getElementById("onlineList");
+      onlineList.innerHTML = ""
+      users.forEach((user) => {
+        const onlineUser = document.createElement('p');
+        onlineUser.innerHTML = user.username;
+        onlineUser.setAttribute('data-testid', 'online-user')
+
+        const privateMessageButton = document.createElement('button');
+        privateMessageButton.setAttribute('data-testid', 'private')
+        privateMessageButton.innerHTML = 'DM'
+        privateMessageButton.onclick = () => {
+          directMessage === user.id
+          ? directMessage = ''
+          : directMessage = user.id;
+        const publicMessages = document.getElementsByClassName('public-message');
+        const publicMessagesArray = [...publicMessages]
+        publicMessagesArray.forEach((message) => document.getElementById('messageWrapper').removeChild(message))
+        }
+        if (user.id !== socket.id) onlineList.append(privateMessageButton);
+        onlineList.append(onlineUser);
+      })
+    });
+
+    socket.on('message', (message) => renderPublicMessage(message));
+
+    socket.on('privateMessage', (message) => renderPrivateMessage(message));
+
+    const renderPublicMessage = (message) => {
+      const p = document.createElement('p')
+      p.setAttribute('data-testid', 'message');
+      p.setAttribute('class', 'public-message');
+      p.textContent = message;
+      document.getElementById('messageWrapper').appendChild(p);
+      return true;
+    }
+
+    const renderPrivateMessage = (message) => {
+      const p = document.createElement('p')
+      p.setAttribute('data-testid', 'message');
+      p.setAttribute('class', 'private-message');
+      p.textContent = message;
+      document.getElementById('messageWrapper').appendChild(p);
+      return true;
+    }
+
+    const publicButton = document.getElementById('public-chat-btn');
+    publicButton.onclick = () => {
+      directMessage = '';
+      const privateMessages = document.getElementsByClassName('private-message');
+      const privateMessagesArray = [...privateMessages]
+      privateMessagesArray.forEach((message) => document.getElementById('messageWrapper').removeChild(message))
+    }
+
+    const webchat = document.getElementById('webchat');
+    webchat.onsubmit = (event) => {
+      event.preventDefault();
+
+      const chatMessage = document.getElementById('message').value;
+      if(directMessage != '') {
+        socket.emit('privateMessage', { chatMessage, directMessage })
+        document.getElementById('message').value = '';
+        return null;
+      };
+      
+      socket.emit('message', { chatMessage });
+      
+      document.getElementById('message').value = '';
+      return null;
+    }
+
+    const usernameUpdate = document.getElementById('usernameUpdate');
+    usernameUpdate.onsubmit = (event) => {
+      event.preventDefault();
+
+      const newUsername = document.getElementById('username').value;
+      const usernameObject = { newUsername, id: socket.id };
+
+      socket.emit('usernameUpdate', usernameObject);
+      return true;
+    }
+  </script>
+</body>
+
+</html>
