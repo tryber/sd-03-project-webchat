@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Chat </title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://chancejs.com/chance.min.js"></script>
+</head>
+<body>
+    <label for="nickname_change"></label>
+    <input type="text" name="nickname_change" id="changeNickname" data-testid="nickname-box"> </input>
+    <button id="mudarApelido" data-testid="nickname-save">Mudar apelido </button>
+    <input type="text" id="messageInput" data-testid="message-box"> </input>
+    <button id="enviarMensagem" data-testid="send-button">enviar mensagem</button>
+    <ul id="messageList">
+    </ul>
+    <ul id="OnlineClients">
+    </ul>
+    <script >
+        const messageInput = document.getElementById('messageInput');
+        const buttonMessage = document.getElementById('enviarMensagem');
+        const nickameChange = document.getElementById('changeNickname');
+        const buttonNicknameChange = document.getElementById('mudarApelido')
+        const listContainer = document.getElementById('messageList');
+        const listClient = document.getElementById('OnlineClients');
+
+        
+
+        const nickname = chance.name();
+        const client = io();
+     window.onload = () => {
+        client.emit('connectedUser', nickname)
+     }
+        buttonMessage.addEventListener('click',() => {
+            if (messageInput.value === '') {
+                alert('mensagem não pode ser vazia');
+            }
+            const messageObject = {chatMessage: messageInput.value, nickname}
+            client.emit('message', messageObject);
+        });
+        buttonNicknameChange.addEventListener('click',() => {
+            const newNickname = nickameChange.value;
+            if (newNickname === '') {
+                alert('Novo Apelido não pode ser vazio');
+            } else {
+               client.emit('changeNicknanme', newNickname);
+            }
+        })
+        client.on('ClientsOnline', (clients) => {
+          document.getElementById("OnlineClients").innerHTML = "";
+          clients.forEach(client => {
+        const ClientList = document.createElement('li');
+        ClientList.setAttribute('data-testid','online-user');
+        ClientList.innerHTML = client.nickname;       
+        listClient.appendChild(ClientList);
+        // }))
+        })
+    });
+
+        client.on('history', (allMessages) =>  
+        allMessages
+        //.slice().reverse()
+        .forEach(message => {
+        const MessageList = document.createElement('li');
+        MessageList.setAttribute('data-testid','message');
+        MessageList.innerHTML = `${message.nickname} ${message.chatMessage} ${message.datastamps}`;       
+        listContainer.appendChild(MessageList);
+        }))
+
+        client.on('message', (message) => {       
+            const MessageList = document.createElement('li');
+            messageList.setAttribute('data-testid','message');
+            MessageList.innerHTML = message;
+            listContainer.appendChild(MessageList);
+        })
+        
+    </script>
+</body>
+</html>
