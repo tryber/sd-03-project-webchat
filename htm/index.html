@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SlackWebChat</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+      const socket = io(); // Executa uma conexão com localhost:3000
+      let nickname = 'Anonnnnymous';
+      let oldname = '';
+      let userlist = [];
+      let chatMessage = '';
+
+      const appendMsg = (msg, isChatMsg) => {
+        $('.messages')
+          .append(
+            $(isChatMsg
+            ? '<li data-testid="message">'
+            : '<li class="chat-event">')
+            .text(msg));
+      }
+
+      const manageUserList = () => {
+        $('.user-list').empty();
+          userlist.map((u) => 
+            $('.user-list').append($('<li data-testid="online-user">').text(u.nickname)));
+      }
+      
+      // O mesmo que document.ready
+      $(() => {
+        // ----- Eventos para enviar pacotes ----- \\
+        // Alteração do nickname
+        $('#nickname-save').click(() => {
+          oldname = nickname;
+          nickname = $('#nickname-box').val();
+          socket.emit('userRename', { oldname, nickname, userlist });
+          $('.nickname').text(nickname);
+          $('#messageInput').val('');
+        });
+        
+        // Envio da mensagem
+        $('#send-button').click((e) => {
+          chatMessage = $('#messageInput').val();
+          socket.emit('message', { nickname, chatMessage });
+          $('#messageInput').val('');
+        });
+        
+        // ----- Eventos de pacotes recebidos ----- \\
+        // Carregamento das mensagens do banco
+        socket.on('loadHistory', (messages) => {
+          messages.map(({
+            nickname,
+            chatMessage,
+            currTime
+          }) => appendMsg(`(${currTime}) - ${nickname}: ${chatMessage}`, true));
+        });
+
+        socket.on('syncOnlineUsers', (users) => {
+          userlist = users;
+          manageUserList();
+        });
+
+        // Notificação de que usuário ingressou na sala
+        socket.on('newUserMsg', (nickname, list) => {
+          appendMsg(`${nickname} ingressou na sala`);
+          manageUserList();
+        });
+        
+        // Notificação de usuário que renomeou o nick
+        socket.on('userRename', ({oldname, nickname}) => {
+          appendMsg(`${oldname} alterou seu nick para ${nickname}`);
+        });
+        
+        // Atualização de lista de usuários
+        socket.on('listsync', (newList) => {
+          userlist = newList;
+          manageUserList(newList);
+        });
+        
+        // Recebimento do nome randômico
+        socket.on('syncNewNick', (newNick) => {
+          nickname = newNick;
+          $('.nickname').text(nickname);
+        });
+        
+        // Recebimento de mensagem padrão
+        socket.on('message', (string) => {
+          appendMsg(string, true);
+        })
+      });
+
+    </script>
+  </head>
+  <body>
+    <div class="messages">
+      <h2>Mensagens</h2>
+    </div>
+    <div class="userPanel">
+      <h2>Usuários conectados</h2>
+      <ul class="user-list"></ul>
+      <div class="nickname-form">
+        <h3>Você está conectado como 
+          <span class="nickname">anonymous</span>.
+        </h3>
+        <input id="nickname-box" data-testid="nickname-box" />
+        <button id="nickname-save" data-testid="nickname-save">
+          Alterar nick
+        </button>
+      </div>
+    </div>
+    <div class="message-box">
+      <input
+        id="messageInput"
+        autocomplete="off"
+        data-testid="message-box"
+      />
+      <button
+        type="submit"
+        id="send-button"
+        data-testid="send-button"
+      >
+        Enviar
+      </button>
+    </div class="message-box">
+  </body>
+</html>
