@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO - trybe</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <label for="nickname">Nickname</label>
+    <input data-testid="nickname-box" id="nickname" type="text" />
+    <button type="button" data-testid="nickname-save" id="savenick">Conectar</button>
+    <ul id="msgList"></ul>
+    <div class="users">
+      <ul id="onlineUsers"></ul>
+    </div>
+    <form>
+      <input data-testid="message-box" id="msgInput" autocomplete="off" />
+      <button data-testid="send-button" type="button" id="btn-send">Send</button>
+    </form>
+    <script>
+      // Variáveis e elementos da página
+      const socket = io();
+      const msgList = document.getElementById('msgList');
+      const msgInput =  document.getElementById('msgInput');
+      const nickInput = document.getElementById('nickname');
+      const btnSend = document.getElementById('btn-send');
+      const btnConectar = document.getElementById('savenick');
+      const usersList = document.getElementById('onlineUsers');
+
+      // Função disparada quando é carregado a página para receber o hist de msgs
+      window.onload = () => {socket.emit('getHistory')};
+
+      // Pega o historico e monta a página.
+      socket.on('historyMsgs', (msgs) => {
+        msgs.forEach((msg) => {
+          let li = document.createElement('li');
+          li.setAttribute('data-testid','message');
+          li.innerText = `${msg.nick}  ${msg.data} ${msg.msg}`;
+          msgList.appendChild(li)
+        });
+      });
+
+      // Função ao clicar em enviar msg
+      btnSend.addEventListener('click', (e) => {
+        e.preventDefault();
+        const msg = { chatMessage: msgInput.value, nickname: nickInput.value }; 
+        socket.emit('message', msg);
+        msgInput.value = '';
+        return;
+      });
+
+      // Função ao clicar no botão conectar
+      btnConectar.addEventListener('click', (e) => {
+        e.preventDefault();
+        socket.emit('confirmConnect', nickInput.value);
+        return;
+      });
+
+      socket.on('confirmConnect', (nick) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid','online-user');
+        li.setAttribute('id', nick);
+        li.innerText = nick;
+        usersList.appendChild(li);
+      });
+
+      socket.on('message', (msg) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-testid','message');
+        li.innerText = msg;
+        msgList.appendChild(li);
+      });
+    </script>
+  </body>
+</html>
