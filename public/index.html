@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Web Chat</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src='http://localhost:3000/socket.io/socket.io.js'></script>
+</head>
+
+<body>
+  <form id="chat">
+    <input type=text data-testid="nickname-box" name="usuario" placeholder="Digite seu nome" />
+    <button type="submit" id="saveName" data-testid="nickname-save">Salvar nome</button>
+    <input data-testid="message-box" id="idMessage" name="mensagens" placeholder="Digite sua mensagem" />
+    <button type="submit" data-testid="send-button" id="send-buttons">Enviar</button>
+    <div id="message"></div>
+    <ul id="conectado"></ul>
+  </form>
+
+  <script>
+    let socket = io('http://localhost:3000');
+
+    function renderConect(onlineuser) {
+      $('#conectado').append('<li data-testid="online-user">'
+        + onlineuser +
+        '</li>');
+    };
+
+    function renderizarMensagem(message) {
+      $('#message').append('<div data-testid="message" classe="message">'
+        + message +
+        '<div/>');
+    };
+
+    socket.on('online', renderConect);
+    socket.on('message', renderizarMensagem);
+    socket.on('historico', renderizarMensagem);
+
+    $('#chat').submit(function (e) {
+      e.preventDefault();
+      let nickname = $('input[name=usuario]').val();
+      let chatMessage = $('input[name=mensagens]').val();
+
+      socket.emit('message', { chatMessage, nickname });
+
+      const mensagensId = document.getElementById('idMessage');
+      mensagensId.value = '';
+    });
+
+  </script>
+</body>
+
+</html>
