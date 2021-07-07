@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>WebChat</title>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src='socket.io/socket.io.js'></script>
+</head>
+
+<body>
+  <form id="formChat">
+    <input data-testid="nickname-box" name="inputName" id="changeNick" placeholder="Digite seu Nickname" />
+    <button data-testid="nickname-save" id="nickButton" type="submit">Salvar Nick</button> <br />
+    <input data-testid="message-box" name="inputMessage" id="inputMsg" placeholder="Digite uma Mensagem" />
+    <button data-testid="send-button" id="messageButton">Enviar</button>
+  </form>
+  <div id="chatBox"></div>
+  <ul id="userBox"></ul>
+
+  <script>
+    const socket = io();
+
+    const changeNick = document.getElementById('changeNick')
+    const saveName = document.getElementById('nickButton');
+    const inputMessage = document.getElementById('inputMsg');
+    const sendButton = document.getElementById('messageButton');
+    const usersOn = document.getElementById('userBox');
+    const chat = document.getElementById('chatBox');
+
+    const renderChat = (payload) => {
+      const p = document.createElement('div');
+      p.setAttribute('data-testid', 'message');
+      p.innerHTML = `${payload}`;
+      chat.appendChild(p);
+      inputMessage.value = '';
+    }
+
+    const onlineUser = (nick) => {
+      const li = document.createElement('li');
+      li.setAttribute('data-testid', 'online-user');
+      li.innerHTML = `${nick}`;
+      usersOn.appendChild(li);
+    }
+
+    let newNick;
+    let message;
+
+    saveName.addEventListener('click', (e) => {
+      e.preventDefault();
+      newNick = changeNick.value
+
+      socket.emit('nickname', newNick);
+    });
+
+    sendButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      message = inputMessage.value;
+
+      if (message.length) {
+        const objectMsg = {
+          nickname: changeNick.value,
+          chatMessage: inputMessage.value,
+        };
+
+        socket.emit('message', objectMsg);
+        console.log(objectMsg);
+      }
+    });
+
+    socket.on('history', renderChat);
+    socket.on('nickname', onlineUser);
+    socket.on('message', renderChat);
+  </script>
+</body>
+
+</html>
