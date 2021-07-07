@@ -1,0 +1,94 @@
+#app-content {
+  border: 1px solid black;
+  border-radius: 0.8rem;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  padding: 0.8rem;
+}
+
+#header {
+  grid-column: 1 / 5;
+  justify-self: center;
+}
+
+#user-content {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1;
+  justify-self: center;
+}
+
+#user-photo {
+  border-radius: 50%;
+  background-color: black;
+  width: 6rem;
+  height: 6rem;
+  margin: 0.8rem auto;
+}
+
+#nickname-box {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding: 0.8rem 0.5rem;
+  outline: none;
+}
+
+#nickname-save {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.8rem 0.5rem;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#chat-content {
+  grid-column: 2 / 4;
+}
+
+#ul-messages {
+  padding: 0;
+}
+
+#message-box {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  outline: none;
+  padding: 0.8rem 0.5rem;
+  width: 90%;
+}
+
+#send-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.8rem 0.5rem;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.message {
+  list-style-type: none;
+}
+
+.joined {
+  text-align: center;
+}
+
+#online-content {
+  grid-column: 4 / 5;
+  text-align: center;
+}
+
+#ul-online {
+  padding: 0;
+}
+
+.online-user {
+  list-style-type: none;
+}

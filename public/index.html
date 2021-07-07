@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zap Efron</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" media="screen" />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <div id="app-content">
+      <div id="header">
+        <h1>Zap Efron</h1>
+      </div>
+      <div id="user-content">
+        <div id="user-photo"></div>
+        <div id="nickname"></div>
+        <form id="form-nickname">
+          <input
+            id="nickname-box"
+            placeholder="Me chame de..."
+            data-testid="nickname-box"
+          />
+          <button id="nickname-save" data-testid="nickname-save">Salvar</button>
+        </form>
+      </div>
+      <div id="chat-content">
+        <div>
+          <ul id="ul-messages"></ul>
+        </div>
+        <div>
+          <form id="form-message">
+            <input
+              id="message-box"
+              placeholder="Digite uma mensagem..."
+              data-testid="message-box"
+            />
+            <button type="submit" id="send-button" data-testid="send-button">
+              Enviar
+            </button>
+          </form>
+        </div>
+      </div>
+      <div id="online-content">
+        <p>Usuários online:</p>
+        <ul id="ul-online"></ul>
+      </div>
+    </div>
+  </body>
+  <script defer>
+    const socket = io('http://localhost:3000');
+
+    const formMessage = document.getElementById('form-message');
+    const messageBox = document.getElementById('message-box');
+    const formNickname = document.getElementById('form-nickname');
+    const nicknameBox = document.getElementById('nickname-box');
+    const userNickname = document.getElementById('nickname');
+    const ulOnlineUser = document.getElementById('ul-online');
+
+    const selfJoin = ({ nickname }) => {
+      const liMsg = document.createElement('li');
+
+      userNickname.textContent = nickname;
+
+      liMsg.textContent = `Você entrou no chat`;
+      liMsg.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(liMsg);
+    };
+
+    const joinedChat = ({ nickname }) => {
+      const liMsg = document.createElement('li');
+
+      liMsg.textContent = `${nickname} entrou no chat`;
+      liMsg.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(liMsg);
+    };
+
+    const sendMessage = (event) => {
+      event.preventDefault();
+
+      const chatMessage = messageBox.value;
+      const nickname = userNickname.textContent;
+
+      messageBox.value = '';
+
+      socket.emit('message', { chatMessage, nickname });
+    };
+
+    const receivedMessage = (message) => {
+      const liMsg = document.createElement('li');
+
+      liMsg.textContent = message;
+      liMsg.setAttribute('data-testid', 'message');
+      liMsg.classList = 'message';
+
+      document.getElementById('ul-messages').appendChild(liMsg);
+    };
+
+    const sendNameUpdate = (event) => {
+      event.preventDefault();
+
+      const nickname = userNickname.textContent;
+      const newName = nicknameBox.value;
+
+      nicknameBox.value = '';
+
+      socket.emit('change-name', { nickname, newName });
+    };
+
+    const updateName = ({ newName }) => {
+      userNickname.textContent = newName;
+    };
+
+    const someoneUpdatedName = ({ nickname, newName }) => {
+      const liMsg = document.createElement('li');
+
+      liMsg.textContent = `${nickname} agora é ${newName}`;
+      liMsg.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(liMsg);
+    };
+
+    const setHistory = (history) => {
+      history ? history.map(receivedMessage) : null;
+    };
+
+    const setOnlineUsers = (onlineUsers) => {
+      ulOnlineUser.innerHTML = '';
+
+      onlineUsers.map(({ nickname }) => {
+        const liOnline = document.createElement('li');
+
+        liOnline.textContent = nickname;
+        liOnline.classList = 'online-user';
+        liOnline.setAttribute('data-testid', 'online-user');
+
+        ulOnlineUser.appendChild(liOnline);
+      });
+    };
+
+    const leftChat = ({ nickname }) => {
+      const liMsg = document.createElement('li');
+
+      liMsg.textContent = `${nickname} deixou o chat`;
+      liMsg.classList = 'joined message';
+
+      document.getElementById('ul-messages').appendChild(liMsg);
+    };
+
+    const getRandomicNickname = () =>
+      Math.random().toString(36).substring(2, 10);
+
+    formMessage.addEventListener('submit', (e) => sendMessage(e));
+
+    formNickname.addEventListener('submit', (e) => sendNameUpdate(e));
+
+    window.onload = () => {
+      const nickname = getRandomicNickname();
+
+      socket.emit('history');
+      socket.emit('self-join', { nickname });
+    }
+
+    socket.on('self-join', (data) => selfJoin(data));
+
+    socket.on('joined', (data) => joinedChat(data));
+
+    socket.on('message', (data) => receivedMessage(data));
+
+    socket.on('change-name', (data) => updateName(data));
+
+    socket.on('someone-change-name', (data) => someoneUpdatedName(data));
+
+    socket.on('history', (data) => setHistory(data));
+
+    socket.on('online', (data) => setOnlineUsers(data));
+
+    socket.on('left-chat', (data) => leftChat(data));
+  </script>
+</html>
